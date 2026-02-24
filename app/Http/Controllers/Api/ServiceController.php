@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Service;
+
+class ServiceController extends Controller
+{
+    public function getServices()
+    {
+        $services = Service::select('id', 'name')->get();
+        // if($services->isEmpty()) {
+        if(empty($services)) {
+            return response()->json([
+                'code' => 404,
+                'status' => false,
+                'message' => 'No services found'
+            ], 404);
+        } else{
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'Service List retrieved successfully',
+            'body' => $services
+          ]);
+
+        }
+    }
+}

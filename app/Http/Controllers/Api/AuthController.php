@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Address;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\SendOtpRequest;
@@ -16,8 +17,7 @@ class AuthController extends Controller
     // send opt in mob.and create new user
 
     public function sendOtp(SendOtpRequest $request)
-    {
-  
+    {          
         $otp = rand(100000, 999999);
 
         $user = User::updateOrCreate(
@@ -91,6 +91,13 @@ class AuthController extends Controller
     public function userDetails(Request $request)
     {
          $user = $request->user(); 
+         if(!$user) {
+            return response()->json([
+                'code' => 404,
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        } else {
          return response()->json([
             'code'=> 200,
             'status'=> true, 
@@ -98,6 +105,78 @@ class AuthController extends Controller
             'body' =>  $user
           ]);
 
+       }
     }
+
+    //  save user address
+    public function saveAddress(Request $request)
+    {
+        $user = $request->user();
+        if(!$user) {
+            return response()->json([
+                'code' => 404,
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        } else {    
+             $validated = $request->validate([
+                'address' => 'required|string|max:255',
+                // 'flatNo' => 'required|string|max:255',
+                // 'Landmark' => 'required|string|max:255',
+                // 'saveAs' => 'required|string|max:255',
+                // 'Pets' => 'required|string|max:255',
+                // 'addressLat' => 'required|string|max:255',
+                // 'addressLong' => 'required|string|max:255'
+                 ]);
+                $address = Address::create([
+                        'user_id' => $user->id,
+                        'address' => $request['address'],
+                        'flat_no' => $request['flatNo'],
+                        'landmark'=> $request['Landmark'],
+                        'save_as'=> $request['saveAs'],
+                        'pets'=> $request['Pets'],
+                        'address_lat'=> $request['addressLat'],
+                        'address_long'=> $request['addressLong'],
+                       
+                    ]);
+                if(!$address) {
+                    return response()->json([
+                        'code' => 500,
+                        'status' => false,
+                        'message' => 'Failed to save address'
+                    ], 500);
+                } else {
+                return response()->json([
+                    'code'=> 200,
+                    'status'=> true, 
+                    'message'=>'Address saved successfully', 
+                    'body' =>  $address
+                ]);
+          }
+       
+       }
+    }
+
+    // address list
+    public function addressList(Request $request)
+    {
+        $user = $request->user();
+        if(!$user) {
+            return response()->json([
+                'code' => 404,
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        } else {
+            $addresses = $user->addresses()->get();
+            return response()->json([
+                'code'=> 200,
+                'status'=> true, 
+                'message'=>'Address list retrieved successfully', 
+                'body' =>  $addresses
+            ]);  
+        }   
+    }                                                                                                                                                                                                                                        
+
 
 }

@@ -12,7 +12,7 @@ class SendOtpRequest extends FormRequest
     public function authorize(): bool
     {
         // return false;
-        return true;
+         return true;
 
     }
 
@@ -26,7 +26,8 @@ class SendOtpRequest extends FormRequest
         return [
           'phone' => [
                 'required',
-                'regex:/^[6-9]\d{9}$/'
+                'digits:10'
+                // 'regex:/^[6-9]\d{9}$/'
              ]
         ];
     }
@@ -36,7 +37,7 @@ class SendOtpRequest extends FormRequest
     {
         return [
             'phone.required' => 'Phone number is required',
-            'phone.regex' => 'Invalid phone number'
+            'phone.digits' => 'Phone number must be 10 digits'
         ];
     }
 }
