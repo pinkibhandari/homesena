@@ -19,7 +19,6 @@ class AuthController extends Controller
     public function sendOtp(SendOtpRequest $request)
     {          
         $otp = rand(100000, 999999);
-
         $user = User::updateOrCreate(
             ['phone' => $request->phone],
             [   'device_id'=>$request->deviceId,
@@ -29,14 +28,22 @@ class AuthController extends Controller
             ]
          );
 
-        return response()->json([
+       if(!$user) {
+            return response()->json([
+                'code' => 500,
+                'status' => false,
+                'message' => 'Failed to send OTP'
+            ], 500);
+        } else {    
+         return response()->json([
             'code'=> 200, 
             'status' => true,
             'message' => 'Login successfully',
             // 'message' => 'OTP sent successfully',
             'body'=> $user,
             'otp' => $otp 
-        ]);
+          ]);
+        }
     }
 
    
@@ -69,6 +76,7 @@ class AuthController extends Controller
         return response()->json([
             'code'=> 200,
             'status' => true,
+            'token_type' => 'Bearer',
             'token' => $token,
             'body' => $user,
             'message' => 'Otp verify successfully',         
@@ -108,7 +116,7 @@ class AuthController extends Controller
        }
     }
 
-    //  save user address
+    //  save auth user address
     public function saveAddress(Request $request)
     {
         $user = $request->user();
@@ -136,8 +144,7 @@ class AuthController extends Controller
                         'save_as'=> $request['saveAs'],
                         'pets'=> $request['Pets'],
                         'address_lat'=> $request['addressLat'],
-                        'address_long'=> $request['addressLong'],
-                       
+                        'address_long'=> $request['addressLong'],                    
                     ]);
                 if(!$address) {
                     return response()->json([
@@ -152,12 +159,12 @@ class AuthController extends Controller
                     'message'=>'Address saved successfully', 
                     'body' =>  $address
                 ]);
-          }
+             }
        
-       }
-    }
+         }
+      }
 
-    // address list
+    // auth all address list
     public function addressList(Request $request)
     {
         $user = $request->user();

@@ -11,8 +11,8 @@ class ServiceController extends Controller
     public function getServices()
     {
         $services = Service::select('id', 'name')->get();
-        // if($services->isEmpty()) {
-        if(empty($services)) {
+         if($services->isEmpty()) {
+        // if(empty($services)) {
             return response()->json([
                 'code' => 404,
                 'status' => false,

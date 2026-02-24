@@ -26,8 +26,8 @@ class SendOtpRequest extends FormRequest
         return [
           'phone' => [
                 'required',
-                'digits:10'
-                // 'regex:/^[6-9]\d{9}$/'
+                // 'digits:10'
+                 'regex:/^[6-9]\d{9}$/'
              ]
         ];
     }
@@ -37,7 +37,7 @@ class SendOtpRequest extends FormRequest
     {
         return [
             'phone.required' => 'Phone number is required',
-            'phone.digits' => 'Phone number must be 10 digits'
+            'phone.regex' => 'Phone number must be a valid 10-digit number starting with 6, 7, 8, or 9'
         ];
     }
 }
