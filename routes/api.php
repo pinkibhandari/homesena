@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\ReviewController;
+
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
 Route::post('login', [AuthController::class, 'sendOtp']);
@@ -34,8 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/location/update', [LocationController::class, 'updateLocation']); // user update location
     Route::post('/location/expert-update', [LocationController::class, 'expertUpdateLocation']); // expert update location
     Route::get('/location/expert-tracking/{slotId}', [LocationController::class, 'expertTracking']);
+    // rating and review
+    Route::post('/rating/slot/{id}', [ReviewController::class, 'submitReview']);
+    Route::get('/rating/user', [ReviewController::class, 'getUserGivenReviews']);  
    
-
-   
-
 });
+   

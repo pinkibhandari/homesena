@@ -75,16 +75,6 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
-    // public function services()
-    // {
-    //     return $this->belongsToMany(Service::class);
-    // }
-
-    // public function services()
-    // {
-    //     return $this->belongsToMany(Service::class,'service_experts','expert_id');
-    // }
-
     public function services() 
     {
         return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id');
@@ -93,6 +83,16 @@ class User extends Authenticatable
     public function expertSlots()
     {
         return $this->hasMany(BookingSlot::class,'expert_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class,'expert_id');
+    }
+
+    public function ratingStat()
+    {
+        return $this->hasOne(ExpertRatingStat::class, 'expert_id');
     }
 
     // scope for available experts
