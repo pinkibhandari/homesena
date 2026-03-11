@@ -27,7 +27,7 @@ class AuthController extends Controller
                 'otp_expires_at' => Carbon::now()->addMinutes(60)
             ]
          );
-
+        
        if(!$user) {
             return response()->json([
                 'code' => 500,
@@ -40,9 +40,9 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Login successfully',
             // 'message' => 'OTP sent successfully',
-            'body'=> $user,
-            'otp' => $otp 
-          ]);
+            'data'=> array_merge($user->toArray(), ['otp' => $otp]),
+            // 'otp' => $otp 
+          ],200);
         }
     }
 
@@ -77,11 +77,11 @@ class AuthController extends Controller
             'code'=> 200,
             'status' => true,
             'token_type' => 'Bearer',
-            'token' => $token,
-            'body' => $user,
+            // 'token' => $token,
+            'data'=> array_merge($user->toArray(), ['token' => $token]),
             'message' => 'Otp verify successfully',         
             // 'message' => 'Login successful'
-        ]);
+        ],200);
     }
 
 
@@ -110,7 +110,7 @@ class AuthController extends Controller
             'code'=> 200,
             'status'=> true, 
             'message'=>'successfully', 
-            'body' =>  $user
+            'data' =>  $user
           ]);
 
        }
@@ -157,7 +157,7 @@ class AuthController extends Controller
                     'code'=> 200,
                     'status'=> true, 
                     'message'=>'Address saved successfully', 
-                    'body' =>  $address
+                    'data' =>  $address
                 ]);
              }
        
@@ -180,7 +180,7 @@ class AuthController extends Controller
                 'code'=> 200,
                 'status'=> true, 
                 'message'=>'Address list retrieved successfully', 
-                'body' =>  $addresses
+                'data' =>  $addresses
             ]);  
         }   
     }                                                                                                                                                                                                                                        

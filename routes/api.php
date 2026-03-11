@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\ReviewController;
-
+use App\Http\Controllers\Api\PaymentController;
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
 Route::post('login', [AuthController::class, 'sendOtp']);
@@ -39,6 +39,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // rating and review
     Route::post('/rating/slot/{id}', [ReviewController::class, 'submitReview']);
     Route::get('/rating/user', [ReviewController::class, 'getUserGivenReviews']);  
+    //payment route
+    Route::get('/payment/methods',[PaymentController::class, 'paymentMethods']);
+    Route::post('/payment/pay',[PaymentController::class, 'initiatePayment']);
+    Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
+    
+    
+
    
 });
    

@@ -24,7 +24,7 @@ class ServiceController extends Controller
             'code' => 200,
             'status' => true,
             'message' => 'Service List retrieved successfully',
-            'body' => $services
+            'data' => $services
           ]);
 
         }
@@ -45,7 +45,7 @@ class ServiceController extends Controller
                 'code' => 200,
                 'status' => true,
                 'message' => 'Service retrieved successfully',
-                'body' => $service
+                'data' => $service
             ]);
         }
     }   

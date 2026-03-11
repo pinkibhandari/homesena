@@ -34,7 +34,7 @@ class BookingController extends Controller
                     'code'=> 200,
                     'status'=> true, 
                     'message'=>'Booking created successfully', 
-                    'body' =>  $booking
+                    'data' =>  $booking
                 ]);
             }
         }
@@ -59,7 +59,7 @@ class BookingController extends Controller
                 'code' => 200,
                 'status' => true,
                 'message' => 'Booking retrieved successfully',
-                'body' => $booking
+                'data' => $booking
             ]);
         }
     }
@@ -95,7 +95,7 @@ class BookingController extends Controller
                 'code' => 200,
                 'status' => true,
                 'message' => 'User bookings retrieved successfully',
-                //  'body' => $bookings, 
+                //  'data' => $bookings, 
                 'data' => $bookings->items(),
                 'pagination' => [
                     'page' => $bookings->currentPage(),
@@ -250,7 +250,7 @@ class BookingController extends Controller
                         'code' => 200,
                         'status' => true,
                         'message' => 'OTP confirmed successfully',
-                        //  'body' => $booking->only(['id','status','check_in_time'])
+                        //  'data' => $booking->only(['id','status','check_in_time'])
                          'data' => [
                                     'bookingId' => $booking->id,
                                     'checkInTime' => $booking->check_in_time,
