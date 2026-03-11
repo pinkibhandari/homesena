@@ -15,6 +15,7 @@ Route::post('verifyotp', [AuthController::class, 'verifyOtp']);
 // service route
 Route::get('services', [ServiceController::class, 'getServices']);
 Route::get('services/{id}', [ServiceController::class, 'getServiceById']);
+Route::post('service/create',[ServiceController::class, 'create']);
 // athenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);

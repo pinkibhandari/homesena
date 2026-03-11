@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ServiceDuration extends Model
+class ServiceVariant extends Model
 {
     protected $fillable = [
         'service_id',
         'duration_minutes',
-        'price',    
+        'base_price',  
+        'tax_percentage',
         'is_active',
     ];
 
