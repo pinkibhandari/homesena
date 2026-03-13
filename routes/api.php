@@ -2,14 +2,16 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ServiceController;
-use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\LocationController;
-use App\Http\Controllers\Api\ReviewController;
-use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\User\UserController;
+use App\Http\Controllers\Api\User\ServiceController;
+use App\Http\Controllers\Api\User\BookingController;
+use App\Http\Controllers\Api\User\LocationController;
+use App\Http\Controllers\Api\User\ReviewController;
+use App\Http\Controllers\Api\User\PaymentController;
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
+
 Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verifyotp', [AuthController::class, 'verifyOtp']);
 // service route
@@ -20,9 +22,9 @@ Route::post('service/create',[ServiceController::class, 'create']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     // user details and address
-    Route::get('user-details', [AuthController::class, 'userDetails']);
-    Route::post('save-address', [AuthController::class, 'saveAddress']);
-    Route::get('address-list', [AuthController::class, 'addressList']);
+    Route::get('user-details', [UserController::class, 'userDetails']);
+    Route::post('save-address', [UserController::class, 'saveAddress']);
+    Route::get('address-list', [UserController::class, 'addressList']);
     // boonking route
     Route::post('/booking/create', [BookingController::class, 'store']);
     Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
@@ -44,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payment/methods',[PaymentController::class, 'paymentMethods']);
     Route::post('/payment/pay',[PaymentController::class, 'initiatePayment']);
     Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
+
+    /*-------------  expert api ---------------------------------------**/
     
     
 

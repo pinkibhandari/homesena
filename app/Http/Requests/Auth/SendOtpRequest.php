@@ -22,13 +22,17 @@ class SendOtpRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
+    { 
         return [
           'phone' => [
                 'required',
                 // 'digits:10'
                  'regex:/^[6-9]\d{9}$/'
-             ]
+             ],
+           'role' => [
+               'required',
+               'in:user,expert,admin'
+             ],
         ];
     }
 
@@ -37,7 +41,9 @@ class SendOtpRequest extends FormRequest
     {
         return [
             'phone.required' => 'Phone number is required',
-            'phone.regex' => 'Phone number must be a valid 10-digit number starting with 6, 7, 8, or 9'
+            'phone.regex' => 'Phone number must be a valid 10-digit number starting with 6, 7, 8, or 9',
+             'role.required' => 'Role is required',
+             'role.in' => 'Role must be user, expert, or admin'
         ];
     }
 }
