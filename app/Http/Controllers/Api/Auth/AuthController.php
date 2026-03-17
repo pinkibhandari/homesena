@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserDevice;
 use App\Models\ExpertDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -21,14 +22,21 @@ class AuthController extends Controller
         $otp = rand(100000, 999999);
         $user = User::updateOrCreate(
             ['phone' => $request->phone],
-            [ 'device_id'=>$request->deviceId,
-              'device_type'=>$request->deviceType,
+            [ 
               'otp' => Hash::make($otp),
               'otp_expires_at' => Carbon::now()->addMinutes(60),
               'role'=> $request->role ?? 'user',
             ]
-         );
+           );
+          $userDevice = UserDevice::updateOrCreate(
+            ['device_id' => $request->deviceId],
+            [
+                'user_id' => $user->id,
+                'device_type' => $request->deviceType,
+            ]
+        );
         
+       $all = collect($user)->merge($userDevice);  
        if(!$user) {
             return response()->json([
                 'code' => 500,
@@ -39,9 +47,8 @@ class AuthController extends Controller
          return response()->json([
             'code'=> 200, 
             'status' => true,
-            'message' => 'Login successfully',
-            // 'message' => 'OTP sent successfully',
-            'data'=> array_merge($user->toArray(), ['otp' => $otp]),
+             'message' => 'OTP sent successfully',
+             'data'=> array_merge($all->toArray(), ['otp' => $otp]),
             // 'otp' => $otp 
           ],200);
         }
@@ -52,7 +59,6 @@ class AuthController extends Controller
     public function verifyOtp(VerifyOtpRequest $request)
       {
          $user = User::where('phone', $request->phone)->first();
-
          if (!$user || $user->otp_expires_at < now()) {
             return response()->json([
                 'status' => false,
@@ -89,10 +95,8 @@ class AuthController extends Controller
             'code'=> 200,
             'status' => true,
             'token_type' => 'Bearer',
-            // 'token' => $token,
             'data'=> $data,
             'message' => 'Otp verify successfully',         
-            // 'message' => 'Login successful'
         ],200);
     }
 

@@ -15,8 +15,7 @@ class Address extends Model
         'pets',
         'address_lat',
         'address_long',
-        'accuracy',
-        'device_type',     
+        'accuracy',   
     ];
 
     public function user()

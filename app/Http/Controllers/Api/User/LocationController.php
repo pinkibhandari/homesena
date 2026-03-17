@@ -7,23 +7,24 @@ use Illuminate\Http\Request;
 use App\Services\ExpertService;
 use App\Models\BookingSlot;
 use App\Models\Address;
-use App\Models\User;    
+use App\Models\User;
+use App\Models\UserDevice;
+use App\Models\ExpertDetail;
 use App\Http\Resources\ExpertTrackingResource;
 
 
 class LocationController extends Controller
-{   
+{
     protected $expertService;
     public function __construct(
         ExpertService $expertService,
-      )
-      {
+    ) {
         $this->expertService = $expertService;
-      }
+    }
     public function nearbyServices(Request $request)
     {
-          $request->validate([
-            'latitude'  => 'required|numeric',
+        $request->validate([
+            'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
         $experts = $this->expertService->getNearbyExperts($request);
@@ -47,11 +48,12 @@ class LocationController extends Controller
     {
         $request->validate([
             'addressId' => 'required|exists:addresses,id',
-            'latitude'  => 'required|numeric|between:-90,90',
+            'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'accuracy'   => 'nullable|numeric|min:0|max:100',
-            'device_type'=> 'required|in:android,ios',
-         ]);
+            'accuracy' => 'nullable|numeric|min:0|max:100',
+            'device_type' => 'required|in:android,ios',
+            'device_id' => 'required'
+        ]);
 
         // $address = Address::where('id', $request->addressId)
         //         ->where('user_id', auth()->id()) // security check
@@ -60,7 +62,7 @@ class LocationController extends Controller
         $address = Address::where('id', $request->addressId)
             ->when($user->role === 'user', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
-              })
+            })
             ->first();
         if (!$address) {
             return response()->json([
@@ -68,20 +70,27 @@ class LocationController extends Controller
                 'message' => 'Address not found for user',
             ], 404);
         }
-         //  reject poor GPS
+        //  reject poor GPS
         if ($request->accuracy && $request->accuracy > 50) {
             return response()->json([
                 'status' => false,
                 'message' => 'Low GPS accuracy'
-            ],422);
+            ], 422);
         }
 
-          $address->update([
-              'address_lat'  => $request->latitude,
-              'address_long' => $request->longitude,
-              'accuracy'  => $request->accuracy,
-              'device_type' => $request->device_type,
-           ]);
+        $address->update([
+            'address_lat' => $request->latitude,
+            'address_long' => $request->longitude,
+            'accuracy' => $request->accuracy,
+            //   'device_type' => $request->device_type,
+        ]);
+        UserDevice::updateOrCreate(
+            ['device_id' => $request->device_id],
+            [
+                'user_id' => $user->id,
+                'device_type' => $request->device_type,
+            ]
+        );
 
         return response()->json([
             'status' => true,
@@ -96,96 +105,108 @@ class LocationController extends Controller
 
     // expert update location
     public function expertUpdateLocation(Request $request)
-    {       
-         $request->validate([
-            'latitude'  => 'required|numeric|between:-90,90',
+    {
+        $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'accuracy'   => 'nullable|numeric|min:0|max:100',
-            'device_type'=> 'required|in:android,ios',
-         ]);
+            'accuracy' => 'nullable|numeric|min:0|max:100',
+            'device_type' => 'required|in:android,ios',
+            'device_id' => 'required'
+        ]);
         $user = $request->user();
         if (!$user || $user->role !== 'expert') {
             return response()->json([
-                'status' => false,      
+                'status' => false,
                 'message' => 'Unauthorized'
             ], 401);
         }
-         //  reject poor GPS
+        //  reject poor GPS
         if ($request->accuracy && $request->accuracy > 50) {
             return response()->json([
-                'status' => false,          
+                'status' => false,
                 'message' => 'Low GPS accuracy'
-            ],422);
+            ], 422);
         }
+        $expertDetail = ExpertDetail::updateOrCreate(
+            ['user_id' => auth()->id()],
+            [
+                'current_latitude' => $request->latitude,
+                'current_longitude' => $request->longitude,
+                'is_online' => 1,
+                'last_location_update' => now()
+            ]
+        );
 
-        $user->update([
-            'current_latitude'  => $request->latitude,
-            'current_longitude' => $request->longitude,
-            // 'accuracy'  => $request->accuracy,
-            'is_online' => 1,
-            'device_type' => $request->device_type,
-            'last_location_update' => now()
-        ]);
-
+        UserDevice::updateOrCreate(
+            ['device_id' => $request->device_id],
+            [
+                'user_id' => $user->id,
+                'device_type' => $request->device_type,
+                // 'fcm_token' => $request->fcm_token
+            ]
+        );
         return response()->json([
             'status' => true,
             'message' => 'Location updated successfully',
             'data' => [
-                'latitude' => $user->current_latitude,
-                'longitude' => $user->current_longitude,
-                'updated_at' => $user->last_location_update
+                'latitude' => $expertDetail->current_latitude,
+                'longitude' => $expertDetail->current_longitude,
+                'updated_at' => $expertDetail->last_location_update
             ]
         ], 200);
     }
 
 
-    // expert tracking
+    // expert tracking  
     public function expertTracking($slotId)
     {
-        $bookingSlot = BookingSlot::with('booking', 'expert')->find($slotId);
+        $bookingSlot = BookingSlot::with('booking', 'expert.expertDetail')->find($slotId);
         if (!$bookingSlot || $bookingSlot->status !== 'accepted') {
             return response()->json([
                 'success' => false,
                 'message' => 'No accepted expert for this slot'
             ]);
         }
-        $expert = User::where('id', $bookingSlot->expert_id)
-                ->where('role', 'expert')
-                ->where('is_online', 1)
-                ->first();
-
-        if (!$expert) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Expert offline'
-              ]);
-          }
-
+        // $expert = User::where('id', $bookingSlot->expert_id)
+        //             ->where('role', 'expert')
+        //             ->whereHas('expertDetail', function ($q) {
+        //                 $q->where('is_online', 1);
+        //             })
+        //             ->first();
+        $expert = $bookingSlot->expert;
+        if ($expert && $expert->expertDetail && $expert->expertDetail->is_online == 1) {
             $userLat = $bookingSlot->booking->address->address_lat;
             $userLng = $bookingSlot->booking->address->address_long;
-            $expertLat = $expert->current_latitude;
-            $expertLng = $expert->current_longitude;
+            $expertLat = $expert->expertDetail->current_latitude;
+            $expertLng = $expert->expertDetail->current_longitude;
 
-            $distance = $this->calculateDistance($userLat,$userLng,$expertLat,$expertLng);
-            $bookingSlot->distance_km = round($distance,2);
+            $distance = $this->calculateDistance($userLat, $userLng, $expertLat, $expertLng);
+            $bookingSlot->distance_km = round($distance, 2);
             return response()->json([
                 'satus' => true,
                 'message' => 'Expert location retrieved successfully',
                 'data' => new ExpertTrackingResource($bookingSlot)
-            ],200);   
-     }  
-     
-     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
-        {
-            $earthRadius = 6371;
-            $dLat = deg2rad($lat2 - $lat1);
-            $dLon = deg2rad($lon2 - $lon1);
-
-            $a = sin($dLat/2) * sin($dLat/2) +
-                cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-                sin($dLon/2) * sin($dLon/2);
-
-            $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-            return $earthRadius * $c;
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Expert offline'
+            ]);
         }
+
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $earthRadius * $c;
+    }
 }

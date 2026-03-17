@@ -7,11 +7,9 @@ use App\Services\BookingService;
 use App\Services\ExpertSlotService;
 use Illuminate\Http\Request;
 use App\Models\Booking;
-use App\Models\BookingSlot;
 use App\Http\Resources\BookingResource;
 use App\Services\FirebaseService;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+
 
 
 class BookingController extends Controller
@@ -40,12 +38,6 @@ class BookingController extends Controller
     public function accept($slotId)
     {
         return $this->expertService->acceptSlot($slotId);
-
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => 'Slot Accepted',
-        //     'data' => $slot
-        // ],200);
     }
 
     // get booking by id //need to checked
@@ -58,7 +50,6 @@ class BookingController extends Controller
                         ])->find($id);
         if (!$booking) {
             return response()->json([
-                // 'code' => 404,
                 'status' => false,
                 'message' => 'Booking not found'
             ], 200);
@@ -87,7 +78,6 @@ class BookingController extends Controller
 
         if($bookings->isEmpty()) {
             return response()->json([
-                // 'code' => 404,
                 'status' => false,
                 'message' => 'No bookings found for this user'
             ], 200);

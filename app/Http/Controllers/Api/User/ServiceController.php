@@ -49,7 +49,7 @@ class ServiceController extends Controller
         }
     }   
 
-    public function create(Request $request){
+    public function create(Request $request){ // for testing image
           $imagePath = null;
         if ($request->hasFile('image')) {
             $image = $request->file('image');

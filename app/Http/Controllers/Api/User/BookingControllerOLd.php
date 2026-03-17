@@ -14,13 +14,12 @@ class BookingOldController extends Controller
             $otp = rand(100000, 999999);
             $booking = $request->user()->bookings()->create([
                 'service_id' => $request->serviceId,
-                // 'expert_id' => 1, // For simplicity, assigning a default expert. In real scenario, you would assign based on availability.
                 'address_id' => $request->addressId,
                 'scheduled_at' => $request->scheduledAt,
                 'duration_hours' => $request->durationHours,
                 'payment_method' => $request->paymentMethod,
                 'notes' => $request->notes,
-                'total_amount' => 100.00, // For simplicity, assigning a default amount. In real scenario, you would calculate based on service and duration.
+                // 'total_amount' => 100.00, // For simplicity, assigning a default amount. In real scenario, you would calculate based on service and duration.
                 'otp_code' => $otp,
             ]);
         if(!$booking) {

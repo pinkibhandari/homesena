@@ -26,9 +26,9 @@ class ExpertTrackingResource extends JsonResource
                         // 'rating' => $this->expert->rating,
                     ],
                     'location' => [
-                        'latitude' => $this->expert?->current_latitude,
-                        'longitude' => $this->expert?->current_longitude,
-                        'last_updated' => $this->expert?->last_location_update,
+                        'latitude' => $this->expert?->expertDetail?->current_latitude,
+                        'longitude' => $this->expert?->expertDetail?->current_longitude,
+                        'last_updated' => $this->expert?->expertDetail?->last_location_update,
                     ],
                     "distance_km" => $this->distance_km,
                     'estimated_arrival_time' => $this->calculateETA($this->distance_km) ?? 'Calculating...',

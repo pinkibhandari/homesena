@@ -9,37 +9,20 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
-{
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+{  
     use HasApiTokens;
     use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'device_type',
-        'device_id',
+        'name',     
         'email',
-        'email_verified_at',
         'password',
-        'remember_token',
         'phone',
         'otp',
-        'otp_expires_at',
         'role',
-        'is_available',
-        'fcm_token',
-        'current_latitude' ,
-        'current_longitude' ,
-        'is_online',
-        'device_type',
-        'last_location_update' 
-      
-    ];
+        'remember_token',
+        'email_verified_at',
+        'otp_expires_at', 
+      ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -97,7 +80,7 @@ class User extends Authenticatable
 
     public function expertDetail()
     {
-        return $this->hasOne(ExpertDetail::class);
+        return $this->hasOne(ExpertDetail::class, 'user_id');
     }
     // scope for available experts
     public function scopeExperts($query)
