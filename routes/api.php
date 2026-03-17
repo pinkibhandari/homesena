@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\User\BookingController;
 use App\Http\Controllers\Api\User\LocationController;
 use App\Http\Controllers\Api\User\ReviewController;
 use App\Http\Controllers\Api\User\PaymentController;
+use App\Http\Controllers\Api\Expert\ExpertController;
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
 
@@ -48,7 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
 
     /*-------------  expert api ---------------------------------------**/
-    
+     Route::middleware('role:expert')->prefix('expert')->group(function(){
+        Route::post('details',[ExpertController::class,'storeDetails']);
+        Route::post('emergency-contacts',[ExpertController::class,'saveEmergencyContacts']);
+        
+
+    });
+   
     
 
    

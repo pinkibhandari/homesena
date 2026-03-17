@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Address;
+use App\Models\ExpertDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\SendOtpRequest;
@@ -71,15 +71,26 @@ class AuthController extends Controller
             'otp' => null,
             'otp_expires_at' => null
         ]);
-
-        $token = $user->createToken('mobile-token')->plainTextToken;
+        // create sanctum token
+         $token = $user->createToken('mobile-token')->plainTextToken;
+          $profileCompleted = false;
+        if ($user->role == 'expert') {
+            $expertDetail = ExpertDetail::where('user_id', $user->id)->first();
+            if ($expertDetail) {
+                 $profileCompleted = true;
+            }
+        }
+        $data = collect($user)->merge([
+                'token' => $token,
+                'profileCompleted' => $profileCompleted
+            ]);
 
         return response()->json([
             'code'=> 200,
             'status' => true,
             'token_type' => 'Bearer',
             // 'token' => $token,
-            'data'=> array_merge($user->toArray(), ['token' => $token]),
+            'data'=> $data,
             'message' => 'Otp verify successfully',         
             // 'message' => 'Login successful'
         ],200);

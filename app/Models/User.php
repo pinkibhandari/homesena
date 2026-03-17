@@ -77,7 +77,7 @@ class User extends Authenticatable
 
     public function services() 
     {
-        return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id');
+        return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id'); // expert_id ==>user's table id for expert
     }
 
     public function expertSlots()
@@ -95,6 +95,10 @@ class User extends Authenticatable
         return $this->hasOne(ExpertRatingStat::class, 'expert_id');
     }
 
+    public function expertDetail()
+    {
+        return $this->hasOne(ExpertDetail::class);
+    }
     // scope for available experts
     public function scopeExperts($query)
     {

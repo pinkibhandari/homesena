@@ -68,7 +68,7 @@ class BookingService
                             $expert->fcm_token,
                             "New Booking",
                             "New slot available on date {$slot->booking_date} at time {$slot->start_time} to {$slot->end_time}",
-                            ['slot_id' => $slot->id]
+                            // ['slot_id' => $slot->id]
                             );
                       } else {
                             // Log or handle experts without FCM token
@@ -166,7 +166,7 @@ class BookingService
 
                 //  Notify expert if assigned (Direct Firebase Call)
                 if ($slot->expert && $slot->expert->fcm_token) {
-                        $firebase->send(
+                        $this->firebase->send(
                         $slot->expert->fcm_token,
                         'Booking Cancelled',
                         'Your assigned slot on ' . $slot->booking_date . ' at ' . $slot->start_time . ' has been cancelled by the user.',
@@ -191,7 +191,7 @@ class BookingService
      public function rescheduleSlots($request, $slotId)
      {
           $request->validate([
-                'newScheduledAt' => 'required|date|after:' . now()->addHour(2)->toDateTimeString(), // Reschedule must be at least 2 hours in the future
+                'newScheduledAt' => 'required|date|after:' . now()->addHours(2)->toDateTimeString(), // Reschedule must be at least 2 hours in the future
                 // 'start_time' => 'required',
                 'duration' => 'required|integer'
               ]);
@@ -266,7 +266,7 @@ class BookingService
 
                   //  Notify Expert
                       if ($slot->expert && $slot->expert->fcm_token) {
-                         $firebase->send(
+                         $this->firebase->send(
                              $slot->expert->fcm_token,
                             'Booking Rescheduled',
                             'Your assigned slot has been rescheduled by the user. New date: ' . $slot->booking_date . ', New time: ' . $slot->start_time . '. Please check the app for details.',
