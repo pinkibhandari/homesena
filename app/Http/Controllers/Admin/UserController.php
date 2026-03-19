@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use App\Models\UserDevice;
+// use App\Models\UserDevice;
 
 class UserController extends Controller
 {
@@ -72,8 +72,7 @@ class UserController extends Controller
        // DELETE
     public function destroy(User $user)
     {
-        // dd($user);
-        // $user->delete();
+         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully');
     }
 
