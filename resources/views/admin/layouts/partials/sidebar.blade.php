@@ -1,13 +1,13 @@
     <!-- Layout wrapper -->
-   
-        <!-- Menu -->
 
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-          <div class="app-brand demo">
+    <!-- Menu -->
+
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
             <a href="index.html" class="app-brand-link">
-              <span class="app-brand-logo demo me-1">
-                <span class="text-primary">
-                  <!-- <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <span class="app-brand-logo demo me-1">
+                    <span class="text-primary">
+                        <!-- <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       fill-rule="evenodd"
                       clip-rule="evenodd"
@@ -65,73 +65,126 @@
                       fill="white"
                       fill-opacity="0.3" />
                   </svg> -->
+                    </span>
                 </span>
-              </span>
-              <span class="app-brand-text demo menu-text fw-semibold ms-2">HomeSena</span>
+                <span class="app-brand-text demo menu-text fw-semibold ms-2">HomeSena</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
-              <i class="menu-toggle-icon d-xl-inline-block align-middle"></i>
+                <i class="menu-toggle-icon d-xl-inline-block align-middle"></i>
             </a>
-          </div>
+        </div>
 
-          <div class="menu-inner-shadow"></div>
+        <div class="menu-inner-shadow"></div>
 
-          <ul class="menu-inner py-1">
+        <ul class="menu-inner py-1">
             <!-- Dashboards -->
             <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-home-smile-line"></i>
-                <div data-i18n="Dashboards">Dashboards</div>
-                <div class="badge text-bg-danger rounded-pill ms-auto">5</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a
-                    href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/dashboards-crm.html"
-                    target="_blank"
-                    class="menu-link">
-                    <div data-i18n="CRM">CRM</div>
-                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="index.html" class="menu-link">
-                    <div data-i18n="Analytics">Analytics</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a
-                    href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-ecommerce-dashboard.html"
-                    target="_blank"
-                    class="menu-link">
-                    <div data-i18n="eCommerce">eCommerce</div>
-                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a
-                    href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-logistics-dashboard.html"
-                    target="_blank"
-                    class="menu-link">
-                    <div data-i18n="Logistics">Logistics</div>
-                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a
-                    href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-academy-dashboard.html"
-                    target="_blank"
-                    class="menu-link">
-                    <div data-i18n="Academy">Academy</div>
-                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                  </a>
-                </li>
-              </ul>
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-home-smile-line"></i>
+                    <div data-i18n="Dashboards">Dashboards</div>
+                    <div class="badge text-bg-danger rounded-pill ms-auto">5</div>
+                </a>
+
+                {{-- <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/dashboards-crm.html"
+                            target="_blank" class="menu-link">
+                            <div data-i18n="CRM">CRM</div>
+                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="index.html" class="menu-link">
+                            <div data-i18n="Analytics">Analytics</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-ecommerce-dashboard.html"
+                            target="_blank" class="menu-link">
+                            <div data-i18n="eCommerce">eCommerce</div>
+                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-logistics-dashboard.html"
+                            target="_blank" class="menu-link">
+                            <div data-i18n="Logistics">Logistics</div>
+                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-academy-dashboard.html"
+                            target="_blank" class="menu-link">
+                            <div data-i18n="Academy">Academy</div>
+                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                        </a>
+                    </li>
+                </ul> --}}
+            </li>
+            {{-- User --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.users.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-user-line"></i>
+                    <div data-i18n="User">User</div>
+                </a>
+            </li>
+            {{-- Services --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.services.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
+                    <div data-i18n="Service">Service</div>
+                </a>
+            </li>
+            {{-- Bookings --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.bookings.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-calendar-check-line"></i>
+                    <div data-i18n="Bookings">Bookings</div>
+                </a>
             </li>
 
-            <!-- Layouts -->
+            {{-- Experts --}}
             <li class="menu-item">
+                <a href="{{ route('admin.experts.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-user-line"></i>
+                    <div data-i18n="Expert">Experts</div>
+                </a>
+            </li>
+            {{-- Training Centers --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-building-line"></i>
+                    <div data-i18n="Training Centers">Training Centers</div>
+                </a>
+            </li>
+            {{-- Payments --}}
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-secure-payment-line"></i>
+                    <div data-i18n="Payments">Payments</div>
+                </a>
+
+                <ul class="menu-sub">
+
+                    <!-- Payment -->
+                    <li class="menu-item">
+                        <a href="{{ route('admin.payments.index') }}" class="menu-link">
+                            <div data-i18n="Payment">Payment</div>
+                        </a>
+                    </li>
+
+                    <!-- Payment Method -->
+                    <!-- <li class="menu-item">
+                        <a href="" class="menu-link">
+                            <div data-i18n="Payment Method">Payment Method</div>
+                        </a>
+                    </li> -->
+
+                </ul>
+            </li>
+            <!-- Layouts -->
+            {{-- <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-layout-2-line"></i>
                 <div data-i18n="Layouts">Layouts</div>
@@ -164,10 +217,10 @@
                   </a>
                 </li>
               </ul>
-            </li>
+            </li> --}}
 
             <!-- Front Pages -->
-            <li class="menu-item">
+            {{-- <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-file-copy-line"></i>
                 <div data-i18n="Front Pages">Front Pages</div>
@@ -215,13 +268,13 @@
                   </a>
                 </li>
               </ul>
-            </li>
+            </li> --}}
 
             <!-- Apps & Pages -->
             <li class="menu-header mt-7">
-              <span class="menu-header-text">Apps &amp; Pages</span>
+                <span class="menu-header-text">Apps &amp; Pages</span>
             </li>
-            <li class="menu-item">
+            {{-- <li class="menu-item">
               <a
                 href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-email.html"
                 target="_blank"
@@ -260,9 +313,9 @@
                 <div data-i18n="Kanban">Kanban</div>
                 <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
               </a>
-            </li>
+            </li> --}}
             <!-- Pages -->
-            <li class="menu-item">
+            {{-- <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-layout-left-line"></i>
                 <div data-i18n="Account Settings">Account Settings</div>
@@ -325,241 +378,229 @@
                   </a>
                 </li>
               </ul>
-            </li>
+            </li> --}}
             <!-- Components -->
             <li class="menu-header mt-7"><span class="menu-header-text">Components</span></li>
             <!-- Cards -->
-            <li class="menu-item">
-              <a href="cards-basic.html" class="menu-link">
-                <i class="menu-icon icon-base ri ri-bank-card-2-line"></i>
-                <div data-i18n="Basic">Cards</div>
-              </a>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="cards-basic.html" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-bank-card-2-line"></i>
+                    <div data-i18n="Basic">Cards</div>
+                </a>
+            </li> --}}
             <!-- User interface -->
-            <li class="menu-item">
-              <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-toggle-line"></i>
-                <div data-i18n="User interface">User interface</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="ui-accordion.html" class="menu-link">
-                    <div data-i18n="Accordion">Accordion</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-alerts.html" class="menu-link">
-                    <div data-i18n="Alerts">Alerts</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-badges.html" class="menu-link">
-                    <div data-i18n="Badges">Badges</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-buttons.html" class="menu-link">
-                    <div data-i18n="Buttons">Buttons</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-carousel.html" class="menu-link">
-                    <div data-i18n="Carousel">Carousel</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-collapse.html" class="menu-link">
-                    <div data-i18n="Collapse">Collapse</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-dropdowns.html" class="menu-link">
-                    <div data-i18n="Dropdowns">Dropdowns</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-footer.html" class="menu-link">
-                    <div data-i18n="Footer">Footer</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-list-groups.html" class="menu-link">
-                    <div data-i18n="List Groups">List Groups</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-modals.html" class="menu-link">
-                    <div data-i18n="Modals">Modals</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-navbar.html" class="menu-link">
-                    <div data-i18n="Navbar">Navbar</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-offcanvas.html" class="menu-link">
-                    <div data-i18n="Offcanvas">Offcanvas</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-pagination-breadcrumbs.html" class="menu-link">
-                    <div data-i18n="Pagination & Breadcrumbs">Pagination &amp; Breadcrumbs</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-progress.html" class="menu-link">
-                    <div data-i18n="Progress">Progress</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-spinners.html" class="menu-link">
-                    <div data-i18n="Spinners">Spinners</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-tabs-pills.html" class="menu-link">
-                    <div data-i18n="Tabs & Pills">Tabs &amp; Pills</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-toasts.html" class="menu-link">
-                    <div data-i18n="Toasts">Toasts</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-tooltips-popovers.html" class="menu-link">
-                    <div data-i18n="Tooltips & Popovers">Tooltips &amp; Popovers</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="ui-typography.html" class="menu-link">
-                    <div data-i18n="Typography">Typography</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="javascript:void(0)" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-toggle-line"></i>
+                    <div data-i18n="User interface">User interface</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="ui-accordion.html" class="menu-link">
+                            <div data-i18n="Accordion">Accordion</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-alerts.html" class="menu-link">
+                            <div data-i18n="Alerts">Alerts</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-badges.html" class="menu-link">
+                            <div data-i18n="Badges">Badges</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-buttons.html" class="menu-link">
+                            <div data-i18n="Buttons">Buttons</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-carousel.html" class="menu-link">
+                            <div data-i18n="Carousel">Carousel</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-collapse.html" class="menu-link">
+                            <div data-i18n="Collapse">Collapse</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-dropdowns.html" class="menu-link">
+                            <div data-i18n="Dropdowns">Dropdowns</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-footer.html" class="menu-link">
+                            <div data-i18n="Footer">Footer</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-list-groups.html" class="menu-link">
+                            <div data-i18n="List Groups">List Groups</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-modals.html" class="menu-link">
+                            <div data-i18n="Modals">Modals</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-navbar.html" class="menu-link">
+                            <div data-i18n="Navbar">Navbar</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-offcanvas.html" class="menu-link">
+                            <div data-i18n="Offcanvas">Offcanvas</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-pagination-breadcrumbs.html" class="menu-link">
+                            <div data-i18n="Pagination & Breadcrumbs">Pagination &amp; Breadcrumbs</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-progress.html" class="menu-link">
+                            <div data-i18n="Progress">Progress</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-spinners.html" class="menu-link">
+                            <div data-i18n="Spinners">Spinners</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-tabs-pills.html" class="menu-link">
+                            <div data-i18n="Tabs & Pills">Tabs &amp; Pills</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-toasts.html" class="menu-link">
+                            <div data-i18n="Toasts">Toasts</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-tooltips-popovers.html" class="menu-link">
+                            <div data-i18n="Tooltips & Popovers">Tooltips &amp; Popovers</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="ui-typography.html" class="menu-link">
+                            <div data-i18n="Typography">Typography</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> --}}
 
             <!-- Extended components -->
-            <li class="menu-item">
-              <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-box-3-line"></i>
-                <div data-i18n="Extended UI">Extended UI</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="extended-ui-perfect-scrollbar.html" class="menu-link">
-                    <div data-i18n="Perfect Scrollbar">Perfect Scrollbar</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="extended-ui-text-divider.html" class="menu-link">
-                    <div data-i18n="Text Divider">Text Divider</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="javascript:void(0)" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-box-3-line"></i>
+                    <div data-i18n="Extended UI">Extended UI</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="extended-ui-perfect-scrollbar.html" class="menu-link">
+                            <div data-i18n="Perfect Scrollbar">Perfect Scrollbar</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="extended-ui-text-divider.html" class="menu-link">
+                            <div data-i18n="Text Divider">Text Divider</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> --}}
 
             <!-- Icons -->
-            <li class="menu-item">
-              <a href="icons-ri.html" class="menu-link">
-                <i class="menu-icon icon-base ri ri-remixicon-line"></i>
-                <div data-i18n="Icons">Icons</div>
-              </a>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="icons-ri.html" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-remixicon-line"></i>
+                    <div data-i18n="Icons">Icons</div>
+                </a>
+            </li> --}}
 
             <!-- Forms & Tables -->
             <li class="menu-header mt-7"><span class="menu-header-text">Forms &amp; Tables</span></li>
             <!-- Forms -->
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-radio-button-line"></i>
-                <div data-i18n="Form Elements">Form Elements</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="forms-basic-inputs.html" class="menu-link">
-                    <div data-i18n="Basic Inputs">Basic Inputs</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="forms-input-groups.html" class="menu-link">
-                    <div data-i18n="Input groups">Input groups</div>
-                  </a>
-                </li>
-              </ul>
+            {{-- <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-radio-button-line"></i>
+                    <div data-i18n="Form Elements">Form Elements</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="forms-basic-inputs.html" class="menu-link">
+                            <div data-i18n="Basic Inputs">Basic Inputs</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="forms-input-groups.html" class="menu-link">
+                            <div data-i18n="Input groups">Input groups</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-box-3-line"></i>
-                <div data-i18n="Form Layouts">Form Layouts</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="form-layouts-vertical.html" class="menu-link">
-                    <div data-i18n="Vertical Form">Vertical Form</div>
-                  </a>
-                </li>
-                <li class="menu-item">
-                  <a href="form-layouts-horizontal.html" class="menu-link">
-                    <div data-i18n="Horizontal Form">Horizontal Form</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ri ri-box-3-line"></i>
+                    <div data-i18n="Form Layouts">Form Layouts</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="form-layouts-vertical.html" class="menu-link">
+                            <div data-i18n="Vertical Form">Vertical Form</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="form-layouts-horizontal.html" class="menu-link">
+                            <div data-i18n="Horizontal Form">Horizontal Form</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> --}}
             <!-- Form Validation -->
-            <li class="menu-item">
-              <a
-                href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/form-validation.html"
-                target="_blank"
-                class="menu-link">
-                <i class="menu-icon icon-base ri ri-checkbox-multiple-line"></i>
-                <div data-i18n="Form Validation">Form Validation</div>
-                <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-              </a>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/form-validation.html"
+                    target="_blank" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-checkbox-multiple-line"></i>
+                    <div data-i18n="Form Validation">Form Validation</div>
+                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                </a>
+            </li> --}}
             <!-- Tables -->
-            <li class="menu-item active">
-              <a href="tables-basic.html" class="menu-link">
-                <i class="menu-icon icon-base ri ri-table-alt-line"></i>
-                <div data-i18n="Tables">Tables</div>
-              </a>
-            </li>
+            {{-- <li class="menu-item active">
+                <a href="tables-basic.html" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-table-alt-line"></i>
+                    <div data-i18n="Tables">Tables</div>
+                </a>
+            </li> --}}
             <!-- Data Tables -->
-            <li class="menu-item">
-              <a
-                href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/tables-datatables-basic.html"
-                target="_blank"
-                class="menu-link">
-                <i class="menu-icon icon-base ri ri-grid-line"></i>
-                <div data-i18n="Datatables">Datatables</div>
-                <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-              </a>
-            </li>
+            {{-- <li class="menu-item">
+                <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/tables-datatables-basic.html"
+                    target="_blank" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-grid-line"></i>
+                    <div data-i18n="Datatables">Datatables</div>
+                    <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
+                </a>
+            </li> --}}
             <!-- Misc -->
             <li class="menu-header mt-7"><span class="menu-header-text">Misc</span></li>
-            <li class="menu-item">
-              <a
-                href="https://github.com/themeselection/materio-bootstrap-html-admin-template-free/issues"
-                target="_blank"
-                class="menu-link">
-                <i class="menu-icon icon-base ri ri-lifebuoy-line"></i>
-                <div data-i18n="Support">Support</div>
-              </a>
+            {{-- <li class="menu-item">
+                <a href="https://github.com/themeselection/materio-bootstrap-html-admin-template-free/issues"
+                    target="_blank" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-lifebuoy-line"></i>
+                    <div data-i18n="Support">Support</div>
+                </a>
             </li>
             <li class="menu-item">
-              <a
-                href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/"
-                target="_blank"
-                class="menu-link">
-                <i class="menu-icon icon-base ri ri-article-line"></i>
-                <div data-i18n="Documentation">Documentation</div>
-              </a>
-            </li>
-          </ul>
-        </aside>
-        <!-- / Menu -->
-
-      
-     
-
+                <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/"
+                    target="_blank" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-article-line"></i>
+                    <div data-i18n="Documentation">Documentation</div>
+                </a>
+            </li> --}}
+        </ul>
+    </aside>
+    <!-- / Menu -->
