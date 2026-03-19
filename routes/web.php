@@ -20,7 +20,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('bookings', BookingController::class);
     Route::resource('experts', ExpertController::class);
     Route::resource('training_centers', TrainingController::class);
-     Route::resource('payments', PaymentController::class);
+    Route::resource('payments', PaymentController::class);
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');
     // Route::get('/users/create', [UserController::class, 'create'])

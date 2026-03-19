@@ -2,6 +2,10 @@
 @section('title', 'Users')
 @section('content')
     <div class="card">
+          <!-- ALERT MESSAGE -->
+    <div class="p-3">
+        @include('admin.layouts.partials.alerts')
+    </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Users</h5>

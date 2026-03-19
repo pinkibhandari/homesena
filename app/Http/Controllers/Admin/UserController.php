@@ -13,6 +13,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
+            ->where('role', 'user')
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
                 $q->where(function ($query) use ($search) {
@@ -46,13 +47,13 @@ class UserController extends Controller
     {
         $data = $this->validateData($request);
 
-         if ($request->filled('password')) {
+        if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
             unset($data['password']);
         }
         User::create($data);
-        return redirect()->route('admin.users.index')->with('success', 'User created');
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully');
     }
 
 // UPDATE
@@ -66,13 +67,14 @@ class UserController extends Controller
             unset($data['password']);
         }
         $user->update($data);
-        return redirect()->route('admin.users.index')->with('success', 'User updated');
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully');
     }
        // DELETE
     public function destroy(User $user)
     {
+        dd($user);
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User deleted');
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully');
     }
 
     // VALIDATION
@@ -80,7 +82,7 @@ class UserController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|unique:users,phone,' . $id,
+            'phone' => 'required|digits:10|unique:users,phone,' . $id,
             'email' => 'nullable|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
             // 'password' => $id ? 'nullable|min:8' : 'required|min:8',
