@@ -83,6 +83,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(ExpertDetail::class, 'user_id');
     }
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
     // scope for available experts
     public function scopeExperts($query)
     {

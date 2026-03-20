@@ -126,14 +126,21 @@
             <li class="menu-item">
                 <a href="{{ route('admin.users.index') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-user-line"></i>
-                    <div data-i18n="User">User</div>
+                    <div data-i18n="User">Users</div>
+                </a>
+            </li>
+             {{-- Experts --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.experts.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-user-line"></i>
+                    <div data-i18n="Expert">Experts</div>
                 </a>
             </li>
             {{-- Services --}}
             <li class="menu-item">
                 <a href="{{ route('admin.services.index') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
-                    <div data-i18n="Service">Service</div>
+                    <div data-i18n="Service">Services</div>
                 </a>
             </li>
             {{-- Bookings --}}
@@ -144,13 +151,7 @@
                 </a>
             </li>
 
-            {{-- Experts --}}
-            <li class="menu-item">
-                <a href="{{ route('admin.experts.index') }}" class="menu-link">
-                    <i class="menu-icon icon-base ri ri-user-line"></i>
-                    <div data-i18n="Expert">Experts</div>
-                </a>
-            </li>
+           
             {{-- Training Centers --}}
             <li class="menu-item">
                 <a href="{{ route('admin.training_centers.index') }}" class="menu-link">

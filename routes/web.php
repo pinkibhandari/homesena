@@ -16,11 +16,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Users 
     Route::resource('users', UserController::class);
+    Route::delete('/admin/device/{id}', [UserController::class, 'deleteDevice'])
+         ->name('device.delete');
+    Route::resource('experts', ExpertController::class);
     Route::resource('services', ServiceController::class);
     Route::resource('bookings', BookingController::class);
-    Route::resource('experts', ExpertController::class);
     Route::resource('training_centers', TrainingController::class);
     Route::resource('payments', PaymentController::class);
+   
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');
     // Route::get('/users/create', [UserController::class, 'create'])

@@ -11,4 +11,9 @@ class ExpertEmergencyContact extends Model
         'name',
         'phone'
     ];
+
+    public function expertDetail()
+    {
+        return $this->belongsTo(ExpertDetail::class);
+    }
 }

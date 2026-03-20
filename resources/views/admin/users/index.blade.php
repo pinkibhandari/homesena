@@ -91,7 +91,7 @@
                                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="dropdown-item text-danger" onclick="return confirm('Delete user?')" type="submit" >
+                                                <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this user?')" type="submit" >
                                                     <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                 </button>
                                             </form>

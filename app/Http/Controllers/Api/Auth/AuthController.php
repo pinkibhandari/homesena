@@ -78,7 +78,18 @@ class AuthController extends Controller
             'otp_expires_at' => null
         ]);
         // create sanctum token
-         $token = $user->createToken('mobile-token')->plainTextToken;
+        //  $token = $user->createToken('mobile-token')->plainTextToken;
+         $token = $user->createToken('mobile-token');
+         UserDevice::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'device_id' => $request->deviceId
+            ],
+            [
+                'device_type' => $request->deviceType,
+                'token_id' => $token->accessToken->id
+            ]
+        );
           $profileCompleted = false;
         if ($user->role == 'expert') {
             $expertDetail = ExpertDetail::where('user_id', $user->id)->first();
@@ -87,7 +98,7 @@ class AuthController extends Controller
             }
         }
         $data = collect($user)->merge([
-                'token' => $token,
+                'token' => $token->plainTextToken,
                 'profileCompleted' => $profileCompleted
             ]);
 
