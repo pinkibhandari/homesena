@@ -24,10 +24,11 @@ class BookingOldController extends Controller
             ]);
         if(!$booking) {
             return response()->json([
-                'code' => 500,
+                'code' => 422,
                 'status' => false,
-                'message' => 'Failed to create booking'
-            ], 500);
+                'message' => 'Failed to create booking', 
+                'data' => (object)[],
+            ], 422);
         } else {
            return response()->json([
                     'code'=> 200,
@@ -49,10 +50,11 @@ class BookingOldController extends Controller
                 ])->find($id);
         if (!$booking) {
             return response()->json([
-                'code' => 404,
+                'code' => 422,
                 'status' => false,
-                'message' => 'Booking not found'
-            ], 404);
+                'message' => 'Booking not found',
+                'data' => (object)[],
+            ], 422);
         } else {
             return response()->json([
                 'code' => 200,
@@ -85,10 +87,11 @@ class BookingOldController extends Controller
            $bookings = $query->latest()->paginate(10);
            if($bookings->isEmpty()) {
             return response()->json([
-                'code' => 404,
+                'code' => 422,
                 'status' => false,
-                'message' => 'No bookings found for this user'
-            ], 404);
+                'message' => 'No bookings found for this user',
+                'data' => (object)[],
+            ], 422);
            } else {
             return response()->json([
                 'code' => 200,
@@ -113,18 +116,20 @@ class BookingOldController extends Controller
           $booking = Booking::find($id);
           if (!$booking) {
               return response()->json([
-                  'code' => 404,
+                  'code' => 422,
                   'status' => false,
-                  'message' => 'Booking not found'
-              ], 404);
+                  'message' => 'Booking not found', 
+                  'data' => (object)[],
+              ], 422);
           }
   
           if ($booking->user_id !== auth()->id()) {
               return response()->json([
-                  'code' => 403,
+                  'code' => 422,
                   'status' => false,
-                  'message' => 'Unauthorized to cancel this booking'
-              ], 403);
+                  'message' => 'Unauthorized to cancel this booking', 
+                  'data' => (object)[],
+              ], 422);
           }
      // only allow cancellation for bookings with status PENDING or CONFIRMED and scheduled date is after today
         if(($booking->scheduled_at->toDateString() > now()->toDateString()) && ($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') ){
@@ -133,10 +138,11 @@ class BookingOldController extends Controller
             $booking->save();
             if(!$booking) {
                 return response()->json([
-                    'code' => 500,
-                    'status' => false,
+                    'code'=> 422,
+                    'status'=>false,  
+                    'data' => (object)[],
                     'message' => 'Failed to cancel booking'
-                ], 500);
+                ], 422);
             } else {
             return response()->json([
                 'code' => 200,
@@ -151,10 +157,11 @@ class BookingOldController extends Controller
          }
       } else {
               return response()->json([
-                  'code' => 400,
-                  'status' => false,
-                  'message' => 'Only PENDING or CONFIRMED bookings can be cancelled or scheduled date must be after today'
-              ], 400);
+                   'code'=> 422, 
+                    'data' => (object)[],
+                   'status' => false,
+                   'message' => 'Only PENDING or CONFIRMED bookings can be cancelled or scheduled date must be after today'
+              ], 422);
           }
         }
 
@@ -168,18 +175,20 @@ class BookingOldController extends Controller
             $booking = Booking::find($id);
             if (!$booking) {
                 return response()->json([
-                    'code' => 404,
+                    'code' => 422,
                     'status' => false,
-                    'message' => 'Booking not found'
-                ], 404);
+                    'message' => 'Booking not found', 
+                    'data' => (object)[],
+                ], 422);
             }
     
             if ($booking->user_id !== auth()->id()) {
                 return response()->json([
-                    'code' => 403,
+                    'code' => 422,
                     'status' => false,
-                    'message' => 'Unauthorized to reschedule this booking'
-                ], 403);
+                    'message' => 'Unauthorized to reschedule this booking',
+                    'data' => (object)[],
+                ], 422);
             }
             // only allow rescheduling for bookings with status PENDING or CONFIRMED and scheduled date is after today
             if($booking->status === 'PENDING' || $booking->status === 'CONFIRMED') {
@@ -188,10 +197,11 @@ class BookingOldController extends Controller
                  $booking->save();
                     if(!$booking) {
                         return response()->json([
-                            'code' => 500,
+                            'code' => 422,
+                            'data' => (object)[],
                             'status' => false,
                             'message' => 'Failed to reschedule booking'
-                        ], 500);
+                        ], 422);
                         } else {
                         return response()->json([
                                 'code' => 200,
@@ -207,10 +217,11 @@ class BookingOldController extends Controller
                      }
             } else {
                 return response()->json([
-                    'code' => 400,
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Only PENDING or CONFIRMED bookings can be rescheduled'
-                ], 400);
+                ], 422);
             }
         }
         
@@ -220,18 +231,20 @@ class BookingOldController extends Controller
             $booking = Booking::find($id);
             if (!$booking) {
                 return response()->json([
-                    'code' => 404,
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Booking not found'
-                ], 404);
+                ], 422);
             }
     
             if ($booking->user_id !== auth()->id()) {
                 return response()->json([
-                    'code' => 403,
+                    'code' => 422,
+                    'data' => (object)[], 
                     'status' => false,
                     'message' => 'Unauthorized to confirm OTP for this booking'
-                ], 403);
+                ], 422);
             }
             // only allow OTP confirmation for bookings with status CONFIRMED
             if ($booking->otp_code === $request->otpCode && $booking->status === 'CONFIRMED') {
@@ -240,10 +253,11 @@ class BookingOldController extends Controller
                 $booking->save();
                     if(!$booking) {
                         return response()->json([
-                            'code' => 500,
+                             'code' => 422,
+                            'data' => (object)[],
                             'status' => false,
                             'message' => 'Failed to confirm OTP'
-                        ], 500);
+                        ], 422);
                     } else {
                     return response()->json([
                         'code' => 200,
@@ -259,10 +273,11 @@ class BookingOldController extends Controller
                  }
             } else {
                 return response()->json([
-                    'code' => 400,
+                     'code' => 422,
+                     'data' => (object)[],
                     'status' => false,
                     'message' => 'Invalid OTP code or booking status is not CONFIRMED'
-                ], 400);
+                ], 422);
             }
         }
 }

@@ -7,18 +7,17 @@ use Illuminate\Support\Str;
 
 class Booking extends Model
 {
-      protected $fillable = [   
-        'booking_code',
+     protected $fillable = [ 
+        'booking_code',  
         'user_id',
-        'service_id',
-        'address_id',
-        'notes',
+        'type',
         'status',
-        'booking_type',
+        'booking_date',
+        'slot_time',
+        'booking_subtype',
+        'expert_id',
         'total_amount',
-        'booking_date', // created date
     ];
-
  // booking code generator
     // protected static function booted()
     // {
@@ -51,10 +50,16 @@ class Booking extends Model
             return $this->belongsTo(Address::class);
         }
 
-        public function bookingSlots()
+        // public function bookingSlots()
+        // {
+        //     return $this->hasMany(BookingSlot::class);
+        // }
+
+     public function recurringSlots()
         {
-            return $this->hasMany(BookingSlot::class);
+            return $this->hasMany(RecurringBooking::class);
         }
+
 
         
 }

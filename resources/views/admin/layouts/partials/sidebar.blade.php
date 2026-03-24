@@ -143,6 +143,20 @@
                     <div data-i18n="Service">Services</div>
                 </a>
             </li>
+            {{-- Time slots --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.time_slots.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-time-line"></i>
+                    <div data-i18n="Time Slots">Time Slots</div>
+                </a>
+            </li>
+            {{-- service durations --}}
+            <li class="menu-item">
+                <a href="{{ route('admin.service_variants.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-timer-line"></i>
+                    <div data-i18n="Service Duration">Service Duration</div>
+                </a>
+            </li>
             {{-- Bookings --}}
             <li class="menu-item">
                 <a href="{{ route('admin.bookings.index') }}" class="menu-link">

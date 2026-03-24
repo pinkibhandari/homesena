@@ -16,16 +16,18 @@ class ServiceController extends Controller
          if($services->isEmpty()) {
         // if(empty($services)) {
             return response()->json([
+                'code'=>422,
+                'data' => (object)[],
                 'status' => false,
                 'message' => 'No services found'
-            ]);
+            ],422);
         } else{
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'Service List retrieved successfully',
             'data' => ServiceResource::collection($services)
-          ]);
+          ],200);
 
         }
     }
@@ -37,6 +39,8 @@ class ServiceController extends Controller
         if (!$service) {
             return response()->json([
                 'status' => false,
+                'code'=>422,
+                'data' => (object)[],
                 'message' => 'Service not found'
             ]);
         } else {

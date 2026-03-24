@@ -19,7 +19,7 @@ class RoleMiddleware
         if (!auth()->check()) {
             return response()->json([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 422);
         }
 
         $user = auth()->user();
@@ -27,7 +27,7 @@ class RoleMiddleware
         if (!in_array($user->role, $roles)) {
             return response()->json([
                 'message' => 'Access Denied'
-            ], 403);
+            ], 422);
         }
 
         return $next($request);

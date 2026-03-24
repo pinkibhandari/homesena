@@ -15,6 +15,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',     
         'email',
+        'profile_image',
         'password',
         'phone',
         'otp',
@@ -22,7 +23,8 @@ class User extends Authenticatable
         'remember_token',
         'email_verified_at',
         'otp_expires_at', 
-        'status'
+        'status',
+        'profile_completed'
       ];
 
     /**
@@ -64,10 +66,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id'); // expert_id ==>user's table id for expert
     }
 
-    public function expertSlots()
-    {
-        return $this->hasMany(BookingSlot::class,'expert_id');
-    }
+    // public function expertSlots()
+    // {
+    //     return $this->hasMany(BookingSlot::class,'expert_id');
+    // }
 
     public function reviews()
     {
@@ -88,6 +90,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserDevice::class);
     }
+
+      public function expertBookings()
+        {
+            return $this->hasMany(Booking::class,'expert_id');
+        }
+
+    public function expertRecurringBookings()
+        {
+            return $this->hasMany(RecurringBooking::class,'expert_id');
+        }
     // scope for available experts
     public function scopeExperts($query)
     {

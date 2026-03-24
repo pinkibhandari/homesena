@@ -23,8 +23,10 @@ Route::post('service/create',[ServiceController::class, 'create']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     // user details and address
+    Route::post('profile', [UserController::class, 'profile']);
     Route::get('user-details', [UserController::class, 'userDetails']);
     Route::post('save-address', [UserController::class, 'saveAddress']);
+    Route::post('update-address/{id}', [UserController::class, 'updateAddress']);
     Route::get('address-list', [UserController::class, 'addressList']);
     // boonking route
     Route::post('/booking/create', [BookingController::class, 'store']);

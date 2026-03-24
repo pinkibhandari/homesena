@@ -9,7 +9,8 @@ class ServiceVariant extends Model
     protected $fillable = [
         'service_id',
         'duration_minutes',
-        'base_price',  
+        'base_price',
+        'discount_price',  
         'tax_percentage',
         'is_active',
     ];

@@ -30,14 +30,20 @@ class ReviewController extends Controller
 
             if(!$slot) {
                 return response()->json([
+                    'code'=> 422,
+                    'status'=>false,  
+                    'data' => (object)[],
                     'message' => 'Review allowed only for completed slots'
-                ], 400);
+                ], 422);
             }
             $exists = Review::where('booking_slot_id', $slotId)->exists();
             if($exists) {
                 return response()->json([
+                     'code'=> 422,
+                    'status'=>false,  
+                    'data' => (object)[],
                     'message' => 'Review already submitted'
-                ], 400);
+                ], 422);
              }
      try {
          // Use a transaction to ensure data integrity
@@ -69,15 +75,18 @@ class ReviewController extends Controller
                });
 
             return response()->json([
+                        'code'=>200,
                         'status' => 'success',
                         'message' => 'Review submitted successfully',
                         'data'=> $review
                    ], 200);       
         } catch (\Throwable $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to submit review: ' . $e->getMessage()
-            ], 500);
+                    'code'=> 422,
+                    'status'=>false,  
+                    'data' => (object)[],
+                     'message' => 'Failed to submit review: ' . $e->getMessage()
+            ], 422);
         }
 
     }

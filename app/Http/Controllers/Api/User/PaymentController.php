@@ -20,13 +20,16 @@ class PaymentController extends Controller
                return response()->json([
                          'message' => 'Payment methods fetched successfully',
                          'status' => true,
-                         'data' => $methods
+                         'data' => $methods,
+                         'code'=>200
                     ],200);
             } else {
                return response()->json([
-                     'status' => true,
+                     'code'=> 422,
+                     'status'=>false,  
+                     'data' => (object)[],
                      'message'=>'payment method not found'
-                ],200);
+                ],422);
             }
        }
 

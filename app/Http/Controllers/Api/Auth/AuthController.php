@@ -9,19 +9,46 @@ use App\Models\UserDevice;
 use App\Models\ExpertDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\Auth\SendOtpRequest;
-use App\Http\Requests\Auth\VerifyOtpRequest;
+// use App\Http\Requests\Auth\SendOtpRequest;
+// use App\Http\Requests\Auth\VerifyOtpRequest;
+use Illuminate\Support\Facades\Validator;
 
 
 class AuthController extends Controller
 {
     // send opt in mob.and create new user
 
-    public function sendOtp(SendOtpRequest $request)
-     {    
+    // public function sendOtp(SendOtpRequest $request)
+    public function sendOtp(Request $request)
+     {   
+         $validator = Validator::make($request->all(), [
+              'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
+              'role' => 'required|in:user,expert,admin',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(), 
+                'data' => (object)[],
+            ], 422);
+        } 
+        $user = User::where('phone', $request->phone)->first();
+        if ($user) {
+        //  If role is different → block
+            if ($user->role !== $request->role) {
+                return response()->json([
+                    'code'=>422,
+                    'status' => false,
+                    'data'=> (object)[],
+                    'message' => 'This phone number is already registered with another role'
+                ], 422);
+            }
+        }
         $otp = rand(100000, 999999);
         $user = User::updateOrCreate(
-            ['phone' => $request->phone],
+            ['phone' => $request->phone,
+             ],
             [ 
               'otp' => Hash::make($otp),
               'otp_expires_at' => Carbon::now()->addMinutes(60),
@@ -35,14 +62,15 @@ class AuthController extends Controller
                 'device_type' => $request->deviceType,
             ]
         );
-        
+       $userDevice->makeHidden(['id']);
        $all = collect($user)->merge($userDevice);  
        if(!$user) {
             return response()->json([
-                'code' => 500,
+                'code' => 422,
                 'status' => false,
-                'message' => 'Failed to send OTP'
-            ], 500);
+                'message' => 'Failed to send OTP',
+                'data'=> (object)[],
+            ], 422);
         } else {    
          return response()->json([
             'code'=> 200, 
@@ -56,21 +84,50 @@ class AuthController extends Controller
 
    
    // Verify OTP
-    public function verifyOtp(VerifyOtpRequest $request)
+    // public function verifyOtp(VerifyOtpRequest $request) 
+     public function verifyOtp(Request $request)
       {
-         $user = User::where('phone', $request->phone)->first();
-         if (!$user || $user->otp_expires_at < now()) {
+            $validator = Validator::make($request->all(), [
+                'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
+                'otp' => 'required|digits:6',
+                'role' => 'required|in:user,expert,admin',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false ,
+                    'code' => 422 ,
+                    'message' => $validator->errors()->first(), 
+                    'data' => (object)[],
+                ], 422);
+            } 
+         $user = User::where('phone', $request->phone)
+                       ->where('role', $request->role)
+                        ->first();
+        if (!$user) {
+            return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Invalid user',
+                    'data'=> (object)[],
+                ], 422);
+            }
+            
+         if ($user->otp_expires_at < now()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid or expired OTP'
-            ], 401);
+                'code' => 422,
+                'message' => 'Invalid or expired OTP',
+                'data'=> (object)[],
+            ], 422);
         }
 
         if (!Hash::check($request->otp, $user->otp)) {
             return response()->json([
-                'status' => false,
-                'message' => 'Invalid OTP'
-            ], 401);
+                'status' => false ,
+                'code'=> 422 ,
+                'message' => 'Invalid OTP',
+                'data'=> (object)[] ,
+            ], 422);
         }
 
         $user->update([
@@ -90,16 +147,16 @@ class AuthController extends Controller
                 'token_id' => $token->accessToken->id
             ]
         );
-          $profileCompleted = false;
-        if ($user->role == 'expert') {
-            $expertDetail = ExpertDetail::where('user_id', $user->id)->first();
-            if ($expertDetail) {
-                 $profileCompleted = true;
-            }
-        }
+        //   $profileCompleted = false;
+        // if ($user->role == 'expert') {
+        //     $expertDetail = ExpertDetail::where('user_id', $user->id)->first();
+        //     if ($expertDetail) {
+        //          $profileCompleted = true;
+        //     }
+        // }
         $data = collect($user)->merge([
-                'token' => $token->plainTextToken,
-                'profileCompleted' => $profileCompleted
+                'token' => $token->plainTextToken
+                // 'profileCompleted' => $profileCompleted
             ]);
 
         return response()->json([
@@ -117,11 +174,11 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
+            'code'=> 200,
             'status' => true,
+            'data'=> (object)[],
             'message' => 'Logged out successfully'
         ]);
     }
-                                                                                                                                                                                                                                     
-
-
+                                                                                                                                                                                                                                   
 }

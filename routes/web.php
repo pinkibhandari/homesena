@@ -8,8 +8,26 @@ use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ExpertController;
 use App\Http\Controllers\Admin\TrainingController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\ServiceVariantController;
+use App\Http\Controllers\Admin\TimeSlotController;
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/', function () {
+    return view('landing');
+});
+
+  Route::get('admin/login', function () {
+       // If already logged in AND admin
+            if (auth()->check() && auth()->user()->role === 'admin') {
+                return redirect('/admin/dashboard');
+             }
+               return view('admin.login');
+            })->name('admin.login');
+ Route::post('admin/login', [AuthController::class, 'adminLogin']);
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+  
+   
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
@@ -22,6 +40,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('bookings', BookingController::class);
     Route::resource('training_centers', TrainingController::class);
+    Route::resource('service_variants', ServiceVariantController::class);
+    Route::resource('time_slots', TimeSlotController::class);
     Route::resource('payments', PaymentController::class);
    
     // Route::get('/users', [UserController::class, 'index'])

@@ -32,10 +32,12 @@ class LocationController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'No nearby experts found',
-                'data' => []
-            ], 200);
+                'code'=> 422, 
+                'data' => (object)[],
+            ], 422);
         } else {
             return response()->json([
+                'code'=>200,
                 'status' => true,
                 'message' => 'Nearby Experts Retrieved Successfully',
                 'data' => $experts
@@ -68,13 +70,17 @@ class LocationController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Address not found for user',
-            ], 404);
+                'code'=> 422,  
+                'data' => (object)[],
+            ], 422);
         }
         //  reject poor GPS
         if ($request->accuracy && $request->accuracy > 50) {
             return response()->json([
                 'status' => false,
-                'message' => 'Low GPS accuracy'
+                'message' => 'Low GPS accuracy',
+                'code'=> 422, 
+                'data' => (object)[],
             ], 422);
         }
 
@@ -93,6 +99,7 @@ class LocationController extends Controller
         );
 
         return response()->json([
+            'code'=>200,
             'status' => true,
             'message' => 'Location updated successfully',
             'data' => [
@@ -117,14 +124,18 @@ class LocationController extends Controller
         if (!$user || $user->role !== 'expert') {
             return response()->json([
                 'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
+                'message' => 'Unauthorized',
+                'code'=> 422, 
+                'data' => (object)[],
+            ], 422);
         }
         //  reject poor GPS
         if ($request->accuracy && $request->accuracy > 50) {
             return response()->json([
                 'status' => false,
-                'message' => 'Low GPS accuracy'
+                'message' => 'Low GPS accuracy',
+                'code'=> 422,  
+                'data' => (object)[],
             ], 422);
         }
         $expertDetail = ExpertDetail::updateOrCreate(
@@ -146,6 +157,7 @@ class LocationController extends Controller
             ]
         );
         return response()->json([
+            'code'=>200,
             'status' => true,
             'message' => 'Location updated successfully',
             'data' => [
@@ -183,6 +195,7 @@ class LocationController extends Controller
             $distance = $this->calculateDistance($userLat, $userLng, $expertLat, $expertLng);
             $bookingSlot->distance_km = round($distance, 2);
             return response()->json([
+                'code'=>200,
                 'satus' => true,
                 'message' => 'Expert location retrieved successfully',
                 'data' => new ExpertTrackingResource($bookingSlot)
@@ -190,7 +203,9 @@ class LocationController extends Controller
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Expert offline'
+                'message' => 'Expert offline',
+                'code'=> 422,  
+                'data' => (object)[],
             ]);
         }
 

@@ -116,21 +116,27 @@ class BookingService
         $slot = BookingSlot::with('booking', 'expert')->find($slotId);
             if (!$slot) {
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Booking Slot not found'
-                ], 200);
+                ], 422);
              }
           //  Check ownership
             if ($slot->booking->user_id !== auth()->id()) {
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Unauthorized to cancel this booking slot'
-                ], 403);
+                ], 422);
             }
 
             //  Check already completed or ongoing slot
                 if ($slot->status === 'completed' || $slot->status === 'ongoing' || $slot->status === 'cancelled') {
                     return response()->json([
+                        'code' => 422,
+                        'data' => (object)[],
                         'status' => false,
                         'message' => 'Completed, Ongoing, and Cancelled slots cannot be cancelled'
                     ], 422);
@@ -142,6 +148,8 @@ class BookingService
 
                 if (now()->greaterThanOrEqualTo($cancelLimit)) {
                     return response()->json([
+                        'code' => 422,
+                        'data' => (object)[],
                         'status' => false,
                         'message' => 'Cancellation window closed. You cannot cancel within 2 hours of slot time.'
                     ], 422);
@@ -211,13 +219,17 @@ class BookingService
           //  Check ownership
             if ($slot->booking->user_id !== auth()->id()) {
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Unauthorized to reschedule this booking slot'
-                 ], 403);
+                 ], 422);
                 }
             //  Check already completed or ongoing slot
                 if ($slot->status === 'completed' || $slot->status === 'ongoing' || $slot->status === 'cancelled') {
                     return response()->json([
+                        'code' => 422,
+                        'data' => (object)[],
                         'status' => false,
                         'message' => 'Completed,Ongoing and Cancelled slots cannot be rescheduled'
                     ], 422);
@@ -228,6 +240,9 @@ class BookingService
                 $rescheduleLimit = $oldStart->copy()->subHours(2);
                 if (now()->greaterThanOrEqualTo($rescheduleLimit)) {
                     return response()->json([
+                        'code' => 422,
+                        'data' => (object)[],
+                        'status'=>false,
                         'message' => 'Cannot reschedule within 2 hours of slot time'
                     ], 422);
                 }
@@ -249,6 +264,9 @@ class BookingService
 
                     if ($conflict) {
                         return response()->json([
+                            'code' => 422,
+                            'data' => (object)[],
+                            'status' => false,
                             'message' => 'Expert is not available at this time'
                         ], 422);
                     }
@@ -274,6 +292,7 @@ class BookingService
                      }
 
                     return response()->json([
+                               'code'=>200,
                                 'status' => true,
                                 'message' => 'Slot rescheduled successfully',
                                 'data' => [
@@ -283,7 +302,7 @@ class BookingService
                                     'newTime' => $slot->booking_date . ' ' . $slot->start_time,               
                                     'status' => $slot->status
                                  ]
-                            ]);   
+                            ],200);   
              
         }
 
@@ -297,21 +316,27 @@ class BookingService
             $slot = BookingSlot::with('booking', 'expert')->find($slotId);
             if (!$slot) {
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Booking Slot not found'
-                ], 200);
+                ], 422);
              }
 
              // Check ownership only expert can confirm OTP
             if ($slot->expert_id !== auth()->id()) {
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
                     'message' => 'Unauthorized to confirm OTP for this booking slot'
-                ], 403);
+                ], 422);
               } 
               // Block if attempts already 5
                 if ($slot->otp_attempts >= 5) {
                     return response()->json([
+                        'code' => 422,
+                        'data' => (object)[],
                         'status' => false,
                         'message' => 'Maximum OTP attempts exceeded.'
                     ], 422);
@@ -321,9 +346,10 @@ class BookingService
                 $slot->increment('otp_attempts');  // Increase attempt count
                 $attemptsLeft = 5 - $slot->otp_attempts;
                 return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status' => false,
-                     'message' => 'Invalid OTP. Attempts left: ' . $attemptsLeft
-
+                    'message' => 'Invalid OTP. Attempts left: ' . $attemptsLeft
                 ], 422);
             }
 

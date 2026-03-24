@@ -1,185 +1,132 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Training Center Dashboard')
+@section('title', 'Training Centers')
 
 @section('content')
 
-<div class="card">
+    <div class="card">
 
-    <!-- Header -->
-    <div class="card-header d-flex justify-content-between align-items-center">
-
-        <h5 class="card-title mb-0">Center List</h5>
-
-        <div class="d-flex align-items-center gap-3">
-
-            <!-- Search -->
-            <div class="d-flex align-items-center">
-                <span class="me-2">Search:</span>
-                <input type="search"
-                       class="form-control form-control-sm"
-                       placeholder="Search centers..."
-                       style="width:200px;">
-            </div>
-
-            <!-- Add Button -->
-            <a href="{{ route('admin.training_centers.create') }}" class="btn btn-primary btn-sm">
-                <i class="ri-add-line me-1"></i> Add Center
-            </a>
-
+        <!-- ALERT -->
+        <div class="p-3">
+            @include('admin.layouts.partials.alerts')
         </div>
 
-    </div>
+        <!-- Header -->
+        <div class="card-header d-flex justify-content-between align-items-center">
 
-    <hr class="my-0">
+            <h5 class="card-title mb-0"> Training Center List</h5>
 
-    <!-- Show Entries -->
-    <div class="row px-4 py-3 align-items-center">
+            <div class="d-flex align-items-center gap-3">
 
-        <div class="col-md-6">
+                <!-- Search -->
+                <form method="GET" action="{{ route('admin.training_centers.index') }}" class="d-flex align-items-center">
+                    <span class="me-2">Search:</span>
+                    <input type="search" name="search" value="{{ request('search') }}" class="form-control form-control-sm"
+                        placeholder="Search centers..." style="width:200px;">
+                </form>
 
-            <div class="d-flex align-items-center gap-2">
-                <span>Show</span>
+                <!-- Add -->
+                <a href="{{ route('admin.training_centers.create') }}" class="btn btn-primary btn-sm">
+                    <i class="ri-add-line me-1"></i> Add Training Center
+                </a>
 
-                <select class="form-select form-select-sm" style="width:80px;">
-                    <option>7</option>
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                </select>
-
-                <span>entries</span>
             </div>
 
         </div>
 
-    </div>
+        <hr class="my-0">
 
+        <!-- Table -->
+        <div class="table-responsive px-4 pb-3">
 
-    <!-- Table -->
-    <div class="table-responsive px-4 pb-3">
+            <table class="table table-hover align-middle table-bordered">
 
-        <table class="table table-hover align-middle table-bordered">
+                <thead class="bg-label-secondary">
+                    <tr>
+                        <th width="60">ID</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Address</th>
+                        <th width="120">Status</th>
+                        <th width="120">Actions</th>
+                    </tr>
+                </thead>
 
-            <thead class="bg-label-secondary">
+                <tbody>
 
-                <tr>
-                    <th width="60">ID</th>
-                    <th>Name</th>
-                    <th>City</th>
-                    <th>Address</th>
-                    <th width="120">Status</th>
-                    <th width="120">Actions</th>
-                </tr>
+                    @forelse($centers as $center)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
 
-            </thead>
+                            <td>
+                                <span class="fw-semibold">{{ $center->name }}</span>
+                            </td>
 
-            <tbody>
+                            <td>{{ $center->city }}</td>
 
-                <tr>
+                            <td>{{ $center->address }}</td>
 
-                    <td>1</td>
+                            <td>
+                                @if ($center->status == 1)
+                                    <span class="badge rounded-pill bg-label-success">ACTIVE</span>
+                                @else
+                                    <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
+                                @endif
+                            </td>
 
-                    <td>
-                        <span class="fw-semibold">Skill Development Center</span>
-                    </td>
+                            <td>
+                                <div class="dropdown">
 
-                    <td>Noida</td>
+                                    <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
+                                        data-bs-toggle="dropdown">
+                                        <i class="ri-more-2-line"></i>
+                                    </button>
 
-                    <td>Sector 62, Noida, Uttar Pradesh</td>
+                                    <ul class="dropdown-menu dropdown-menu-end">
 
-                    <td>
-                        <span class="badge rounded-pill bg-label-success">
-                            ACTIVE
-                        </span>
-                    </td>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.training_centers.edit', $center->id) }}">
+                                                <i class="ri-pencil-line me-2"></i> Edit
+                                            </a>
+                                        </li>
 
-                    <td>
+                                        <li>
+                                            <form method="POST"
+                                                action="{{ route('admin.training_centers.destroy', $center->id) }}">
+                                                @csrf
+                                                @method('DELETE')
 
-                        <div class="dropdown">
+                                                <button type="submit" class="dropdown-item text-danger"
+                                                    onclick="return confirm('Delete center?')">
+                                                    <i class="ri-delete-bin-6-line me-2"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
 
-                            <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
-                                    data-bs-toggle="dropdown">
-                                <i class="ri-more-2-line"></i>
-                            </button>
+                                    </ul>
 
-                            <ul class="dropdown-menu dropdown-menu-end">
+                                </div>
+                            </td>
+                        </tr>
 
-                                <li>
-                                    <a class="dropdown-item"
-                                       href="{{ route('admin.training_centers.edit') }}">
-                                        <i class="ri-pencil-line me-2"></i>
-                                        Edit
-                                    </a>
-                                </li>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">No training centers found</td>
+                        </tr>
+                    @endforelse
 
-                                <li>
-                                    <a class="dropdown-item text-danger" href="#">
-                                        <i class="ri-delete-bin-6-line me-2"></i>
-                                        Delete
-                                    </a>
-                                </li>
+                </tbody>
 
-                            </ul>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    <!-- Pagination -->
-    <div class="row px-4 pb-3 align-items-center">
-
-        <div class="col-md-6">
-
-            <small class="text-muted">
-                Showing 1 to 7 of 10 entries
-            </small>
+            </table>
 
         </div>
 
-        <div class="col-md-6 text-end">
-
-            <nav>
-
-                <ul class="pagination pagination-sm justify-content-end mb-0">
-
-                    <li class="page-item disabled">
-                        <a class="page-link">
-                            <i class="ri-arrow-left-s-line"></i>
-                        </a>
-                    </li>
-
-                    <li class="page-item active">
-                        <a class="page-link">1</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="page-link">2</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="page-link">
-                            <i class="ri-arrow-right-s-line"></i>
-                        </a>
-                    </li>
-
-                </ul>
-
-            </nav>
-
+        <!-- Pagination -->
+        <div class="px-4 pb-3">
+            {{ $centers->links('pagination::bootstrap-5') }}
         </div>
 
     </div>
-
-</div>
 
 @endsection

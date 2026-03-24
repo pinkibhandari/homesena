@@ -19,6 +19,8 @@ class paymentService
         $booking = Booking::find($request->booking_id);
           if(!$booking){
                return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status'=> false,
                     'message'=> 'booking not found'
                 ]);
@@ -26,6 +28,8 @@ class paymentService
           $method = PaymentMethod::find($request->payment_method_id);
           if(!$method || !$method->is_active){
                return response()->json([
+                    'code' => 422,
+                    'data' => (object)[],
                     'status'=>false,
                     'message'=>'Payment method not available'
                ]);
