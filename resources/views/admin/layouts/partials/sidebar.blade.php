@@ -70,58 +70,21 @@
                 <span class="app-brand-text demo menu-text fw-semibold ms-2">HomeSena</span>
             </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+            {{-- <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
                 <i class="menu-toggle-icon d-xl-inline-block align-middle"></i>
-            </a>
+            </a> --}}
         </div>
 
         <div class="menu-inner-shadow"></div>
 
         <ul class="menu-inner py-1">
             <!-- Dashboards -->
-               <li class="menu-item">
+            <li class="menu-item">
                 <a href="{{ route('admin.dashboard') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-home-smile-line"></i>
                     <div data-i18n="Dashboards">Dashboards</div>
                 </a>
             </li>
-
-                {{-- <ul class="menu-sub">
-                    <li class="menu-item">
-                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/dashboards-crm.html"
-                            target="_blank" class="menu-link">
-                            <div data-i18n="CRM">CRM</div>
-                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="index.html" class="menu-link">
-                            <div data-i18n="Analytics">Analytics</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-ecommerce-dashboard.html"
-                            target="_blank" class="menu-link">
-                            <div data-i18n="eCommerce">eCommerce</div>
-                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-logistics-dashboard.html"
-                            target="_blank" class="menu-link">
-                            <div data-i18n="Logistics">Logistics</div>
-                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-academy-dashboard.html"
-                            target="_blank" class="menu-link">
-                            <div data-i18n="Academy">Academy</div>
-                            <div class="badge rounded-pill bg-label-primary fs-tiny ms-auto">Pro</div>
-                        </a>
-                    </li>
-                </ul> --}}
-          
             {{-- User --}}
             <li class="menu-item">
                 <a href="{{ route('admin.users.index') }}" class="menu-link">
@@ -129,7 +92,7 @@
                     <div data-i18n="User">Users</div>
                 </a>
             </li>
-             {{-- Experts --}}
+            {{-- Experts --}}
             <li class="menu-item">
                 <a href="{{ route('admin.experts.index') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-user-line"></i>
@@ -158,14 +121,14 @@
                 </a>
             </li>
             {{-- Bookings --}}
-            <li class="menu-item">
+            <!-- <li class="menu-item">
                 <a href="{{ route('admin.bookings.index') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-calendar-check-line"></i>
                     <div data-i18n="Bookings">Bookings</div>
                 </a>
-            </li>
+            </li> -->
 
-           
+
             {{-- Training Centers --}}
             <li class="menu-item">
                 <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
@@ -173,21 +136,28 @@
                     <div data-i18n="Training Centers">Training Centers</div>
                 </a>
             </li>
-            {{-- Payments --}}
+            {{-- Cms Pages --}}
             <li class="menu-item">
+                <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ri ri-file-text-line"></i>
+                    <div data-i18n="CMS Pages">CMS Pages</div>
+                </a>
+            </li>
+            {{-- Payments --}}
+            <!-- <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ri ri-secure-payment-line"></i>
                     <div data-i18n="Payments">Payments</div>
-                </a>
+                </a> -->
 
-                <ul class="menu-sub">
+                <!-- <ul class="menu-sub"> -->
 
                     <!-- Payment -->
-                    <li class="menu-item">
+                    <!-- <li class="menu-item">
                         <a href="{{ route('admin.payments.index') }}" class="menu-link">
                             <div data-i18n="Payment">Payment</div>
                         </a>
-                    </li>
+                    </li> -->
 
                     <!-- Payment Method -->
                     <!-- <li class="menu-item">
@@ -196,8 +166,8 @@
                         </a>
                     </li> -->
 
-                </ul>
-            </li>
+                <!-- </ul> -->
+            <!-- </li> -->
             <!-- Layouts -->
             {{-- <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -286,9 +256,9 @@
             </li> --}}
 
             <!-- Apps & Pages -->
-            <li class="menu-header mt-7">
+            <!-- <li class="menu-header mt-7">
                 <span class="menu-header-text">Apps &amp; Pages</span>
-            </li>
+            </li> -->
             {{-- <li class="menu-item">
               <a
                 href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/html/vertical-menu-template/app-email.html"
@@ -395,7 +365,7 @@
               </ul>
             </li> --}}
             <!-- Components -->
-            <li class="menu-header mt-7"><span class="menu-header-text">Components</span></li>
+            <!-- <li class="menu-header mt-7"><span class="menu-header-text">Components</span></li> -->
             <!-- Cards -->
             {{-- <li class="menu-item">
                 <a href="cards-basic.html" class="menu-link">
@@ -537,7 +507,7 @@
             </li> --}}
 
             <!-- Forms & Tables -->
-            <li class="menu-header mt-7"><span class="menu-header-text">Forms &amp; Tables</span></li>
+            <!-- <li class="menu-header mt-7"><span class="menu-header-text">Forms &amp; Tables</span></li> -->
             <!-- Forms -->
             {{-- <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -601,7 +571,7 @@
                 </a>
             </li> --}}
             <!-- Misc -->
-            <li class="menu-header mt-7"><span class="menu-header-text">Misc</span></li>
+            <!-- <li class="menu-header mt-7"><span class="menu-header-text">Misc</span></li> -->
             {{-- <li class="menu-item">
                 <a href="https://github.com/themeselection/materio-bootstrap-html-admin-template-free/issues"
                     target="_blank" class="menu-link">

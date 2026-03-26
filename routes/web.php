@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ServiceVariantController;
 use App\Http\Controllers\Admin\TimeSlotController;
+use App\Http\Controllers\Admin\CmsPagesController;
 
     Route::get('/', function () {
         return view('landing');
@@ -23,7 +24,17 @@ use App\Http\Controllers\Admin\TimeSlotController;
                return view('admin.login');
             })->name('admin.login');
     Route::post('admin/login', [AuthController::class, 'adminLogin']);
+    /* forgot password  */
+    Route::get('/admin/forgot-password', [AuthController::class, 'showForgot'])->name('admin.forgot');
+    Route::post('/admin/otp', [AuthController::class, 'sendOtp'])->name('admin.sendOtp');
+    Route::get('/admin/otp', [AuthController::class, 'showOtp'])->name('admin.otp');
+    Route::post('/admin/verify-otp', [AuthController::class, 'verifyOtp'])->name('admin.verifyOtp');
+    Route::get('/admin/reset-password', [AuthController::class, 'showResetPassword'])->name('admin.resetPassword');
+    Route::post('/admin/reset-password', [AuthController::class, 'resetPassword'])->name('admin.resetPasswordSubmit');
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Admin Change Password Routes
+        Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('change_password');
+        Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('update_password');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
         Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
@@ -40,6 +51,7 @@ use App\Http\Controllers\Admin\TimeSlotController;
         Route::resource('service_variants', ServiceVariantController::class);
         Route::resource('time_slots', TimeSlotController::class);
         Route::resource('payments', PaymentController::class);
+        Route::resource('cms_pages', CmsPagesController::class);
    
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');

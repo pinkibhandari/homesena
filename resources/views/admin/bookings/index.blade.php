@@ -117,7 +117,7 @@
 
                             <li>
                                 <a class="dropdown-item"
-                                   href="{{ route('admin.bookings.edit') }}">
+                                   href="#">
                                     <i class="ri-pencil-line me-2"></i>
                                     Edit
                                 </a>

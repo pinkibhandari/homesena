@@ -21,6 +21,106 @@
     <script src="{{ asset('landing/js/modernizr.custom.js') }}"></script>
 
 </head>
+<style>
+    .footer-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        margin-top: 25px;
+    }
+
+    /* LEFT */
+    .footer-left {
+        display: flex;
+        gap: 20px;
+        justify-content: flex-start;
+    }
+
+    /* RIGHT */
+    .footer-right {
+        display: flex;
+        gap: 20px;
+        justify-content: flex-end;
+    }
+
+    /* LINKS STYLE */
+    .footer-left a,
+    .footer-right a {
+        color: #ddd;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        position: relative;
+        transition: 0.3s;
+    }
+
+    /* Hover Effect */
+    .footer-left a:hover,
+    .footer-right a:hover {
+        color: #fff;
+    }
+
+    /* Underline Animation */
+    .footer-left a::after,
+    .footer-right a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 0%;
+        height: 2px;
+        background: #fff;
+        transition: 0.3s;
+    }
+
+    .footer-left a:hover::after,
+    .footer-right a:hover::after {
+        width: 100%;
+    }
+
+    /* CENTER ICONS */
+    .footer-center {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    /* ICON DESIGN */
+    .footer-center a {
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 16px;
+        transition: 0.3s ease;
+    }
+
+    /* ICON HOVER */
+    .footer-center a:hover {
+        background: #fff;
+        color: #764ba2;
+        transform: translateY(-3px);
+    }
+
+    /* 📱 MOBILE RESPONSIVE */
+    @media (max-width: 768px) {
+        .footer-row {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .footer-left,
+        .footer-right {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+</style>
 
 <body>
 
@@ -397,37 +497,49 @@
         </div>
     </section>
     <!-- FAQs End -->
-    <!-- HHHHHHHHHHHHHHHHHH        Footer          HHHHHHHHHHHHHHHH -->
+    <!--  Footer -->
 
     <section id="footer" class="footer-section">
         <div class="container">
 
-            <div class="footer-content">
+            <div class="footer-content d-flex justify-content-between flex-wrap">
 
+                <!-- Logo -->
                 <div class="footer-logo">
                     <h2>HOMESENA</h2>
                     <p>Your trusted partner for professional home services.</p>
                 </div>
 
-                <ul class="social-icons">
-                    <li class="facebook">
+
+
+                <div class="footer-row">
+
+                    <!-- LEFT -->
+                    <div class="footer-left">
+                       <a href="#">About Us</a>
+                        <a href="#">Terms & Conditions</a>
+                    </div>
+
+                    <!-- CENTER -->
+                    <div class="footer-center">
                         <a href="#"><i class="fa fa-facebook"></i></a>
-                    </li>
-
-                    <li class="twitter">
                         <a href="#"><i class="fa fa-twitter"></i></a>
-                    </li>
-
-                    <li class="linkedin">
                         <a href="#"><i class="fa fa-linkedin"></i></a>
-                    </li>
-                </ul>
+                    </div>
 
+                    <!-- RIGHT -->
+                    <div class="footer-right">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Cancellation & Refund Policy</a>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="copyright">
+            <!-- Copyright -->
+            <div class="copyright text-center mt-4">
                 <p>
-                    Made with <i class="fa fa-heart"></i> by
+                    Made with <i class="fa fa-heart text-danger"></i> by
                     <a href="http://www.applofy.com/" target="_blank">Applofy</a>
                 </p>
 
@@ -436,6 +548,7 @@
 
         </div>
     </section>
+    <!--  Footer End-->
     <script src="{{ asset('landing/js/jquery-1.11.2.min.js') }}"></script>
     <script src="{{ asset('landing/js/wow.min.js') }}"></script>
     <script src="{{ asset('landing/js/owl-carousel.js') }}"></script>

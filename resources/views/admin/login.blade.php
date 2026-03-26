@@ -88,10 +88,10 @@
 
             <h4 class="text-center fw-bold mb-3">Admin Login</h4>
 
-            @if(session('error'))
-                <div class="alert alert-danger">
+            @if (session('error'))
+                <p class="text-danger">
                     {{ session('error') }}
-                </div>
+                </p>
             @endif
             <form method="POST" action="/admin/login">
                 @csrf
@@ -119,15 +119,16 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-lock-line"></i>
                         </span>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror"
-                            value="{{ old('password') }}" placeholder="Enter your password" name="password">
+                        <input type="password" id="password"
+                            class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}"
+                            placeholder="Enter your password" name="password">
                         @error('password')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
                         @enderror
-                        <span class="input-group-text bg-white">
-                            <i class="ri-eye-line"></i>
+                        <span class="input-group-text bg-white" style="cursor: pointer;" onclick="togglePassword()">
+                            <i class="ri-eye-line" id="eyeIcon"></i>
                         </span>
                     </div>
                 </div>
@@ -137,7 +138,9 @@
                     <div>
                         <input type="checkbox"> Remember me
                     </div>
-                    <a href="#" class="text-decoration-none">Forgot password?</a>
+                    <a href="{{ route('admin.forgot') }}" class="text-decoration-none">
+                        Forgot password?
+                    </a>
                 </div>
 
                 <!-- Button -->
@@ -150,5 +153,21 @@
         </div>
     </div>
 </body>
+<script>
+    function togglePassword() {
+        let password = document.getElementById("password");
+        let icon = document.getElementById("eyeIcon");
+
+        if (password.type === "password") {
+            password.type = "text";
+            icon.classList.remove("ri-eye-line");
+            icon.classList.add("ri-eye-off-line");
+        } else {
+            password.type = "password";
+            icon.classList.remove("ri-eye-off-line");
+            icon.classList.add("ri-eye-line");
+        }
+    }
+</script>
 
 </html>
