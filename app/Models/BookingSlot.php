@@ -9,7 +9,7 @@ class BookingSlot extends Model
     protected $fillable = [
         'booking_id',
         'expert_id',
-        'booking_date',
+        'date',
         'start_time',
         'end_time',
         'duration',
@@ -17,6 +17,7 @@ class BookingSlot extends Model
         'otp_attrempts',
         'otp_verified',
         'status',
+        'amount',
         'payment_status',
         'check_in_time'
     ];

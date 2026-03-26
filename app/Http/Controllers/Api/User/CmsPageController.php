@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Controllers\Api\User;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\CmsPage;
+
+class CmsPageController extends Controller
+{
+    public function getCmsPage($slug)
+    {
+        $page = CmsPage::where('slug', $slug)
+            ->where('status', 1)
+            ->first();
+        if (!$page) {
+            return response()->json([
+                    'data' => (object) [],
+                    'code' => 422,
+                    'status' => false,
+                    'message' => 'Page not found'
+            ]);
+        }
+        return response()->json([
+            'status' => true,
+            'code'=>200,
+             'message' => 'Page found',
+            'data' => $page
+        ]);
+    }
+}

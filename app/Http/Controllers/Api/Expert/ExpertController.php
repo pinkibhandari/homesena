@@ -11,10 +11,10 @@ class ExpertController extends Controller
     public function storeDetails(Request $request)
     {
         $request->validate([
-            'registration_code' => 'required',
-            'onboarding_agent_code' => 'required',
+            // 'registration_code' => 'required',
+            // 'onboarding_agent_code' => 'required',
             'training_center_id' => 'required|exists:training_centers,id',
-            'work_schedule' => 'required'
+            // 'work_schedule' => 'required'
         ]);
         $exists = ExpertDetail::where('user_id', auth()->id())->exists();
         if ($exists) {
@@ -25,10 +25,10 @@ class ExpertController extends Controller
         }
         $expert = ExpertDetail::create([
             'user_id' => auth()->id(),
-            'registration_code' => $request->registration_code,
-            'onboarding_agent_code' => $request->onboarding_agent_code,
+            // 'registration_code' => $request->registration_code,
+            // 'onboarding_agent_code' => $request->onboarding_agent_code,
             'training_center_id' => $request->training_center_id,
-            'work_schedule' => $request->work_schedule
+            // 'work_schedule' => $request->work_schedule
         ]);
         if ($expert) {
             return response()->json([

@@ -19,8 +19,11 @@ class ServiceResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'icon' => $this->icon ? asset('storage/'.$this->icon) : null,
+            // 'icon' => $this->icon ? asset('storage/'.$this->icon) : null,
             'image' => $this->image ? asset('storage/'.$this->image) : null,
+            'price'=>  $this->price,
+            'discount_price'=> $this->discount_price,
+
 
             'variants' => ServiceVariantResource::collection(
                 $this->whenLoaded('activeVariants')

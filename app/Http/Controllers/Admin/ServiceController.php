@@ -65,7 +65,6 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $data = $this->validateData($request, $service->id);
-
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
         }

@@ -79,12 +79,12 @@
 
         <ul class="menu-inner py-1">
             <!-- Dashboards -->
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
+               <li class="menu-item">
+                <a href="{{ route('admin.dashboard') }}" class="menu-link">
                     <i class="menu-icon icon-base ri ri-home-smile-line"></i>
                     <div data-i18n="Dashboards">Dashboards</div>
-                    <div class="badge text-bg-danger rounded-pill ms-auto">5</div>
                 </a>
+            </li>
 
                 {{-- <ul class="menu-sub">
                     <li class="menu-item">
@@ -121,7 +121,7 @@
                         </a>
                     </li>
                 </ul> --}}
-            </li>
+          
             {{-- User --}}
             <li class="menu-item">
                 <a href="{{ route('admin.users.index') }}" class="menu-link">

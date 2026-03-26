@@ -16,10 +16,18 @@ class BookingResource extends JsonResource
     {
         // return parent::toArray($request);
           return [
+            
             'booking_id' => $this->id,
-            'booking_created_at' => $this->booking_date,
+            'booking_created_at' => $this->booking_created_at,
             'booking_code' => $this->booking_code,
+            'type' => $this->type,
+            'booking_subtype' => $this->booking_subtype,
             'status' => $this->status,
+            'total_amount'=>$this->total_amount,
+            'start_date'=>$this->start_date,
+            'end_date'=>$this->end_date,
+            'time'=>$this->time,
+            'payment_status'=>$this->payment_status,
 
             //  Service Details
             'service' => [
@@ -36,14 +44,17 @@ class BookingResource extends JsonResource
             ],
 
             //  Multiple Slots
-            'slots' => $this->bookingSlots->map(function ($slot) {
+            'slots' =>  $this->slots ? $this->slots->map(function ($slot) {
                 return [
                     'slot_id' => $slot->id,
-                    'booking_date' => $slot->booking_date,
+                    'date' => $slot->date,
+                    'time' => $slot->time,
                     'start_time' => $slot->start_time,
                     'end_time' => $slot->end_time,
                     'duration' => $slot->duration,
                     'status' => $slot->status,
+                    'amount'=>$slot->amount,
+                    'payment_status'=>$slot->payment_status,
 
                     //  Expert per slot
                     'expert' => $slot->expert ? [
@@ -52,7 +63,7 @@ class BookingResource extends JsonResource
                         'phone' => $slot->expert->phone,
                     ] : null,
                 ];
-            }),
+            }): []
         ];
     }
 }

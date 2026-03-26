@@ -88,11 +88,13 @@
 
             <h4 class="text-center fw-bold mb-3">Admin Login</h4>
 
-             @if(session('error'))
-                <p>{{ session('error') }}</p>
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
             @endif
-           <form method="POST" action="/admin/login">
-               @csrf
+            <form method="POST" action="/admin/login">
+                @csrf
 
                 <!-- Email -->
                 <div class="mb-3">
@@ -101,13 +103,13 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-mail-line"></i>
                         </span>
-                        <input type="text" class="form-control @error('email') is-invalid @enderror" placeholder="Enter your email"
-                              name="email" value="{{ old('email') }}">
-                              @error('email')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
+                        <input type="text" class="form-control @error('email') is-invalid @enderror"
+                            placeholder="Enter your email" name="email" value="{{ old('email') }}">
+                        @error('email')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                 </div>
                 <!-- Password -->
@@ -118,12 +120,12 @@
                             <i class="ri-lock-line"></i>
                         </span>
                         <input type="password" class="form-control @error('password') is-invalid @enderror"
-                             value="{{ old('password') }}" placeholder="Enter your password" name="password">
-                             @error('password')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
+                            value="{{ old('password') }}" placeholder="Enter your password" name="password">
+                        @error('password')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                         <span class="input-group-text bg-white">
                             <i class="ri-eye-line"></i>
                         </span>

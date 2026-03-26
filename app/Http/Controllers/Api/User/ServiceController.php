@@ -12,7 +12,7 @@ class ServiceController extends Controller
     // get all services
     public function getServices()
     {
-         $services = Service::with('activeVariants')->where('is_active',1)->get();
+         $services = Service::with('activeVariants')->where('status','ACTIVE')->get();
          if($services->isEmpty()) {
         // if(empty($services)) {
             return response()->json([
@@ -35,7 +35,7 @@ class ServiceController extends Controller
 // get service by id
     public function getServiceById($id)
     {
-        $service = Service::with('activeVariants')->where('is_active',1)->find($id);
+        $service = Service::with('activeVariants')->where('status','ACTIVE')->find($id);
         if (!$service) {
             return response()->json([
                 'status' => false,

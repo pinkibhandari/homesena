@@ -12,7 +12,7 @@ use App\Services\FirebaseService;
 
 
 
-class BookingController extends Controller
+class BookingController1 extends Controller
 {
     protected $bookingService;
     protected $expertService;
@@ -46,7 +46,7 @@ class BookingController extends Controller
         $booking = Booking::with([
                         'service',
                         'address',
-                        'bookingSlots.expert'
+                        'slots.expert'
                         ])->find($id);
         if (!$booking) {
             return response()->json([
@@ -71,7 +71,7 @@ class BookingController extends Controller
          $query  = Booking::with([
                         'service',
                         'address',
-                        'bookingSlots.expert'
+                        'slots.expert'
                         ])->where('user_id', auth()->id());
          if ($request->status) {
                 $query->where('status', $request->status);

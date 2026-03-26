@@ -8,38 +8,38 @@ use Kreait\Firebase\Messaging\Notification;
 
 class FirebaseService
 {
-    protected $messaging;
-
-    public function __construct()
+    protected function getAccessToken()
     {
-        $factory = (new Factory)
-            ->withServiceAccount(config('services.firebase.credentials'));
+        $credentials = json_decode(file_get_contents(storage_path('app/firebase.json')), true);
 
-        $this->messaging = $factory->createMessaging();
+        $client = new \Google_Client();
+        $client->setAuthConfig($credentials);
+        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+
+        $token = $client->fetchAccessTokenWithAssertion();
+
+        return $token['access_token'];
     }
 
-    // public function sendNotification($deviceToken, $title, $body, $data = [])
-    // {
-    //     $message = CloudMessage::withTarget('token', $deviceToken)
-    //         ->withNotification(Notification::create($title, $body))
-    //         ->withData($data);
-
-    //     return $this->messaging->send($message);
-    // }
-
-    public function send($token, $title, $message)
+    public function send($fcmToken, $title, $body, $data = [])
     {
-        $serverKey = env('FIREBASE_SERVER_KEY');
+        $accessToken = $this->getAccessToken();
+        $projectId = json_decode(file_get_contents(storage_path('app/firebase.json')), true)['project_id'];
 
-        return Http::withHeaders([
-            'Authorization' => 'key=' . $serverKey,
-            'Content-Type'  => 'application/json',
-        ])->post('https://fcm.googleapis.com/fcm/send', [
-            'to' => $token,
-            'notification' => [
-                'title' => $title,
-                'body' => $message,
-            ],
+        $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+        $response = Http::withToken($accessToken)->post($url, [
+            "message" => [
+                "token" => $fcmToken,
+                "notification" => [
+                    "title" => $title,
+                    "body" => $body
+                ],
+                "data" => $data
+            ]
         ]);
+
+        \Log::info('FCM', $response->json());
     }
+
 }

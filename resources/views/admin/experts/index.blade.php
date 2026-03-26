@@ -2,10 +2,10 @@
 @section('title', 'Experts')
 @section('content')
     <div class="card">
-          <!-- ALERT MESSAGE -->
-    <div class="p-3">
-        @include('admin.layouts.partials.alerts')
-    </div>
+        <!-- ALERT MESSAGE -->
+        <div class="p-3">
+            @include('admin.layouts.partials.alerts')
+        </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Experts</h5>
@@ -14,8 +14,8 @@
                 <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
-                        <input name="search" type="search" class="form-control form-control-sm" placeholder="Search experts..."
-                            value="{{ request('search') }}" style="width:200px;">
+                        <input name="search" type="search" class="form-control form-control-sm"
+                            placeholder="Search experts..." value="{{ request('search') }}" style="width:200px;">
                     </div>
                 </form>
                 <!-- Add Button -->
@@ -37,9 +37,11 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Registration Code</th>
-                         <th>Onboarding Agent Code</th>
+                        <!-- <th>Onboarding Agent Code</th> -->
                         <th>Online</th>
                         <th width="120">Status</th>
+                        <th>Approval Status</th>
+                        <th>Approval Actions</th>
                         <th width="120">Actions</th>
                     </tr>
                 </thead>
@@ -51,10 +53,10 @@
                                 <span class="fw-semibold">{{ $expert->name ?? ' ' }}</span>
                             </td>
                             <td>{{ $expert->phone }}</td>
-                            <td>{{ $expert->expertDetail->registration_code }}</td>
-                             <td>{{ $expert->expertDetail->onboarding_agent_code }}</td>
-                             <td>
-                                @if($expert->expertDetail->is_online === 1)
+                            <td class="reg-td">{{ $expert->expertDetail?->registration_code }}</td>
+                            <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
+                            <td>
+                                @if($expert->expertDetail?->is_online === 1)
                                     <span class="badge rounded-pill bg-label-success">Yes</span>
                                 @else
                                     <span class="badge rounded-pill bg-label-danger">No</span>
@@ -67,6 +69,29 @@
                                     <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
                                 @endif
                             </td>
+                            <td class="status-badge">
+                                @if($expert->expertDetail?->approval_status === 'pending')
+                                    <span class="badge rounded-pill bg-label-warning">Pending</span>
+                                @elseif($expert->expertDetail?->approval_status === 'approved')
+                                    <span class="badge rounded-pill bg-label-success">Approved</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($expert->expertDetail?->approval_status === 'pending')
+                                    <div class="d-flex align-items-center">
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input statusToggle" type="checkbox" 
+                                                name="approval_status" value="1" data-id="{{ $expert->id}}">
+                                        </div>
+                                    </div>
+
+                                @else
+                                    <button class="btn btn-success btn-sm" disabled>
+                                        ✔ Approved
+                                    </button>
+                                @endif
+                            </td>
+
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -84,7 +109,9 @@
                                             <form action="{{ route('admin.experts.destroy', $expert->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this expert?')" type="submit" >
+                                                <button class="dropdown-item text-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this expert?')"
+                                                    type="submit">
                                                     <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                 </button>
                                             </form>
@@ -106,3 +133,59 @@
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
 @endsection
+    @push('scripts')
+    <script>
+$(document).ready(function(){
+            $(document).on('change', '.statusToggle', function () {
+                let toggle = $(this);
+                let status = toggle.is(':checked') ? 1 : 0;
+                let id = toggle.data('id');
+                let row = toggle.closest('tr');
+
+                // Confirmation before approving
+                if (status == 1) {
+                    if (!confirm("Are you sure you want to approve this user?")) {
+                        toggle.prop('checked', false); // revert toggle
+                        return;
+                    }
+                }
+
+                $.ajax({
+                    url: 'update-approve-status',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        approval_status: status,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        if (status == true) {
+                         toggle.closest('.align-items-center').html(`
+                        <button class="btn btn-success btn-sm" disabled>
+                            ✔ Approved
+                        </button>
+                    `);
+                    // 
+                    // Change badge
+                        row.find('.status-badge').html(`
+                            <span class="badge rounded-pill bg-label-success">
+                                Approved
+                            </span>
+                        `);
+                        // Update registration number
+                     row.find('.reg-td').text(response.data.registration_code);
+                    
+                        }
+
+                    },
+                    error: function () {
+                        alert('Something went wrong');
+                        toggle.prop('checked', false);
+                    }
+                });
+
+            });
+                });
+
+        </script>
+    @endpush

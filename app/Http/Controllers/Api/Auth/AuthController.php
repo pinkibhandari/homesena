@@ -45,6 +45,7 @@ class AuthController extends Controller
                 ], 422);
             }
         }
+
         $otp = rand(100000, 999999);
         $user = User::updateOrCreate(
             ['phone' => $request->phone,
@@ -62,7 +63,18 @@ class AuthController extends Controller
                 'device_type' => $request->deviceType,
             ]
         );
+        if ($user->role === 'expert' && $user->wasRecentlyCreated) {
+                  $user->update([
+                       'status' => $user->role === 'expert' ? 'INACTIVE' : 'ACTIVE',
+                   ]);
+                    $user->expertDetail()->firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['approval_status' => 'pending']
+                );
+             }
+        
        $userDevice->makeHidden(['id']);
+       $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
        $all = collect($user)->merge($userDevice);  
        if(!$user) {
             return response()->json([
@@ -134,6 +146,7 @@ class AuthController extends Controller
             'otp' => null,
             'otp_expires_at' => null
         ]);
+       
         // create sanctum token
         //  $token = $user->createToken('mobile-token')->plainTextToken;
          $token = $user->createToken('mobile-token');
@@ -154,6 +167,7 @@ class AuthController extends Controller
         //          $profileCompleted = true;
         //     }
         // }
+        $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
         $data = collect($user)->merge([
                 'token' => $token->plainTextToken
                 // 'profileCompleted' => $profileCompleted
@@ -178,6 +192,63 @@ class AuthController extends Controller
             'status' => true,
             'data'=> (object)[],
             'message' => 'Logged out successfully'
+        ]);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        // Delete tokens (logout from all devices)
+        $user->tokens()->delete();
+        // Soft delete user
+        $user->delete();
+        return response()->json([
+             'code'=> 200,
+            'status' => true,
+            'data'=> (object)[],
+            'message' => 'Account deleted successfully'
+        ]);
+    }
+
+  public function resendOtp(Request $request)
+    {
+       $validator = Validator::make($request->all(), [
+                'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
+                'role' => 'required|in:user,expert,admin',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false ,
+                    'code' => 422 ,
+                    'message' => $validator->errors()->first(), 
+                    'data' => (object)[],
+                ], 422);
+            } 
+
+        $user = User::where('phone', $request->phone)
+                ->where('role', $request->role)
+               ->first();
+
+        if (!$user) {
+             return response()->json([
+                    'status' => false ,
+                    'code' => 422 ,
+                    'message' => $validator->errors()->first(), 
+                    'data' => (object)[],
+                ], 422);
+           }
+
+        // Generate new OTP
+         $otp = rand(100000, 999999);
+        // Update OTP and time
+        $user->otp = Hash::make($otp);
+        $user->otp_expires_at = Carbon::now()->addMinutes(60);
+        $user->save();
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'OTP resent successfully',
+            'data' => $otp 
         ]);
     }
                                                                                                                                                                                                                                    

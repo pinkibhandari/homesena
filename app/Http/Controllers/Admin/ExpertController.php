@@ -180,4 +180,28 @@ class ExpertController extends Controller
             'training_center_id' => 'required',
         ]);
     }
+
+     public function updateApproveStatus(Request $request){
+           $expert = ExpertDetail::where('user_id', $request->id)->first();
+
+            if(!$expert){
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Expert Details not found'
+                    ],422);
+                }
+           $registration_no = 'REG' . rand(100000, 999999);
+           $expert->approval_status = 'approved';
+            if($request->approval_status == 1){
+                $expert->approved_by = auth()->id();
+                $expert->approved_at = now();
+                $expert->registration_code = $registration_no;
+            }
+            $expert->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Expert approved successfully',
+                'data'=> $expert
+            ],200);
+     }
 }

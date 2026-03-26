@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Auth\BookingRequest;
 use App\Models\Booking;
 
-class BookingOldController extends Controller
+class BookingControllerOld extends Controller
 {
     public function store(BookingRequest $request)
         {

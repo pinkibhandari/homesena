@@ -12,37 +12,34 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ServiceVariantController;
 use App\Http\Controllers\Admin\TimeSlotController;
 
-Route::get('/', function () {
-    return view('landing');
-});
-
-  Route::get('admin/login', function () {
+    Route::get('/', function () {
+        return view('landing');
+    });
+    Route::get('admin/login', function () {
        // If already logged in AND admin
             if (auth()->check() && auth()->user()->role === 'admin') {
                 return redirect('/admin/dashboard');
              }
                return view('admin.login');
             })->name('admin.login');
- Route::post('admin/login', [AuthController::class, 'adminLogin']);
-
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-  
-   
-
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
-
-    // Users 
-    Route::resource('users', UserController::class);
-    Route::delete('/admin/device/{id}', [UserController::class, 'deleteDevice'])
-         ->name('device.delete');
-    Route::resource('experts', ExpertController::class);
-    Route::resource('services', ServiceController::class);
-    Route::resource('bookings', BookingController::class);
-    Route::resource('training_centers', TrainingController::class);
-    Route::resource('service_variants', ServiceVariantController::class);
-    Route::resource('time_slots', TimeSlotController::class);
-    Route::resource('payments', PaymentController::class);
+    Route::post('admin/login', [AuthController::class, 'adminLogin']);
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+        Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Users 
+        Route::resource('users', UserController::class);
+        Route::delete('/admin/device/{id}', [UserController::class, 'deleteDevice'])->name('device.delete');
+        Route::resource('experts', ExpertController::class);
+        Route::post('update-approve-status', [ExpertController::class, 'updateApproveStatus']);
+        // Route::get('expert/view/{id}', [ExpertController::class, 'view'])->name('view.expert');
+        Route::resource('services', ServiceController::class);
+        Route::resource('bookings', BookingController::class);
+        Route::resource('training_centers', TrainingController::class);
+        Route::resource('service_variants', ServiceVariantController::class);
+        Route::resource('time_slots', TimeSlotController::class);
+        Route::resource('payments', PaymentController::class);
    
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');

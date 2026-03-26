@@ -9,194 +9,299 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Http\Resources\BookingResource;
 use App\Services\FirebaseService;
-use App\Models\RecurringBooking;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Address;
+use App\Models\BookingSlot;
 
 class BookingController extends Controller
 {
 
     public function createBooking(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:instant,scheduled',
-            'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
-            'booking_date' => 'required|date',
-            'slot_time' => 'required_if:type,instant,scheduled',
-            'recurring_slots' => 'required_if:booking_subtype,recurring|array',
-            // 'latitude' => 'required|numeric',
-            // 'longitude' => 'required|numeric',
+            // 'serviceId' => 'required',
+            'serviceId' => 'required_if:type,scheduled',
             'addressId' => 'required|exists:addresses,id',
-            'serviceId' => 'required_if:type,scheduled|in:single,recurring',
+            'type' => 'required|in:instant,scheduled',
+            'booking_subtype' => 'required|in:single,recurring',
+            'time' => 'required',
+
+            'date' => 'required_if:booking_subtype,single|date',
+
+            'start_date' => 'required_if:booking_subtype,recurring|date',
+            'end_date' => 'required_if:booking_subtype,recurring|date|after_or_equal:start_date',
+            'recurring_type' => 'required_if:booking_subtype,recurring|in:daily,weekly,monthly',
+
+            'days' => 'required_if:recurring_type,weekly|array',
+            'monthly_date' => 'nullable|integer|min:1|max:31',
+            'week' => 'nullable|integer|min:1|max:5',
+            'day' => 'nullable|string',
+
+            // 'latitude' => 'nullable',
+            // 'longitude' => 'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'code' => 422,
                 'message' => $validator->errors()->first(),
-                'data' => (object) [],
+                'data' => [],
             ], 422);
         }
-        $user = $request->user();
-        //  Create main booking
+
+        $existingBooking = Booking::where('user_id', auth()->id())
+                    ->where('service_id', $request->serviceId)
+                    ->where('type', $request->type)
+                     ->where('booking_subtype', $request->booking_subtype)  
+                    ->where('start_date', $request->start_date)
+                    ->where('end_date', $request->end_date)
+                    ->where('time', $request->time)
+                    ->first();
+
+            if($existingBooking) {
+                    return response()->json([
+                        'code'=>422,
+                         'data' => [],
+                        'status' => false,
+                        'message' => 'Booking already exists for this slot and user'
+                    ]);
+                }
+          $address = Address::find($request->addressId);
+            // Check latitude & longitude
+            if (!$address->address_lat || !$address->address_long) {
+                return response()->json([
+                    'code'=>422,
+                    'data' => [],
+                    'success' => false,
+                    'message' => 'Selected address does not have valid location. Please update address.'
+                ], 422);
+            }
+        
         $booking = Booking::create([
-            'booking_code' => 'BK' . now()->format('md') . strtoupper(Str::random(4)),
-            'user_id' => $user->id,
+            'user_id' => auth()->id(),
+            'service_id' => $request->serviceId,
             'type' => $request->type,
-            'booking_subtype' => $request->booking_subtype ?? 'single',
-            'booking_date' => $request->booking_date,
-            'slot_time' => $request->slot_time,
-            'status' => 'pending'
+            'booking_subtype' => $request->booking_subtype,
+            'start_date' => $request->date ?? $request->start_date ?? now(),
+            'end_date' => $request->date ?? $request->end_date ?? now(),
+            'time' => $request->time,
+            'status' => 'pending',
+            'booking_created_at'=>now()
         ]);
 
-        $address = Address::find($request->addressId);
-        // Check latitude & longitude
-        if (!$address->address_lat || !$address->address_long) {
-            return response()->json([
-                'code' => 422,
-                'success' => false,
-                'data' => (object) [],
-                'message' => 'Selected address does not have valid location. Please update address.'
-            ], 422);
+        $dates = [];
+        // Instant
+        if ($request->type == 'instant') {
+            $dates[] = now();
         }
-
-        //  Single Booking
-        if ($booking->booking_subtype == 'single') {
-            $this->notifyExperts($booking->booking_date, $booking->slot_time, $address->address_lat, $address->address_long, $booking, false);
+        //  Single
+        elseif ($request->booking_subtype == 'single') {
+            $dates[] = Carbon::parse($request->date);
         }
+        //  Recurring
+        else {
+            $current = Carbon::parse($request->start_date);
+            $end = Carbon::parse($request->end_date);
 
-        // Recurring Booking
-        if ($booking->booking_subtype == 'recurring') {
-            foreach ($request->recurring_slots as $slot) {
+            if ($request->recurring_type == 'daily') {
+                while ($current <= $end) {
+                    $dates[] = $current->copy();
+                    $current->addDay();
+                }
+            } elseif ($request->recurring_type == 'weekly') {
+                while ($current <= $end) {
+                    if (in_array(strtolower($current->format('D')), $request->days)) {
+                        $dates[] = $current->copy();
+                    }
+                    $current->addDay();
+                }
+            } elseif ($request->recurring_type == 'monthly') {
 
-                $recurring = RecurringBooking::create([
-                    'booking_id' => $booking->id,
-                    'slot_date' => $slot['date'],
-                    'slot_time' => $slot['time'],
-                    'status' => 'pending'
-                ]);
+                if ($request->monthly_date) {
+                    $current = Carbon::parse($request->start_date)->startOfMonth();
 
-                $this->notifyExperts($slot['date'], $slot['time'], $address->address_lat, $address->address_long, $recurring, true);
+                    while ($current <= $end) {
+                        $day = min($request->monthly_date, $current->daysInMonth);
+                        $date = $current->copy()->day($day);
+
+                        if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
+                            $dates[] = $date;
+                        }
+
+                        $current->addMonth();
+                    }
+                } elseif ($request->week && $request->day) {
+                    $current = Carbon::parse($request->start_date)->startOfMonth();
+
+                    while ($current <= $end) {
+                        $date = $current->copy()->modify("{$request->week} {$request->day}");
+
+                        if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
+                            $dates[] = $date;
+                        }
+
+                        $current->addMonth();
+                    }
+                }
             }
         }
 
-        return response()->json(['status' => true, 'message' => 'Booking created successfully']);
+         $startTime = Carbon::parse($request->time);
+         $endTime = $startTime->copy()->addMinutes($request->duration);
+
+        $dates = collect($dates)->unique()->values();
+        $slots = [];
+        foreach ($dates as $date) {
+            $slots[] = [
+                'booking_id' => $booking->id,
+                'date' => $date->format('Y-m-d'),
+                'start_time' => $request->type == 'instant' ? now()->format('H:i:s') : $startTime,
+                'end_time' => $endTime,
+                'time' => $request->time,
+                'duration'=> $request->duration,
+                'status' => 'pending',
+                // 'created_at' => now(),
+                // 'updated_at' => now(),
+            ];
+        }
+
+        BookingSlot::insertOrIgnore($slots);
+        $latitude = $address->address_lat;
+        $longitude = $address->address_long;
+ 
+        //  SEND NOTIFICATION FOR ALL
+        $firebase = new FirebaseService();
+        foreach ($slots as $slot) {
+            $experts = $this->getExperts( $slot['date'], $slot['start_time'], $slot['end_time'],$latitude, $longitude );
+            foreach ($experts as $expert) {
+                foreach ($expert->devices as $device) {
+                    if ($device->firebase_token) {
+                        $firebase->send(
+                            $device->firebase_token,
+                            'New Booking Request',
+                            "Booking on {$slot['date']} at {$slot['time']}",
+                            [
+                                'booking_id' => (string) $booking->id,
+                                'date' => $slot['date'],
+                                'time' => $slot['time'],
+                                'location'=>$address['address'],
+                                'earning'=>$slot['amount'],
+                                'actions' => json_encode([
+                                        ['id' => 'ACCEPT', 'title' => 'Accept'],
+                                        ['id' => 'REJECT', 'title' => 'Reject']
+                                ])
+                            ],
+                        );
+                    }
+                }
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'code'=> 200,
+            'message' => 'Booking created & notification sent',
+            'data' => $slots
+        ]);
+
+
+
+
 
     }
 
-//  Get nearby + free experts
-    private function getExperts($date, $time, $lat, $lng)
+    //  Get nearby + free experts
+    private function getExperts($date, $startTime,$endTime, $lat, $lng)
     {
-           $radiusKm = 1;
-           return User::where('users.role', 'expert')
-                    ->where('users.status', 'ACTIVE')
-                    ->join('addresses', 'addresses.user_id', '=', 'users.id')
-                    ->join('expert_details', 'expert_details.user_id', '=', 'users.id') 
-                    ->where('expert_details.is_online', true) 
-                    ->with('devices')
-                    ->select('users.*')
-                    ->selectRaw(
-                    "(6371 * acos(
+        $radiusKm = 1;
+        return User::where('users.role', 'expert')
+            ->where('users.status', 'ACTIVE')
+            ->join('addresses', 'addresses.user_id', '=', 'users.id')
+            ->join('expert_details', 'expert_details.user_id', '=', 'users.id')
+            ->where('expert_details.is_online', true)
+            ->with('devices')
+            ->select('users.*')
+            ->selectRaw(
+                "(6371 * acos(
                         cos(radians(?)) *
                         cos(radians(addresses.address_lat)) *
                         cos(radians(addresses.address_long) - radians(?)) +
                         sin(radians(?)) *
                         sin(radians(addresses.address_lat))
                     )) AS distance",
-                    [$lat, $lng, $lat]
-                )
-                ->having('distance', '<=', $radiusKm)
-                ->orderBy('distance', 'asc')
-                ->whereDoesntHave('expertBookings', function($q) use($date,$time){
-                    $q->where('booking_date',$date)
-                    ->where('slot_time',$time)
-                    ->where('status','accepted');
-                })
-                ->whereDoesntHave('expertRecurringBookings', function($q) use($date,$time){
-                    $q->where('slot_date',$date)
-                    ->where('slot_time',$time)
-                    ->where('status','accepted');
-                })
-              ->get();
+                [$lat, $lng, $lat]
+            )
+            ->having('distance', '<=', $radiusKm)
+            ->orderBy('distance', 'asc')
+            ->whereDoesntHave('expertSlots', function ($q) use ($date, $startTime, $endTime,) {
+                $q->where('date', $date)
+                    ->where('status', 'accepted')
+                    ->where('start_time', '<', $endTime)
+                    ->where('end_time', '>', $startTime);
+            })
+            ->get();
     }
 
-   // Notify experts
-    private function notifyExperts($date, $time, $lat, $lng, $booking, $isRecurring)
+    // booking by id detail
+
+      public function getBookingById($id)
     {
-        $experts = $this->getExperts($date, $time, $lat, $lng);
-        $allTokens = [];
-        foreach($experts as $expert){
-                $tokens = $expert->devices
-                    ->pluck('firebase_token')
-                    ->filter()
-                    ->unique()
-                    ->toArray();
-                $allTokens = array_merge($allTokens, $tokens);
-        }
-          //  remove duplicates once
-        $allTokens = array_unique($allTokens);
-
-        // send ONLY ONCE
-        if (!empty($allTokens)) {
-            $this->sendFirebaseNotification($allTokens, $booking, $isRecurring);
-        }
+        $booking = Booking::with([
+                        'service',
+                        'address',
+                        'slots.expert'
+                        ])->find($id);
+        if (!$booking) {
+            return response()->json([
+                'code'=>422,
+                'status' => false,
+                'message' => 'Booking not found',
+                'data'=> (object)[],
+            ], 422);
+        } else {
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'Booking retrieved successfully',
+                'data'   => new BookingResource($booking)
+            ],200);
+        }      
     }
+  // get auth user bookings
+    public function getUserBookings(Request $request)
+     { 
+         $query  = Booking::with([
+                        'service',
+                        'address',
+                        'slots.expert'
+                        ])->where('user_id', auth()->id());
+         if ($request->status) {
+                $query->where('status', $request->status);
+             }
+        $bookings = $query->latest()->paginate(10);
 
-     //  Accept booking
-    public function acceptBooking($id, $isRecurring=false)
-    {
-        $booking = $isRecurring
-            ? RecurringBooking::findOrFail($id)
-            : Booking::findOrFail($id);
+        if($bookings->isEmpty()) {
+            return response()->json([
+                'code' => 422,
+                'data'=> (object)[],
+                'status' => false,
+                'message' => 'No bookings found for this user'
+            ], 422);
+           } else {
+            return response()->json([
+                'code'=>200,
+                'status' => true,
+                'message' => 'User Bookings retrieved successfully',
+                'data' => BookingResource::collection($bookings)
+            ],200);
+           }
+      }
 
-        if($booking->status == 'accepted'){
-            return response()->json(['status'=>false,'message'=>'Already accepted']);
-        }
 
-        $booking->update([
-            'status'=>'accepted',
-            'expert_id'=>auth()->id()
-        ]);
 
-        return response()->json(['status'=>true,'message'=>'Accepted']);
-    }
-
-   
-
-  // Firebase Notification
-  private function sendFirebaseNotification($tokens, $booking, $isRecurring)
-   {
-    $serverKey = env('FIREBASE_SERVER_KEY');
-    $data = [
-        "registration_ids" => $tokens, //  array of tokens
-        "notification" => [
-            "title" => "New Booking",
-            "body"  => "You have a new booking request"
-        ],
-        "data" => [
-            "booking_id" => $booking->id,
-            "type" => $isRecurring ? "recurring" : "single"
-        ]
-    ];
-
-    $headers = [
-        'Authorization: key=' . $serverKey,
-        'Content-Type: application/json'
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-    curl_exec($ch);
-    curl_close($ch);
-  }
 }
 

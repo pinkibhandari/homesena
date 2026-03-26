@@ -162,7 +162,7 @@ class BookingService
                     ]);
 
                 // If all slots cancelled → cancel booking
-                $allCancelled = $slot->booking->bookingSlots()
+                $allCancelled = $slot->booking->slots()
                         ->where('status', '!=', 'cancelled')
                         ->count() === 0;
           

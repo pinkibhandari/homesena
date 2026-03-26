@@ -14,6 +14,7 @@ class UserController extends Controller
     public function userDetails(Request $request)
     {
         $user = $request->user();
+        $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
         if (!$user) {
             return response()->json([
                 'code' => 422,

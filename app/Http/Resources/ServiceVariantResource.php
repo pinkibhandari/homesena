@@ -14,15 +14,16 @@ class ServiceVariantResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $taxAmount = ($this->base_price * $this->tax_percentage) / 100;
-        $totalPrice = $this->base_price + $taxAmount;
+        // $taxAmount = ($this->base_price * $this->tax_percentage) / 100;
+        // $totalPrice = $this->base_price + $taxAmount;
 
         return [
             'id' => $this->id,
             'duration_minutes' => $this->duration_minutes,
-            'base_price' => $this->base_price,
-            'tax_percentage' => $this->tax_percentage,
-            'total_price' => round($totalPrice,2),
+            'price' => $this->price,
+            'discount_price' => $this->discount_price,
+            // 'tax_percentage' => $this->tax_percentage,
+            // 'total_price' => round($totalPrice,2),
         ];
     }
 }

@@ -24,9 +24,9 @@
                             </select> -->
                 </form>
                 <!-- Add Button -->
-                <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">
+                <!-- <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">
                     <i class="ri-add-line me-1"></i> Add User
-                </a>
+                </a> -->
             </div>
         </div>
         <hr class="my-0">
@@ -53,9 +53,8 @@
                         <th width="60">ID</th>
                         <th>Name</th>
                         <th>Phone</th>
-                        <!-- <th>Email</th> -->
                         <th width="120">Status</th>
-                        <th width="120">Actions</th>
+                        <!-- <th width="120">Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -66,7 +65,6 @@
                                 <span class="fw-semibold">{{ $user->name ?? ' ' }}</span>
                             </td>
                             <td>{{ $user->phone }}</td>
-                            <!-- <td>rahul@gmail.com</td> -->
                             <td>
                                 @if($user->status === 'ACTIVE')
                                     <span class="badge rounded-pill bg-label-success">ACTIVE</span>
@@ -74,7 +72,7 @@
                                     <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
                                 @endif
                             </td>
-                            <td>
+                            <!-- <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
                                         data-bs-toggle="dropdown">
@@ -98,7 +96,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </td>
+                            </td> -->
                         </tr>
                     @empty
                         <tr>

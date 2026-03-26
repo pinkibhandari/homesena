@@ -17,7 +17,7 @@
         </div>
 
         <div class="card-body">
-            <form method="POST"
+            <form id="serviceForm" method="POST"
                 action="{{ $service->id ? route('admin.services.update', $service->id) : route('admin.services.store') }}"
                 enctype="multipart/form-data">
 
@@ -66,8 +66,7 @@
                                 <option value="">Select status</option>
                                 <option value="ACTIVE" {{ old('status', $service->status) == 'ACTIVE' ? 'selected' : '' }}>
                                     ACTIVE</option>
-                                <option value="INACTIVE"
-                                    {{ old('status', $service->status) == 'INACTIVE' ? 'selected' : '' }}>INACTIVE</option>
+                                <option value="INACTIVE" {{ old('status', $service->status) == 'INACTIVE' ? 'selected' : '' }}>INACTIVE</option>
                             </select>
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -152,8 +151,9 @@
                     <!-- Slider Description -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Slider Description</label>
-                        <textarea name="slider_description" class="form-control @error('slider_description') is-invalid @enderror"
-                            rows="2" placeholder="Enter slider description">{{ old('slider_description', $service->slider_description) }}</textarea>
+                        <textarea name="slider_description"
+                            class="form-control @error('slider_description') is-invalid @enderror" rows="2"
+                            placeholder="Enter slider description">{{ old('slider_description', $service->slider_description) }}</textarea>
                         @error('slider_description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -170,31 +170,38 @@
 
             </form>
         </div>
-        <script>
-            var quill = new Quill('#editor', {
-                theme: 'snow',
-                placeholder: 'Write Description here',
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline'],
-                        [{
-                            'list': 'ordered'
-                        }, {
-                            'list': 'bullet'
-                        }],
-                        ['link', 'image']
-                    ]
-                }
-            });
 
-            // Set initial content (for edit form)
-            quill.root.innerHTML = document.querySelector('#description').value;
-
-            // On form submit, copy Quill content to hidden input
-            document.querySelector('form').onsubmit = function() {
-                document.querySelector('#description').value = quill.root.innerHTML;
-            };
-        </script>
     </div>
 
 @endsection
+
+@push('scripts')
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Quill
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Write Description here...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{'list':'ordered'}, {'list':'bullet'}],
+                ['link', 'image']
+            ]
+        }
+    });
+
+    // Load existing description for edit
+    var descriptionInput = document.getElementById('description');
+    if(descriptionInput.value) {
+        quill.root.innerHTML = descriptionInput.value;
+    }
+
+    // On form submit, copy content to hidden input
+    var form = document.getElementById('serviceForm');
+    form.addEventListener('submit', function() {
+        descriptionInput.value = quill.root.innerHTML.trim();
+    });
+});
+</script>
+@endpush
