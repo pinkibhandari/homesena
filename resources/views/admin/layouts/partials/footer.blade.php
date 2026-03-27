@@ -1,8 +1,9 @@
-<footer class="content-footer footer bg-footer-theme">
+<footer class="content-footer footer bg-footer-theme mt-auto">
   <div class="container-xxl">
-    <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+    
+    <div class="footer-container d-flex justify-content-end align-items-center py-3 text-end">
 
-      <div class="mb-2 mb-md-0">
+      <div class="medium text-muted">
         © {{ date('Y') }},
         made with ❤️ by
         <a href="#" target="_blank" class="footer-link fw-medium">
@@ -10,14 +11,7 @@
         </a>
       </div>
 
-      <div class="d-none d-lg-inline-block">
-        <a href="#" class="footer-link me-4">License</a>
-        <a href="#" class="footer-link me-4">Help</a>
-        <a href="#" class="footer-link me-4">Contact</a>
-        <a href="#" class="footer-link">Terms &amp; Conditions</a>
-      </div>
-
     </div>
+
   </div>
 </footer>
-

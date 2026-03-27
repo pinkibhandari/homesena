@@ -26,8 +26,8 @@ class ExpertController extends Controller
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhereHas('expertDetail', function ($q1) use ($search) {
-                            $q1->where('registration_code', 'like', "%{$search}%")
-                                ->orWhere('onboarding_agent_code', 'like', "%{$search}%");
+                            $q1->where('registration_code', 'like', "%{$search}%");
+                                // ->orWhere('onboarding_agent_code', 'like', "%{$search}%");
                       });
                  });
               })
@@ -84,13 +84,20 @@ class ExpertController extends Controller
                 );
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
-                    collect($data)->only([
-                        'registration_code',
-                        'onboarding_agent_code',
-                        'training_center_id',
-                        'work_schedule',
-                        'is_online'
-                    ])->toArray()
+                    [   'registration_code' => 'REG' . rand(100000, 999999),
+                        'training_center_id' => $data['training_center_id'],
+                        'is_online'=> $data['is_online'],
+                        'approval_status'=> 'approved',
+                        'approved_by'=> auth()->id(),
+                        'approved_at'=>now()
+                    ]
+                    // collect($data)->only([
+                    //     'registration_code',
+                    //     'onboarding_agent_code',
+                    //     'training_center_id',
+                    //     'work_schedule',
+                    //     'is_online'
+                    // ])->toArray()
                 );
                 ExpertEmergencyContact::updateOrCreate(
                     ['expert_detail_id' => $expertDetail->id],
@@ -134,13 +141,10 @@ class ExpertController extends Controller
                 );
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $expert->id],
-                    collect($data)->only([
-                        'registration_code',
-                        'onboarding_agent_code',
-                        'training_center_id',
-                        'work_schedule',
-                        'is_online'
-                    ])->toArray()
+                    [   
+                        'training_center_id' => $data['training_center_id'],
+                        'is_online'=> $data['is_online'],
+                    ]
                 );
             });
             return redirect()->route('admin.experts.index')->with('success', 'Expert updated successfully');
@@ -171,9 +175,9 @@ class ExpertController extends Controller
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'device_id' => $id ? 'nullable' : 'required',
             'status' => 'required|in:ACTIVE,INACTIVE',
-            'registration_code' => 'required',
-            'onboarding_agent_code' => 'required',
-            'work_schedule' => 'required',
+            // 'registration_code' => 'required',
+            // 'onboarding_agent_code' => 'required',
+            // 'work_schedule' => 'required',
             'is_online' => 'required',
             'emergency_contact_name' => $id ? 'nullable' : 'required',
             'emergency_contact_phone' => $id ? 'nullable' : 'required',

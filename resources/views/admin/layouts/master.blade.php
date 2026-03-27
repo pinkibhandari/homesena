@@ -3,17 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title>HomeSena Admin Panel</title>
+     <link rel="icon" type="image/png"  href="{{ asset('assets/img/favicon.png?v=123') }}">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}">
     <!-- <link rel="stylesheet" href="{{ asset('assets/vendor/css/theme-default.css') }}"> -->
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}">
      <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
-     
         @stack('styles')
- 
 </head>
-
 <body>
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">

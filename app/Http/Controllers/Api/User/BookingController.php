@@ -83,6 +83,7 @@ class BookingController extends Controller
             }
         
         $booking = Booking::create([
+            'booking_code'=> 'BK' . now()->format('md') . strtoupper(Str::random(4)),
             'user_id' => auth()->id(),
             'service_id' => $request->serviceId,
             'type' => $request->type,
@@ -187,6 +188,7 @@ class BookingController extends Controller
                             "Booking on {$slot['date']} at {$slot['time']}",
                             [
                                 'booking_id' => (string) $booking->id,
+                                'booking_code' =>  $booking->booking_code,
                                 'date' => $slot['date'],
                                 'time' => $slot['time'],
                                 'location'=>$address['address'],

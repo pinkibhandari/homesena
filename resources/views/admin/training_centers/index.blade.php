@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Training Centers')
+@section('title', 'Training Center Table')
 
 @section('content')
 
@@ -14,7 +14,7 @@
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
 
-            <h5 class="card-title mb-0"> Training Center List</h5>
+            <h5 class="card-title mb-0"> Training Center Table</h5>
 
             <div class="d-flex align-items-center gap-3">
 

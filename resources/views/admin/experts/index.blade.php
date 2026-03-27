@@ -1,5 +1,5 @@
 @extends('admin.layouts.master')
-@section('title', 'Experts')
+@section('title', 'Expert Table')
 @section('content')
     <div class="card">
         <!-- ALERT MESSAGE -->
@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Experts</h5>
+            <h5 class="card-title mb-0">Expert Table</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
