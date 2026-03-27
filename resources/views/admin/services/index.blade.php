@@ -91,15 +91,13 @@
 
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('admin.services.edit', $service->id) }}">
+                                            <a class="dropdown-item" href="{{ route('admin.services.edit', $service->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>
 
                                         <li>
-                                            <form method="POST"
-                                                action="{{ route('admin.services.destroy', $service->id) }}">
+                                            <form method="POST" action="{{ route('admin.services.destroy', $service->id) }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger"
@@ -123,17 +121,10 @@
             </table>
 
         </div>
+        <!-- Pagination (Dynamic) -->
 
-        <!-- Pagination -->
-        <div class="px-4 pb-3 d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-                Showing {{ $services->firstItem() ?? 0 }} to {{ $services->lastItem() ?? 0 }} of
-                {{ $services->total() ?? 0 }} entries
-            </small>
-
+        <div class="row px-4 pb-3 align-items-center">
             {{ $services->links('pagination::bootstrap-5') }}
         </div>
-
-    </div>
 
 @endsection

@@ -80,8 +80,8 @@
                                 @if($expert->expertDetail?->approval_status === 'pending')
                                     <div class="d-flex align-items-center">
                                         <div class="form-check form-switch m-0">
-                                            <input class="form-check-input statusToggle" type="checkbox" 
-                                                name="approval_status" value="1" data-id="{{ $expert->id}}">
+                                            <input class="form-check-input statusToggle" type="checkbox" name="approval_status"
+                                                value="1" data-id="{{ $expert->id}}">
                                         </div>
                                     </div>
 
@@ -132,60 +132,61 @@
         <div class="row px-4 pb-3 align-items-center">
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
+
 @endsection
     @push('scripts')
-    <script>
-$(document).ready(function(){
-            $(document).on('change', '.statusToggle', function () {
-                let toggle = $(this);
-                let status = toggle.is(':checked') ? 1 : 0;
-                let id = toggle.data('id');
-                let row = toggle.closest('tr');
+        <script>
+            $(document).ready(function () {
+                $(document).on('change', '.statusToggle', function () {
+                    let toggle = $(this);
+                    let status = toggle.is(':checked') ? 1 : 0;
+                    let id = toggle.data('id');
+                    let row = toggle.closest('tr');
 
-                // Confirmation before approving
-                if (status == 1) {
-                    if (!confirm("Are you sure you want to approve this user?")) {
-                        toggle.prop('checked', false); // revert toggle
-                        return;
-                    }
-                }
-
-                $.ajax({
-                    url: 'update-approve-status',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        approval_status: status,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function (response) {
-                        if (status == true) {
-                         toggle.closest('.align-items-center').html(`
-                        <button class="btn btn-success btn-sm" disabled>
-                            ✔ Approved
-                        </button>
-                    `);
-                    // 
-                    // Change badge
-                        row.find('.status-badge').html(`
-                            <span class="badge rounded-pill bg-label-success">
-                                Approved
-                            </span>
-                        `);
-                        // Update registration number
-                     row.find('.reg-td').text(response.data.registration_code);
-                    
+                    // Confirmation before approving
+                    if (status == 1) {
+                        if (!confirm("Are you sure you want to approve this user?")) {
+                            toggle.prop('checked', false); // revert toggle
+                            return;
                         }
-
-                    },
-                    error: function () {
-                        alert('Something went wrong');
-                        toggle.prop('checked', false);
                     }
-                });
 
-            });
+                    $.ajax({
+                        url: 'update-approve-status',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            approval_status: status,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            if (status == true) {
+                                toggle.closest('.align-items-center').html(`
+                                        <button class="btn btn-success btn-sm" disabled>
+                                            ✔ Approved
+                                        </button>
+                                    `);
+                                // 
+                                // Change badge
+                                row.find('.status-badge').html(`
+                                            <span class="badge rounded-pill bg-label-success">
+                                                Approved
+                                            </span>
+                                        `);
+                                // Update registration number
+                                row.find('.reg-td').text(response.data.registration_code);
+
+                            }
+
+                        },
+                        error: function () {
+                            alert('Something went wrong');
+                            toggle.prop('checked', false);
+                        }
+                    });
+
                 });
+            });
 
         </script>
     @endpush

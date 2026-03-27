@@ -19,7 +19,7 @@ class TimeSlotController extends Controller
                 $q->where('start_time', 'like', "%{$search}%");
             })
             ->orderBy('start_time', 'asc') // morning → evening
-            ->paginate(10)
+            ->paginate(2)
             ->withQueryString();
 
         return view('admin.time_slots.index', compact('slots'));

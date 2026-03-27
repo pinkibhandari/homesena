@@ -128,17 +128,10 @@
             </table>
 
         </div>
-
-        <!-- Pagination -->
-        <div class="px-4 pb-3 d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-                Showing {{ $variants->firstItem() ?? 0 }} to {{ $variants->lastItem() ?? 0 }}
-                of {{ $variants->total() ?? 0 }} entries
-            </small>
-
+        <!-- Pagination (Dynamic) -->
+        <div class="row px-4 pb-3 align-items-center">
             {{ $variants->links('pagination::bootstrap-5') }}
         </div>
 
-    </div>
 
 @endsection

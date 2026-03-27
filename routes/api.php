@@ -25,6 +25,9 @@ Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
 // service route
 Route::get('services', [ServiceController::class, 'getServices']);
 Route::get('services/{id}', [ServiceController::class, 'getServiceById']);
+Route::get('time-slots', [ServiceController::class, 'timeSlot']);
+Route::get('instant-booking-duration', [ServiceController::class, 'instantBookingSetting']);
+
 // Route::post('service/create',[ServiceController::class, 'create']);
 // athenticated routes
 Route::middleware('auth:sanctum')->group(function () {

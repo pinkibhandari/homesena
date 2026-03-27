@@ -131,7 +131,7 @@
                         </div>
                     @endif
                     <!-- Registration Code -->
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Registration Code</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -145,25 +145,10 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                    <!-- Onboarding Agent -->
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <label class="form-label">Onboarding Agent</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ri-user-star-line"></i>
-                            </span>
-                            <input type="text" name="onboarding_agent_code"
-                                class="form-control @error('onboarding_agent_code') is-invalid @enderror"
-                                placeholder="Enter agent code"
-                                value="{{ old('onboarding_agent_code', $expert->expertDetail?->onboarding_agent_code) }}">
-                            @error('onboarding_agent_code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                    </div> -->
+                 
                     <!-- Work Schedule -->
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Work Schedule</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -188,7 +173,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
+                    </div> -->
                     <!-- training center -->
                       <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Training Center</label>
@@ -205,7 +190,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('work_schedule')
+                    @error('training_center_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     </div>
@@ -272,7 +257,7 @@
                                 <i class="ri-user-line"></i>
                             </span>
                             <input type="text" name="emergency_contact_name" class="form-control @error('emergency_contact_name') is-invalid @enderror"
-                                placeholder="Enter user id" value="{{ old('emergency_contact_name', $expert->Name) }}">
+                                placeholder="Enter user id" value="{{ old('emergency_contact_name') }}">
                             @error('emergency_contact_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -286,7 +271,7 @@
                                 <i class="ri-phone-line"></i>
                             </span>
                             <input type="text" name="emergency_contact_phone" class="form-control @error('emergency_contact_phone') is-invalid @enderror"
-                                placeholder="Enter phone" value="{{ old('emergency_contact_phone', $expert->phone) }}">
+                                placeholder="Enter phone" value="{{ old('emergency_contact_phone') }}">
                             @error('emergency_contact_phone')
                                 <div class="invalid-feedback">
                                     {{ $message }}
