@@ -24,7 +24,7 @@ class ServiceVariantController extends Controller
                 ->orWhere('tax_percentage', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.service_variants.index', compact('variants'));
