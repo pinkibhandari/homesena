@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Homesena – Get Trained &amp; Verified House Help in 10 Mins</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.png') }}">
 
 
     <link rel="stylesheet" href="{{ asset('landing/css/bootstrap.min.css') }}">
@@ -20,107 +21,183 @@
 
     <script src="{{ asset('landing/js/modernizr.custom.js') }}"></script>
 
-</head>
-<style>
-    .footer-row {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        margin-top: 25px;
-    }
+    <style>
+        /* Force mobile hero image visibility */
+        .hero-mobile-img {
+            display: none;
+        }
 
-    /* LEFT */
-    .footer-left {
-        display: flex;
-        gap: 20px;
-        justify-content: flex-start;
-    }
+        @media (max-width: 992px) {
+            .hero-mobile-img {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 25px;
+                position: relative !important;
+            }
 
-    /* RIGHT */
-    .footer-right {
-        display: flex;
-        gap: 20px;
-        justify-content: flex-end;
-    }
+            .hero-mobile-img img {
+                max-width: 240px !important;
+                width: 100% !important;
+                height: auto !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
 
-    /* LINKS STYLE */
-    .footer-left a,
-    .footer-right a {
-        color: #ddd;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        position: relative;
-        transition: 0.3s;
-    }
+            .hero-mobile-img::after {
+                content: '' !important;
+                display: block !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 45% !important;
+                background: linear-gradient(to bottom, transparent, #f5f3ff) !important;
+                pointer-events: none !important;
+            }
 
-    /* Hover Effect */
-    .footer-left a:hover,
-    .footer-right a:hover {
-        color: #fff;
-    }
+            .hero-images-desktop {
+                display: none !important;
+            }
 
-    /* Underline Animation */
-    .footer-left a::after,
-    .footer-right a::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -4px;
-        width: 0%;
-        height: 2px;
-        background: #fff;
-        transition: 0.3s;
-    }
+            /* Hide desktop site-logo on mobile (mobile-logo-wrap handles it) */
+            .site-logo {
+                display: none !important;
+            }
 
-    .footer-left a:hover::after,
-    .footer-right a:hover::after {
-        width: 100%;
-    }
+            /* Mobile navbar logo — expands to fill the space */
+            .mobile-logo-wrap {
+                display: inline-flex !important;
+                align-items: center !important;
+                text-decoration: none !important;
+                flex: 1 !important;
+            }
 
-    /* CENTER ICONS */
-    .footer-center {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    }
+            .mobile-nav-logo {
+                display: block !important;
+                height: 40px !important;
+                width: auto !important;
+                max-width: 160px !important;
+                object-fit: contain !important;
+            }
 
-    /* ICON DESIGN */
-    .footer-center a {
-        width: 42px;
-        height: 42px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 16px;
-        transition: 0.3s ease;
-    }
+            /* Mobile sidebar logo — expands to fill the space */
+            .mobile-sidebar-brand {
+                display: flex !important;
+                align-items: center !important;
+                flex: 1 !important;
+            }
 
-    /* ICON HOVER */
-    .footer-center a:hover {
-        background: #fff;
-        color: #764ba2;
-        transform: translateY(-3px);
-    }
+            .mobile-sidebar-logo {
+                display: block !important;
+                height: 40px !important;
+                width: auto !important;
+                max-width: 160px !important;
+                object-fit: contain !important;
+            }
+        }
 
-    /* 📱 MOBILE RESPONSIVE */
-    @media (max-width: 768px) {
         .footer-row {
-            grid-template-columns: 1fr;
-            text-align: center;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            margin-top: 25px;
         }
 
-        .footer-left,
-        .footer-right {
-            justify-content: center;
-            flex-wrap: wrap;
+        /* LEFT */
+        .footer-left {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-start;
         }
-    }
-</style>
+
+        /* RIGHT */
+        .footer-right {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-end;
+        }
+
+        /* LINKS STYLE */
+        .footer-left a,
+        .footer-right a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        /* Hover Effect */
+        .footer-left a:hover,
+        .footer-right a:hover {
+            color: #fff;
+        }
+
+        /* Underline Animation */
+        .footer-left a::after,
+        .footer-right a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 0%;
+            height: 2px;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .footer-left a:hover::after,
+        .footer-right a:hover::after {
+            width: 100%;
+        }
+
+        /* CENTER ICONS */
+        .footer-center {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* ICON DESIGN */
+        .footer-center a {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            transition: 0.3s ease;
+        }
+
+        /* ICON HOVER */
+        .footer-center a:hover {
+            background: #fff;
+            color: #764ba2;
+            transform: translateY(-3px);
+        }
+
+        /* 📱 MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .footer-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .footer-left,
+            .footer-right {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+
+
+</head>
 
 <body>
 
@@ -140,7 +217,7 @@
 
                         <!-- Logo -->
                         <a href="#">
-                            <img src="landing/img/homesena_logo.png" class="site-logo">
+                            <img src="landing/img/logo.svg" class="site-logo">
                         </a>
 
                         <!-- Right Links -->
@@ -150,7 +227,9 @@
                         </div>
 
                         <!-- Mobile Brand Name -->
-                        <span class="mobile-brand">HomeSena</span>
+                        <a href="#" class="mobile-logo-wrap">
+                            <img src="landing/img/logo.svg" class="mobile-nav-logo" alt="Homesena Logo">
+                        </a>
 
                         <!-- Mobile Menu Button -->
                         <div class="menu-btn" id="menuBtn">☰</div>
@@ -164,7 +243,9 @@
                 <div class="mobile-menu" id="mobileMenu">
 
                     <div class="mobile-header">
-                        <span class="mobile-logo-text">HOMESENA</span>
+                        <div class="mobile-sidebar-brand">
+                            <img src="landing/img/logo.svg" class="mobile-sidebar-logo" alt="Homesena Logo">
+                        </div>
                         <span id="closeMenu">&times;</span>
                     </div>
 
@@ -184,6 +265,11 @@
 
                     <!-- Left Content -->
                     <div class="col-lg-6 hero-content">
+
+                        <!-- Mobile-only hero image shown above h1 -->
+                        <div class="hero-mobile-img">
+                            <img src="landing/img/homesena.png" alt="Homesena Professional">
+                        </div>
 
                         <h1>
                             Book Trusted <span>Home Services</span> in Minutes
@@ -221,7 +307,7 @@
                     </div>
 
                     <!-- Right Images -->
-                    <div class="col-lg-6 hero-images">
+                    <div class="col-lg-6 hero-images hero-images-desktop">
 
                         <img src="landing/img/homesena.png" class="hero-img main-img">
 
@@ -497,7 +583,7 @@
         </div>
     </section>
     <!-- FAQs End -->
-    <!--  Footer -->
+    <!-- HHHHHHHHHHHHHHHHHH        Footer          HHHHHHHHHHHHHHHH -->
 
     <section id="footer" class="footer-section">
         <div class="container">
@@ -516,14 +602,14 @@
 
                     <!-- LEFT -->
                     <div class="footer-left">
-                       <a href="#">About Us</a>
+                        <a href="#">About Us</a>
                         <a href="#">Terms & Conditions</a>
                     </div>
 
                     <!-- CENTER -->
                     <div class="footer-center">
-                        <a href="#"><i class="fa fa-facebook"></i></a>
-                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="https://www.facebook.com/share/19bmg8R1G2/?mibextid=wwXIfr"><i class="fa fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/thehomesena?igsh=d3l0a2h3bG92dGJr"><i class="fa fa-instagram"></i></a> 
                         <a href="#"><i class="fa fa-linkedin"></i></a>
                     </div>
 

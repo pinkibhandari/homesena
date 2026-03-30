@@ -165,6 +165,12 @@ left:0;
 bottom:-40px;
 right:0;
 }
+
+/* Mobile-only hero image (shown above h1, hidden on desktop) */
+.hero-mobile-img{
+display:none;
+}
+
 @media(max-width:992px){
 
 .hero{
@@ -188,12 +194,19 @@ margin:auto;
 justify-content:center;
 }
 
-.hero-images{
-margin-top:30px;
+.hero-images-desktop{
+display:none;
 }
 
-.hero-img{
+.hero-mobile-img{
+display:block;
+text-align:center;
+margin-bottom:25px;
+}
+
+.hero-mobile-img img{
 max-width:220px;
+width:100%;
 }
 
 .floating-img{
@@ -232,6 +245,33 @@ display:none;
 font-size:20px;
 font-weight:700;
 color:#8B5CF6;
+}
+
+/* Mobile nav logo (shown on mobile next to brand name) */
+.mobile-nav-logo{
+display:none;
+height:36px;
+width:36px;
+object-fit:contain;
+vertical-align:middle;
+}
+
+.mobile-logo-wrap{
+display:none;
+text-decoration:none;
+}
+
+/* Mobile sidebar brand (logo + text) */
+.mobile-sidebar-brand{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.mobile-sidebar-logo{
+height:36px;
+width:36px;
+object-fit:contain;
 }
 /* links */
 
@@ -337,6 +377,17 @@ display:block;
 font-size:22px;
 font-weight:700;
 color:#8B5CF6;
+}
+
+.mobile-nav-logo{
+display:inline-block;
+height:36px;
+width:36px;
+}
+
+.mobile-logo-wrap{
+display:inline-flex;
+align-items:center;
 }
 
 .site-logo{
