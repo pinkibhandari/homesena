@@ -86,7 +86,7 @@ class ServiceVariantController extends Controller
             'service_id'        => 'required|exists:services,id',
             'duration_minutes'  => 'required|numeric|min:1',
             'base_price'        => 'required|numeric|min:0',
-             'discount_price' => 'nullable|numeric',
+            'discount_price' => 'nullable|numeric',
             'tax_percentage'    => 'nullable|numeric|min:0|max:100',
             'is_active'         => 'required|boolean',
         ]);

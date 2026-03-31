@@ -18,9 +18,9 @@ class ExpertDetail extends Model
         'approval_status',
         'approved_at',
         'approved_by',
-        'current_latitude' ,
-        'current_longitude' ,
-        'last_location_update'         
+        // 'current_latitude' ,
+        // 'current_longitude' ,
+        // 'last_location_update'         
     ];
 
     public function user()

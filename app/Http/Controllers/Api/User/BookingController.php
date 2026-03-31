@@ -23,12 +23,13 @@ class BookingController extends Controller
     public function createBooking(Request $request)
     {
 
+
         $validator = Validator::make($request->all(), [
-            // 'serviceId' => 'required',
-            'serviceId' => 'required_if:type,scheduled',
+            // 'serviceId' => 'required_if:type,scheduled',
             'addressId' => 'required|exists:addresses,id',
             'type' => 'required|in:instant,scheduled',
-            'booking_subtype' => 'required|in:single,recurring',
+            // 'booking_subtype' => 'required|in:single,recurring',
+            'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
             'time' => 'required',
 
             'date' => 'required_if:booking_subtype,single|date',
@@ -42,8 +43,12 @@ class BookingController extends Controller
             'week' => 'nullable|integer|min:1|max:5',
             'day' => 'nullable|string',
 
-            // 'latitude' => 'nullable',
-            // 'longitude' => 'nullable',
+            // 'latitude' => 'required',
+            // 'longitude' => 'required',
+            // 'address' => 'required',
+            'duration' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -53,46 +58,81 @@ class BookingController extends Controller
                 'data' => [],
             ], 422);
         }
+        $address = Address::find($request->addressId);
+        // Check latitude & longitude
+        if (!$address || empty($address->address_lat) || empty($address->address_long)) {
+            return response()->json([
+                'code' => 422,
+                'data' => [],
+                'success' => false,
+                'message' => 'Invalid address or missing location.'
+            ], 422);
+        }
+        $query = Booking::where('user_id', auth()->id())
+            ->where('type', $request->type)
+            ->where('time', $request->time)
+            ->where('address_id', $request->addressId)
 
-        $existingBooking = Booking::where('user_id', auth()->id())
-                    ->where('service_id', $request->serviceId)
-                    ->where('type', $request->type)
-                     ->where('booking_subtype', $request->booking_subtype)  
-                    ->where('start_date', $request->start_date)
-                    ->where('end_date', $request->end_date)
-                    ->where('time', $request->time)
-                    ->first();
+            // apply only if not null
+            ->when($request->serviceId, function ($q) use ($request) {
+                $q->where('service_id', $request->serviceId);
+            });
+        if ($request->booking_subtype === 'single') {
 
-            if($existingBooking) {
-                    return response()->json([
-                        'code'=>422,
-                         'data' => [],
-                        'status' => false,
-                        'message' => 'Booking already exists for this slot and user'
-                    ]);
-                }
-          $address = Address::find($request->addressId);
-            // Check latitude & longitude
-            if (!$address->address_lat || !$address->address_long) {
-                return response()->json([
-                    'code'=>422,
-                    'data' => [],
-                    'success' => false,
-                    'message' => 'Selected address does not have valid location. Please update address.'
-                ], 422);
-            }
-        
+            $query->where('booking_subtype', 'single')
+                ->whereDate('start_date', $request->date);
+
+        } elseif ($request->booking_subtype === 'recurring') {
+
+            $query->where('booking_subtype', 'recurring')
+                ->whereDate('start_date', $request->start_date)
+                ->whereDate('end_date', $request->end_date);
+
+        } elseif ($request->type === 'instant') {
+
+            $query->whereDate('start_date', $request->start_date ?? now());
+        }
+        $existingBooking = $query->exists();
+        if ($existingBooking) {
+            return response()->json([
+                'code' => 422,
+                'data' => [],
+                'status' => false,
+                'message' => 'Booking already exists for this slot and user'
+            ]);
+        }
+        $startDate = null;
+        $endDate = null;
+        if ($request->type === 'instant') {
+            $startDate = now();
+            $endDate = now();
+        } elseif ($request->booking_subtype === 'single') {
+
+            $startDate = $request->date;
+            $endDate = $request->date;
+
+        } elseif ($request->booking_subtype === 'recurring') {
+
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+        }
+
+        $totalPrice = 0;
         $booking = Booking::create([
-            'booking_code'=> 'BK' . now()->format('md') . strtoupper(Str::random(4)),
+            'booking_code' => 'HS' . now()->format('md') . strtoupper(Str::random(4)),
             'user_id' => auth()->id(),
             'service_id' => $request->serviceId,
             'type' => $request->type,
             'booking_subtype' => $request->booking_subtype,
-            'start_date' => $request->date ?? $request->start_date ?? now(),
-            'end_date' => $request->date ?? $request->end_date ?? now(),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'time' => $request->time,
             'status' => 'pending',
-            'booking_created_at'=>now()
+            // 'latitude' => $request->latitude,
+            // 'longitude' => $request->longitude,
+            'address_id' => $request->addressId,
+            'total_price' => $request->total_price,
+            // 'booking_created_at' => now()
         ]);
 
         $dates = [];
@@ -152,8 +192,8 @@ class BookingController extends Controller
             }
         }
 
-         $startTime = Carbon::parse($request->time);
-         $endTime = $startTime->copy()->addMinutes($request->duration);
+        $startTime = Carbon::parse($request->time);
+        $endTime = $startTime->copy()->addMinutes($request->duration);
 
         $dates = collect($dates)->unique()->values();
         $slots = [];
@@ -164,38 +204,64 @@ class BookingController extends Controller
                 'start_time' => $request->type == 'instant' ? now()->format('H:i:s') : $startTime,
                 'end_time' => $endTime,
                 'time' => $request->time,
-                'duration'=> $request->duration,
+                'duration' => $request->duration,
                 'status' => 'pending',
+                'price' => $request->price,
                 // 'created_at' => now(),
                 // 'updated_at' => now(),
             ];
         }
 
         BookingSlot::insertOrIgnore($slots);
+        // $totalPrice = collect($slots)->sum('price');
+
+        // $booking->update([
+        //     'total_price' => $totalPrice
+        // ]);
+
         $latitude = $address->address_lat;
         $longitude = $address->address_long;
- 
         //  SEND NOTIFICATION FOR ALL
         $firebase = new FirebaseService();
+        $totalSlots = count($slots);
+        $availableSlots = 0;
         foreach ($slots as $slot) {
-            $experts = $this->getExperts( $slot['date'], $slot['start_time'], $slot['end_time'],$latitude, $longitude );
+            $experts = $this->getExperts($slot['date'], $slot['start_time'], $slot['end_time'], $latitude, $longitude);
+            // Determine status
+            $slotStatus = $experts->isEmpty() ? 'not_available' : 'available';
+            // update slot status
+            BookingSlot::where('booking_id', $booking->id)
+                ->where('date', $slot['date'])
+                ->update([
+                    'status' => $slotStatus
+                ]);
+            // Update slot array for response
+            $slot['status'] = $slotStatus;
+            // if no expert → skip notification
+            if ($experts->isEmpty()) {
+                continue;
+            }
+            $availableSlots++;
             foreach ($experts as $expert) {
                 foreach ($expert->devices as $device) {
-                    if ($device->firebase_token) {
+                    if (!$device->fcm_token)
+                        continue;
+                    if ($device->fcm_token) {
                         $firebase->send(
-                            $device->firebase_token,
+                            $device->fcm_token,
                             'New Booking Request',
                             "Booking on {$slot['date']} at {$slot['time']}",
                             [
                                 'booking_id' => (string) $booking->id,
-                                'booking_code' =>  $booking->booking_code,
+                                'booking_code' => $booking->booking_code,
+                                // 'address_id' => $address->id,
                                 'date' => $slot['date'],
                                 'time' => $slot['time'],
-                                'location'=>$address['address'],
-                                'earning'=>$slot['amount'],
+                                'location' => $address->address,
+                                'earning' => $slot['price'] ?? 0,
                                 'actions' => json_encode([
-                                        ['id' => 'ACCEPT', 'title' => 'Accept'],
-                                        ['id' => 'REJECT', 'title' => 'Reject']
+                                    ['id' => 'ACCEPT', 'title' => 'Accept'],
+                                    ['id' => 'REJECT', 'title' => 'Reject']
                                 ])
                             ],
                         );
@@ -203,21 +269,29 @@ class BookingController extends Controller
                 }
             }
         }
+        //  FINAL MESSAGE
+        if ($availableSlots === 0) {
+            $message = 'Booking created but no experts available right now';
+        } elseif ($availableSlots === $totalSlots) {
+            $message = 'Booking created & notifications sent for all slots';
+        } else {
+            $message = 'Booking created & notifications sent for some slots';
+        }
+
         return response()->json([
             'status' => true,
-            'code'=> 200,
-            'message' => 'Booking created & notification sent',
-            'data' => $slots
+            'code' => 200,
+            'message' => $message,
+            'data' => [
+                'booking' => new BookingResource($booking),
+                // 'slots'=>$slots
+            ]
         ]);
-
-
-
-
 
     }
 
     //  Get nearby + free experts
-    private function getExperts($date, $startTime,$endTime, $lat, $lng)
+    private function getExperts($date, $startTime, $endTime, $lat, $lng)
     {
         $radiusKm = 1;
         return User::where('users.role', 'expert')
@@ -239,7 +313,7 @@ class BookingController extends Controller
             )
             ->having('distance', '<=', $radiusKm)
             ->orderBy('distance', 'asc')
-            ->whereDoesntHave('expertSlots', function ($q) use ($date, $startTime, $endTime,) {
+            ->whereDoesntHave('expertSlots', function ($q) use ($date, $startTime, $endTime, ) {
                 $q->where('date', $date)
                     ->where('status', 'accepted')
                     ->where('start_time', '<', $endTime)
@@ -250,58 +324,58 @@ class BookingController extends Controller
 
     // booking by id detail
 
-      public function getBookingById($id)
+    public function getBookingById($id)
     {
         $booking = Booking::with([
-                        'service',
-                        'address',
-                        'slots.expert'
-                        ])->find($id);
+            'service',
+            'address',
+            'slots.expert'
+        ])->find($id);
+
         if (!$booking) {
             return response()->json([
-                'code'=>422,
+                'code' => 422,
                 'status' => false,
                 'message' => 'Booking not found',
-                'data'=> (object)[],
-            ], 422);
+                'data' => (object) [],
+            ]);
         } else {
             return response()->json([
                 'code' => 200,
                 'status' => true,
                 'message' => 'Booking retrieved successfully',
-                'data'   => new BookingResource($booking)
-            ],200);
-        }      
+                'data' => new BookingResource($booking)
+            ]);
+        }
     }
-  // get auth user bookings
+    // get auth user bookings
     public function getUserBookings(Request $request)
-     { 
-         $query  = Booking::with([
-                        'service',
-                        'address',
-                        'slots.expert'
-                        ])->where('user_id', auth()->id());
-         if ($request->status) {
-                $query->where('status', $request->status);
-             }
-        $bookings = $query->latest()->paginate(10);
-
-        if($bookings->isEmpty()) {
-            return response()->json([
-                'code' => 422,
-                'data'=> (object)[],
-                'status' => false,
-                'message' => 'No bookings found for this user'
-            ], 422);
-           } else {
-            return response()->json([
-                'code'=>200,
-                'status' => true,
-                'message' => 'User Bookings retrieved successfully',
-                'data' => BookingResource::collection($bookings)
-            ],200);
-           }
-      }
+    {
+        $query = Booking::with([
+            'service',
+            'address',
+            'slots.expert'
+        ])->where('user_id', auth()->id());
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+        // $bookings = $query->latest()->paginate(10);
+        $bookings = $query->latest()->get();
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => $bookings->count() > 0
+                ? 'User bookings retrieved successfully'
+                : 'No bookings found for this user',
+            'data' => BookingResource::collection($bookings),
+            // 'pagination' => [
+            //     'current_page' => $bookings->currentPage(),
+            //     'last_page' => $bookings->lastPage(),
+            //     'per_page' => $bookings->perPage(),
+            //     'total' => $bookings->total(),
+            // ]
+        ]);
+    }
 
 
 

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('address_id')->constrained('addresses');
             $table->dateTime('scheduled_at');
             $table->enum('status', ['PENDING', 'CONFIRMED', 'ONGOING', 'COMPLETED', 'CANCELLED'])->default('PENDING');          
-            $table->decimal('total_amount', 10, 2);
+            $table->decimal('total_price', 10, 2);
             $table->string('otp_code', 6);      
             $table->timestamps();
 

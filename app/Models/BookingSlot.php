@@ -17,7 +17,7 @@ class BookingSlot extends Model
         'otp_attrempts',
         'otp_verified',
         'status',
-        'amount',
+        'price',
         'payment_status',
         'check_in_time'
     ];
