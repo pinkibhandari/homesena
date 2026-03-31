@@ -8,18 +8,18 @@ use App\Models\TrainingCenter;
 
 class TrainingController extends Controller
 {
-    // LIST + SEARCH
+    // ================= LIST + SEARCH =================
     public function index(Request $request)
     {
         $centers = TrainingCenter::query()
 
+            // 🔍 Search (grouped)
             ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->search;
-
-                $q->where(function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%")
-                          ->orWhere('city', 'like', "%{$search}%")
-                          ->orWhere('address', 'like', "%{$search}%");
+                $q->where(function ($query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->search . '%')
+                          ->orWhere('city', 'like', '%' . $request->search . '%')
+                          ->orWhere('address', 'like', '%' . $request->search . '%')
+                          ->orWhere('phone', 'like', '%' . $request->search . '%'); // ✅ added
                 });
             })
 
@@ -30,7 +30,7 @@ class TrainingController extends Controller
         return view('admin.training_centers.index', compact('centers'));
     }
 
-    // CREATE PAGE
+    // ================= CREATE =================
     public function create()
     {
         return view('admin.training_centers.form', [
@@ -38,7 +38,7 @@ class TrainingController extends Controller
         ]);
     }
 
-    // EDIT PAGE
+    // ================= EDIT =================
     public function edit(TrainingCenter $training_center)
     {
         return view('admin.training_centers.form', [
@@ -46,45 +46,63 @@ class TrainingController extends Controller
         ]);
     }
 
-    // STORE
+    // ================= STORE =================
     public function store(Request $request)
     {
         $data = $this->validateData($request);
 
         TrainingCenter::create($data);
 
-        return redirect()->route('admin.training_centers.index')
-                         ->with('success', 'Center created successfully');
+        return redirect()
+            ->route('admin.training_centers.index')
+            ->with('success', 'Training center created successfully');
     }
 
-    // UPDATE
+    // ================= UPDATE =================
     public function update(Request $request, TrainingCenter $training_center)
     {
-        $data = $this->validateData($request, $training_center->id);
+        // 🔥 AJAX STATUS TOGGLE
+        if ($request->has('status') && !$request->has('name')) {
+
+            $training_center->update([
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated successfully'
+            ]);
+        }
+
+        // ✅ Normal update
+        $data = $this->validateData($request);
 
         $training_center->update($data);
 
-        return redirect()->route('admin.training_centers.index')
-                         ->with('success', 'Center updated successfully');
+        return redirect()
+            ->route('admin.training_centers.index')
+            ->with('success', 'Training center updated successfully');
     }
 
-    // DELETE
+    // ================= DELETE =================
     public function destroy(TrainingCenter $training_center)
     {
         $training_center->delete();
 
-        return redirect()->route('admin.training_centers.index')
-                         ->with('success', 'Center deleted successfully');
+        return redirect()
+            ->route('admin.training_centers.index')
+            ->with('success', 'Training center deleted successfully');
     }
 
-    // VALIDATION
-    private function validateData($request, $id = null)
+    // ================= VALIDATION =================
+    private function validateData(Request $request)
     {
         return $request->validate([
-            'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
+            'name'    => 'required|string|max:255',
+            'city'    => 'required|string|max:255',
             'address' => 'required|string|max:500',
-            'status' => 'required|in:1,0',
+            'phone'   => 'required|string|max:15', // ✅ added
+            'status'  => 'required|in:0,1',
         ]);
     }
 }

@@ -9,6 +9,7 @@ class CmsPage extends Model
      protected $fillable = [
         'title',
         'slug',
+        'type', 
         'content',
         'status'
     ];

@@ -66,11 +66,11 @@
         </li>
         {{-- Bookings --}}
         <li class="menu-item">
-                <a href="{{ route('admin.bookings.index') }}" class="menu-link">
-                    <i class="menu-icon icon-base ri ri-calendar-check-line"></i>
-                    <div data-i18n="Bookings">Bookings</div>
-                </a>
-            </li>
+            <a href="{{ route('admin.bookings.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ri ri-calendar-check-line"></i>
+                <div data-i18n="Bookings">Bookings</div>
+            </a>
+        </li>
         {{-- Training Centers --}}
         <li class="menu-item">
             <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
@@ -83,6 +83,13 @@
             <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ri ri-file-text-line"></i>
                 <div data-i18n="CMS Pages">CMS Pages</div>
+            </a>
+        </li>
+        {{-- Review --}}
+        <li class="menu-item">
+            <a href="{{ route('admin.reviews.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ri ri-star-line"></i>
+                <div data-i18n="Reviews">Reviews</div>
             </a>
         </li>
         {{-- Payments --}}

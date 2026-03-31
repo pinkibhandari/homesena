@@ -27,10 +27,10 @@ class ExpertController extends Controller
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhereHas('expertDetail', function ($q1) use ($search) {
                             $q1->where('registration_code', 'like', "%{$search}%");
-                                // ->orWhere('onboarding_agent_code', 'like', "%{$search}%");
-                      });
-                 });
-              })
+                            // ->orWhere('onboarding_agent_code', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -84,12 +84,13 @@ class ExpertController extends Controller
                 );
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
-                    [   'registration_code' => 'REG' . rand(100000, 999999),
+                    [
+                        'registration_code' => 'REG' . rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
-                        'is_online'=> $data['is_online'],
-                        'approval_status'=> 'approved',
-                        'approved_by'=> auth()->id(),
-                        'approved_at'=>now()
+                        'is_online' => $data['is_online'],
+                        'approval_status' => 'approved',
+                        'approved_by' => auth()->id(),
+                        'approved_at' => now()
                     ]
                     // collect($data)->only([
                     //     'registration_code',
@@ -126,10 +127,10 @@ class ExpertController extends Controller
         }
         try {
             DB::transaction(function () use ($data, $expert) {
-                    $expert->update([
-                       ...$data,   // Unpack all key-value pairs of $data into this array
-                     'role' => 'expert'
-                 ]);
+                $expert->update([
+                    ...$data,   // Unpack all key-value pairs of $data into this array
+                    'role' => 'expert'
+                ]);
                 UserDevice::updateOrCreate(
                     [
                         'user_id' => $expert->id,
@@ -141,9 +142,9 @@ class ExpertController extends Controller
                 );
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $expert->id],
-                    [   
+                    [
                         'training_center_id' => $data['training_center_id'],
-                        'is_online'=> $data['is_online'],
+                        'is_online' => $data['is_online'],
                     ]
                 );
             });
@@ -185,27 +186,42 @@ class ExpertController extends Controller
         ]);
     }
 
-     public function updateApproveStatus(Request $request){
-           $expert = ExpertDetail::where('user_id', $request->id)->first();
+    public function updateApproveStatus(Request $request)
+    {
+        $expert = ExpertDetail::where('user_id', $request->id)->first();
 
-            if(!$expert){
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Expert Details not found'
-                    ],422);
-                }
-           $registration_no = 'REG' . rand(100000, 999999);
-           $expert->approval_status = 'approved';
-            if($request->approval_status == 1){
-                $expert->approved_by = auth()->id();
-                $expert->approved_at = now();
-                $expert->registration_code = $registration_no;
-            }
-            $expert->save();
+        if (!$expert) {
             return response()->json([
-                'status' => true,
-                'message' => 'Expert approved successfully',
-                'data'=> $expert
-            ],200);
-     }
+                'status' => false,
+                'message' => 'Expert Details not found'
+            ], 422);
+        }
+        $registration_no = 'REG' . rand(100000, 999999);
+        $expert->approval_status = 'approved';
+        if ($request->approval_status == 1) {
+            $expert->approved_by = auth()->id();
+            $expert->approved_at = now();
+            $expert->registration_code = $registration_no;
+        }
+        $expert->save();
+        return response()->json([
+            'status' => true,
+            'message' => 'Expert approved successfully',
+            'data' => $expert
+        ], 200);
+    }
+    public function show(User $expert)
+    {
+        // ensure expert role
+        if ($expert->role !== 'expert') {
+            abort(404);
+        }
+
+        $expert->load([
+            'expertDetail.trainingCenter',
+            'expertDetail.emergencyContacts'
+        ]);
+
+        return view('admin.experts.show', compact('expert'));
+    }
 }

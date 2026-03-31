@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-     protected $fillable = [
+    protected $fillable = [
         'booking_id',
         'booking_slot_id',
         'user_id',
@@ -15,10 +15,13 @@ class Review extends Model
         'review',
         'would_recommend'
     ];
-
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
     public function expert()
     {
-        return $this->belongsTo(User::class,'expert_id');
+        return $this->belongsTo(User::class, 'expert_id');
     }
 
     public function slot()

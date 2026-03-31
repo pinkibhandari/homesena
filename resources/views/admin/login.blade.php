@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>HomeSena Admin Login</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}">
 
     <!-- Bootstrap + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,31 +16,31 @@
         body {
             margin: 0;
             font-family: sans-serif;
-            background: #f4f4f4;
+            background: #5f2c82;
         }
 
-        /* Top Gradient Section */
+        /* Top Section */
         .top-section {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
-            height: 280px;
-            position: relative;
-            color: white;
+            background: white;
+            min-height: 220px;
+            color: #5f2c82;
             text-align: center;
-            padding-top: 40px;
+            padding: 30px 15px;
             border-bottom-left-radius: 60% 20%;
             border-bottom-right-radius: 60% 20%;
         }
 
-        .top-section h1 {
-            font-weight: bold;
+        .top-section img {
+            max-width: 150px;
+            height: auto;
         }
 
         /* Login Card */
         .login-card {
-            width: 420px;
+            width: 100%;
+            max-width: 420px;
             border-radius: 14px;
-            margin: -100px auto 0;
-            position: relative;
+            margin: -80px auto 0;
             z-index: 10;
         }
 
@@ -48,7 +50,7 @@
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
+            background: linear-gradient(135deg, #5f2c82);
             border: none;
             border-radius: 8px;
             font-weight: 500;
@@ -58,28 +60,44 @@
             opacity: 0.9;
         }
 
-        /* Right Character (optional image) */
-        .character {
-            position: absolute;
-            right: 15%;
-            bottom: 0;
-            height: 300px;
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .top-section {
+                min-height: 180px;
+                padding: 20px 10px;
+            }
+
+            .login-card {
+                margin-top: -60px;
+                padding: 0 10px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
         }
 
-        @media(max-width: 768px) {
-            .character {
-                display: none;
+        @media (max-width: 480px) {
+            .login-card {
+                margin-top: -50px;
+            }
+
+            .top-section img {
+                max-width: 120px;
+            }
+
+            h4 {
+                font-size: 18px;
             }
         }
     </style>
-
 </head>
 
 <body>
 
     <!-- Top Section -->
     <div class="top-section">
-        <h4>HomeSena</h4>
+        <img src="{{ asset('assets/img/logo.svg') }}" alt="HomeSena Logo">
         <p class="mt-2">Welcome back! Access your admin dashboard easily.</p>
     </div>
 
@@ -90,10 +108,11 @@
             <h4 class="text-center fw-bold mb-3">Admin Login</h4>
 
             @if (session('error'))
-                <p class="text-danger">
+                <p class="text-danger text-center">
                     {{ session('error') }}
                 </p>
             @endif
+
             <form method="POST" action="/admin/login">
                 @csrf
 
@@ -104,8 +123,11 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-mail-line"></i>
                         </span>
-                        <input type="text" class="form-control @error('email') is-invalid @enderror"
-                            placeholder="Enter your email" name="email" value="{{ old('email') }}">
+                        <input type="text" 
+                               class="form-control @error('email') is-invalid @enderror"
+                               placeholder="Enter your email" 
+                               name="email" 
+                               value="{{ old('email') }}">
                         @error('email')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -113,6 +135,7 @@
                         @enderror
                     </div>
                 </div>
+
                 <!-- Password -->
                 <div class="mb-3">
                     <label>Password</label>
@@ -120,17 +143,21 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-lock-line"></i>
                         </span>
-                        <input type="password" id="password"
-                            class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}"
-                            placeholder="Enter your password" name="password">
+                        <input type="password" 
+                               id="password"
+                               class="form-control @error('password') is-invalid @enderror"
+                               placeholder="Enter your password" 
+                               name="password">
+
+                        <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword()">
+                            <i class="ri-eye-line" id="eyeIcon"></i>
+                        </span>
+
                         @error('password')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
                         @enderror
-                        <span class="input-group-text bg-white" style="cursor: pointer;" onclick="togglePassword()">
-                            <i class="ri-eye-line" id="eyeIcon"></i>
-                        </span>
                     </div>
                 </div>
 
@@ -153,22 +180,24 @@
 
         </div>
     </div>
-</body>
-<script>
-    function togglePassword() {
-        let password = document.getElementById("password");
-        let icon = document.getElementById("eyeIcon");
 
-        if (password.type === "password") {
-            password.type = "text";
-            icon.classList.remove("ri-eye-line");
-            icon.classList.add("ri-eye-off-line");
-        } else {
-            password.type = "password";
-            icon.classList.remove("ri-eye-off-line");
-            icon.classList.add("ri-eye-line");
+    <!-- Script -->
+    <script>
+        function togglePassword() {
+            let password = document.getElementById("password");
+            let icon = document.getElementById("eyeIcon");
+
+            if (password.type === "password") {
+                password.type = "text";
+                icon.classList.remove("ri-eye-line");
+                icon.classList.add("ri-eye-off-line");
+            } else {
+                password.type = "password";
+                icon.classList.remove("ri-eye-off-line");
+                icon.classList.add("ri-eye-line");
+            }
         }
-    }
-</script>
+    </script>
 
+</body>
 </html>

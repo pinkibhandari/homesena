@@ -9,7 +9,7 @@
 <!-- Header -->
 <div class="card-header d-flex justify-content-between align-items-center">
 
-    <h5 class="card-title mb-0">Booking Table</h5>
+    <h5 class="card-title mb-0">Booking List</h5>
 
     <div class="d-flex align-items-center gap-3">
 

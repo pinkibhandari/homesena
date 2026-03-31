@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Reset Password - HomeSena</title>
-<link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}">
+
     <!-- Bootstrap + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -13,25 +16,30 @@
         body {
             margin: 0;
             font-family: sans-serif;
-            background: #f4f4f4;
+            background: #5f2c82;
         }
 
+        /* Top Section */
         .top-section {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
-            height: 220px;
-            color: white;
+            background: white;
+            min-height: 200px;
+            color: #5f2c82;
             text-align: center;
-            padding-top: 40px;
+            padding: 30px 15px;
             border-bottom-left-radius: 60% 20%;
             border-bottom-right-radius: 60% 20%;
         }
 
+        .top-section img {
+            max-width: 150px;
+        }
+
+        /* Card */
         .reset-card {
-            width: 420px;
+            width: 100%;
+            max-width: 420px;
+            margin: -70px auto 0;
             border-radius: 14px;
-            margin: -80px auto 0;
-            position: relative;
-            z-index: 10;
         }
 
         .form-control {
@@ -44,39 +52,60 @@
         }
 
         .btn-reset {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
+            background: linear-gradient(135deg, #5f2c82);
             border: none;
             border-radius: 8px;
             font-weight: 500;
-            color: #fff;
         }
 
         .btn-reset:hover {
             opacity: 0.9;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .reset-card {
+                margin-top: -50px;
+                padding: 0 10px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-section img {
+                max-width: 120px;
+            }
+
+            h4 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Top Section -->
+    <!-- Top -->
     <div class="top-section">
-        <h4>HomeSena</h4>
+        <img src="{{ asset('assets/img/logo.svg') }}" alt="HomeSena Logo">
         <p class="mt-2">Set your new password securely</p>
     </div>
 
-    <!-- Reset Password Card -->
+    <!-- Card -->
     <div class="card shadow reset-card border-0">
         <div class="card-body p-4">
 
             <h4 class="text-center fw-bold mb-3">Reset Password</h4>
 
-            {{-- Display session errors --}}
+            <!-- Session Error -->
             @if(session('error'))
                 <p class="text-danger text-center">{{ session('error') }}</p>
             @endif
 
-            {{-- Validation errors --}}
+            <!-- Validation -->
             @if ($errors->any())
                 <div class="alert alert-danger p-2">
                     <ul class="mb-0">
@@ -87,10 +116,10 @@
                 </div>
             @endif
 
+            <!-- Form -->
             <form method="POST" action="{{ route('admin.resetPasswordSubmit') }}" onsubmit="disableBtn()">
                 @csrf
 
-                <!-- Hidden Email -->
                 <input type="hidden" name="email" value="{{ session('email') }}">
 
                 <!-- New Password -->
@@ -100,7 +129,8 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-lock-2-line"></i>
                         </span>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter new password" required>
+                        <input type="password" id="password" name="password" 
+                               class="form-control" placeholder="Enter new password" required>
                         <span class="input-group-text bg-white" onclick="togglePassword('password', this)">
                             <i class="ri-eye-line"></i>
                         </span>
@@ -114,20 +144,22 @@
                         <span class="input-group-text bg-white">
                             <i class="ri-lock-2-line"></i>
                         </span>
-                        <input type="password" id="confirm_password" name="password_confirmation" class="form-control" placeholder="Confirm new password" required>
+                        <input type="password" id="confirm_password" name="password_confirmation" 
+                               class="form-control" placeholder="Confirm new password" required>
                         <span class="input-group-text bg-white" onclick="togglePassword('confirm_password', this)">
                             <i class="ri-eye-line"></i>
                         </span>
                     </div>
                 </div>
 
-                <!-- Reset Button -->
-                <button id="resetBtn" type="submit" class="btn btn-reset w-100 py-2">
+                <!-- Button -->
+                <button id="resetBtn" type="submit" class="btn btn-reset w-100 py-2 text-white">
                     <i class="ri-refresh-line me-1"></i> Reset Password
                 </button>
+
             </form>
 
-            <!-- Back to Login -->
+            <!-- Back -->
             <div class="text-center mt-3">
                 <a href="{{ route('admin.login') }}" class="text-decoration-none">
                     <i class="ri-arrow-left-line"></i> Back to Login
@@ -137,7 +169,7 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Script -->
     <script>
         function disableBtn() {
             let btn = document.getElementById('resetBtn');
@@ -148,6 +180,7 @@
         function togglePassword(fieldId, iconSpan) {
             const field = document.getElementById(fieldId);
             const icon = iconSpan.querySelector('i');
+
             if (field.type === "password") {
                 field.type = "text";
                 icon.classList.remove('ri-eye-line');

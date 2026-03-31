@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Expert Table</h5>
+            <h5 class="card-title mb-0">Expert List</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
@@ -20,7 +20,7 @@
                 </form>
                 <!-- Add Button -->
                 <a href="{{ route('admin.experts.create') }}" class="btn btn-primary btn-sm">
-                    <i class="ri-add-line me-1"></i> Add Expert
+                    <i class="ri-add-line me-1"></i> Add
                 </a>
             </div>
         </div>
@@ -56,37 +56,36 @@
                             <td class="reg-td">{{ $expert->expertDetail?->registration_code }}</td>
                             <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
                             <td>
-                                @if($expert->expertDetail?->is_online === 1)
-                                    <span class="badge rounded-pill bg-label-success">Yes</span>
+                                @if ($expert->expertDetail?->is_online === 1)
+                                    <span class="badge rounded-pill bg-label-primary">Yes</span>
                                 @else
-                                    <span class="badge rounded-pill bg-label-danger">No</span>
+                                    <span class="badge rounded-pill bg-label-secondary">No</span>
                                 @endif
                             </td>
                             <td>
-                                @if($expert->status === 'ACTIVE')
-                                    <span class="badge rounded-pill bg-label-success">ACTIVE</span>
-                                @else
-                                    <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
-                                @endif
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
+                                        {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
+                                </div>
                             </td>
                             <td class="status-badge">
-                                @if($expert->expertDetail?->approval_status === 'pending')
-                                    <span class="badge rounded-pill bg-label-warning">Pending</span>
+                                @if ($expert->expertDetail?->approval_status === 'pending')
+                                    <span class="badge rounded-pill bg-label-secondary">Pending</span>
                                 @elseif($expert->expertDetail?->approval_status === 'approved')
-                                    <span class="badge rounded-pill bg-label-success">Approved</span>
+                                    <span class="badge rounded-pill bg-label-primary">Approved</span>
                                 @endif
                             </td>
                             <td>
-                                @if($expert->expertDetail?->approval_status === 'pending')
+                                @if ($expert->expertDetail?->approval_status === 'pending')
                                     <div class="d-flex align-items-center">
                                         <div class="form-check form-switch m-0">
-                                            <input class="form-check-input statusToggle" type="checkbox" name="approval_status"
-                                                value="1" data-id="{{ $expert->id}}">
+                                            <input class="form-check-input statusToggle" type="checkbox"
+                                                name="approval_status" value="1" data-id="{{ $expert->id }}">
                                         </div>
                                     </div>
-
                                 @else
-                                    <button class="btn btn-success btn-sm" disabled>
+                                    <button class="btn btn-primary btn-sm" disabled>
                                         ✔ Approved
                                     </button>
                                 @endif
@@ -106,7 +105,14 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}" method="POST">
+                                            <a class="dropdown-item" href="{{ route('admin.experts.show', $expert->id) }}">
+                                                <i class="ri-eye-line me-2"></i>
+                                                View Details
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="dropdown-item text-danger"
@@ -133,11 +139,11 @@
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
 
-@endsection
+    @endsection
     @push('scripts')
         <script>
-            $(document).ready(function () {
-                $(document).on('change', '.statusToggle', function () {
+            $(document).ready(function() {
+                $(document).on('change', '.statusToggle', function() {
                     let toggle = $(this);
                     let status = toggle.is(':checked') ? 1 : 0;
                     let id = toggle.data('id');
@@ -159,17 +165,17 @@
                             approval_status: status,
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function (response) {
+                        primary: function(response) {
                             if (status == true) {
                                 toggle.closest('.align-items-center').html(`
-                                        <button class="btn btn-success btn-sm" disabled>
+                                        <button class="btn btn-primary btn-sm" disabled>
                                             ✔ Approved
                                         </button>
                                     `);
                                 // 
                                 // Change badge
                                 row.find('.status-badge').html(`
-                                            <span class="badge rounded-pill bg-label-success">
+                                            <span class="badge rounded-pill bg-label-primary">
                                                 Approved
                                             </span>
                                         `);
@@ -179,7 +185,7 @@
                             }
 
                         },
-                        error: function () {
+                        error: function() {
                             alert('Something went wrong');
                             toggle.prop('checked', false);
                         }
@@ -187,6 +193,5 @@
 
                 });
             });
-
         </script>
     @endpush

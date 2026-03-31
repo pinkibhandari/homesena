@@ -9,20 +9,24 @@ use Illuminate\Http\Request;
 
 class ServiceVariantController extends Controller
 {
-    // LIST + SEARCH
+    // ================= LIST + SEARCH =================
     public function index(Request $request)
     {
         $variants = ServiceVariant::with('service')
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->search;
 
-                $q->whereHas('service', function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%");
-                })
-                ->orWhere('duration_minutes', 'like', "%{$search}%")
-                ->orWhere('base_price', 'like', "%{$search}%")
-                ->orWhere('tax_percentage', 'like', "%{$search}%");
+            // 🔍 Search (FIXED - grouped)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where(function ($query) use ($request) {
+
+                    $query->whereHas('service', function ($sub) use ($request) {
+                        $sub->where('name', 'like', '%' . $request->search . '%');
+                    })
+                    ->orWhere('duration_minutes', 'like', '%' . $request->search . '%')
+                    ->orWhere('base_price', 'like', '%' . $request->search . '%')
+                    ->orWhere('tax_percentage', 'like', '%' . $request->search . '%');
+                });
             })
+
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -30,7 +34,7 @@ class ServiceVariantController extends Controller
         return view('admin.service_variants.index', compact('variants'));
     }
 
-    // CREATE PAGE
+    // ================= CREATE =================
     public function create()
     {
         return view('admin.service_variants.form', [
@@ -39,7 +43,7 @@ class ServiceVariantController extends Controller
         ]);
     }
 
-    // EDIT PAGE
+    // ================= EDIT =================
     public function edit(ServiceVariant $service_variant)
     {
         return view('admin.service_variants.form', [
@@ -48,47 +52,64 @@ class ServiceVariantController extends Controller
         ]);
     }
 
-    // STORE
+    // ================= STORE =================
     public function store(Request $request)
     {
         $data = $this->validateData($request);
 
         ServiceVariant::create($data);
 
-        return redirect()->route('admin.service_variants.index')
+        return redirect()
+            ->route('admin.service_variants.index')
             ->with('success', 'Service Variant Created Successfully');
     }
 
-    // UPDATE
+    // ================= UPDATE =================
     public function update(Request $request, ServiceVariant $service_variant)
     {
+        //  AJAX STATUS TOGGLE
+        if ($request->has('is_active') && !$request->has('service_id')) {
+
+            $service_variant->update([
+                'is_active' => $request->is_active
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated successfully'
+            ]);
+        }
+
+        //  Normal Update
         $data = $this->validateData($request);
 
         $service_variant->update($data);
 
-        return redirect()->route('admin.service_variants.index')
+        return redirect()
+            ->route('admin.service_variants.index')
             ->with('success', 'Service Variant Updated Successfully');
     }
 
-    // DELETE
+    // ================= DELETE =================
     public function destroy(ServiceVariant $service_variant)
     {
         $service_variant->delete();
 
-        return redirect()->route('admin.service_variants.index')
+        return redirect()
+            ->route('admin.service_variants.index')
             ->with('success', 'Service Variant Deleted Successfully');
     }
 
-    // VALIDATION
+    // ================= VALIDATION =================
     private function validateData(Request $request)
     {
         return $request->validate([
             'service_id'        => 'required|exists:services,id',
             'duration_minutes'  => 'required|numeric|min:1',
             'base_price'        => 'required|numeric|min:0',
-             'discount_price' => 'nullable|numeric',
+            'discount_price'    => 'nullable|numeric',
             'tax_percentage'    => 'nullable|numeric|min:0|max:100',
-            'is_active'         => 'required|boolean',
+            'is_active'         => 'required|in:0,1',
         ]);
     }
 }

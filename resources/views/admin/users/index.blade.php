@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">User Table</h5>
+            <h5 class="card-title mb-0">User List</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
@@ -77,17 +77,18 @@
                             <td>{{ $user->email }}</td>
                             <td>
                                 @if($user->profile_completed === 1)
-                                    <span class="badge rounded-pill bg-label-success">Yes</span>
+                                    <span class="badge rounded-pill bg-label-primary">Yes</span>
                                 @else
-                                    <span class="badge rounded-pill bg-label-danger">No</span>
+                                    <span class="badge rounded-pill bg-label-secondary">No</span>
                                 @endif
                             </td>
-                            <td>
-                                @if($user->status === 'ACTIVE')
-                                    <span class="badge rounded-pill bg-label-success">ACTIVE</span>
-                                @else
-                                    <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
-                                @endif
+                         
+                             <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
+                                        {{ $user->status === 'ACTIVE' ? 'checked' : '' }}>
+                                </div>
                             </td>
 
                             <!-- <td>

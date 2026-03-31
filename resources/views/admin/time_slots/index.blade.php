@@ -10,7 +10,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Time Slot Table</h5>
+            <h5 class="card-title mb-0">Time Slot List</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.time_slots.index') }}" class="d-flex align-items-center">
@@ -20,7 +20,7 @@
                 </form>
                 <!-- Add Button -->
                 <a href="{{ route('admin.time_slots.create') }}" class="btn btn-primary btn-sm">
-                    <i class="ri-add-line me-1"></i> Add Slot
+                    <i class="ri-add-line me-1"></i> Add 
                 </a>
             </div>
         </div>

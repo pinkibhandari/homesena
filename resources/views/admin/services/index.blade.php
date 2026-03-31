@@ -1,70 +1,68 @@
 @extends('admin.layouts.master')
-
 @section('title', 'Service Table')
-
 @section('content')
-
     <div class="card">
-
-        <!-- ALERT -->
+        <!-- ALERT MESSAGE -->
         <div class="p-3">
             @include('admin.layouts.partials.alerts')
         </div>
-
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-
-            <h5 class="card-title mb-0">Services Table</h5>
-
+            <h5 class="card-title mb-0">Services List</h5>
             <div class="d-flex align-items-center gap-3">
-
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.services.index') }}" class="d-flex align-items-center">
-                    <span class="me-2">Search:</span>
-                    <input type="search" name="search" value="{{ request('search') }}" class="form-control form-control-sm"
-                        placeholder="Search services..." style="width:200px;">
-                </form>
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">Search:</span>
+                        <input name="search" type="search" class="form-control form-control-sm"
+                            placeholder="Search services..." value="{{ request('search') }}" style="width:200px;">
+                    </div>
 
-                <!-- Add Button -->
+                </form>
+                <!-- Add -->
                 <a href="{{ route('admin.services.create') }}" class="btn btn-primary btn-sm">
-                    <i class="ri-add-line me-1"></i> Add Service
+                    <i class="ri-add-line me-1"></i> Add
                 </a>
 
             </div>
-
         </div>
-
         <hr class="my-0">
-
+        <!-- Show Entries -->
+        <div class="row px-4 py-3 align-items-center">
+            <!-- <div class="col-md-6">
+                                                                            <div class="d-flex align-items-center gap-2">
+                                                                                <span>Show</span>
+                                                                                <select class="form-select form-select-sm" style="width:80px;">
+                                                                                    <option>7</option>
+                                                                                    <option>10</option>
+                                                                                    <option>25</option>
+                                                                                    <option>50</option>
+                                                                                </select>
+                                                                                <span>entries</span>
+                                                                            </div>
+                                                                        </div> -->
+        </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
-
             <table class="table table-hover align-middle table-bordered">
-
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
+                        <th width="120">Image</th>
                         <th>Service</th>
                         <th>Description</th>
-                        <th width="120">Image</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @forelse($services as $service)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
 
+                            <!-- Pagination ID -->
                             <td>
-                                <span class="fw-semibold">{{ $service->name }}</span>
+                                {{ $loop->iteration + ($services->currentPage() - 1) * $services->perPage() }}
                             </td>
-
-                            <td style="max-width:350px;">
-                                {!! Str::words(strip_tags($service->description), 10, '...') !!}
-                            </td>
-
                             <td>
                                 @if ($service->image)
                                     <img src="{{ asset('storage/' . $service->image) }}" class="rounded"
@@ -73,15 +71,26 @@
                                     <img src="https://via.placeholder.com/80x50" class="rounded" style="object-fit:cover;">
                                 @endif
                             </td>
-
                             <td>
-                                @if ($service->status == 'ACTIVE')
-                                    <span class="badge rounded-pill bg-label-success">ACTIVE</span>
-                                @else
-                                    <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
-                                @endif
+                                <span class="fw-semibold">{{ $service->name }}</span>
                             </td>
 
+                            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($service->description), 60) }}
+                            </td>
+
+
+
+                            <!--  STATUS TOGGLE (FIXED) -->
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" type="checkbox"
+                                        data-id="{{ $service->id }}" style="transform: scale(1.3); cursor:pointer;"
+                                        {{ $service->status == 1 ? 'checked' : '' }}>
+                                </div>
+                            </td>
+
+                            <!-- Actions -->
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -90,22 +99,27 @@
                                     </button>
 
                                     <ul class="dropdown-menu dropdown-menu-end">
+
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.services.edit', $service->id) }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.services.edit', $service->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>
 
                                         <li>
-                                            <form method="POST" action="{{ route('admin.services.destroy', $service->id) }}">
+                                            <form method="POST"
+                                                action="{{ route('admin.services.destroy', $service->id) }}">
                                                 @csrf
                                                 @method('DELETE')
+
                                                 <button type="submit" class="dropdown-item text-danger"
                                                     onclick="return confirm('Delete service?')">
                                                     <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                 </button>
                                             </form>
                                         </li>
+
                                     </ul>
                                 </div>
                             </td>
@@ -117,14 +131,57 @@
                         </tr>
                     @endforelse
                 </tbody>
-
             </table>
-
         </div>
         <!-- Pagination (Dynamic) -->
-
         <div class="row px-4 pb-3 align-items-center">
-            {{ $services->links('pagination::bootstrap-5') }}
-        </div>
 
-@endsection
+
+            {{ $services->links('pagination::bootstrap-5') }}
+
+
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+
+                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+
+                    toggle.addEventListener('change', function() {
+
+                        let id = this.dataset.id;
+                        let value = this.checked ? 1 : 0;
+                        let checkbox = this;
+
+                        fetch(`/admin/services/${id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    status: value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+
+                                if (!data.status) {
+                                    alert('Update failed');
+                                    checkbox.checked = !value;
+                                }
+
+                            })
+                            .catch(() => {
+                                alert('Something went wrong');
+                                checkbox.checked = !value;
+                            });
+
+                    });
+
+                });
+
+            });
+        </script>
+    @endsection

@@ -9,7 +9,8 @@ class TrainingCenter extends Model
     protected $fillable = [
         	'name',
             'city',
-            'address',	
+            'address',
+            'phone',	
             'status'
          ];
 }

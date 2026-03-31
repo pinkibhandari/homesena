@@ -1,5 +1,5 @@
 @extends('admin.layouts.master')
-@section('title', 'CMS Pages')
+@section('title', 'Review Table')
 @section('content')
     <div class="card">
         <!-- ALERT MESSAGE -->
@@ -8,21 +8,17 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">CMS Pages List</h5>
+            <h5 class="card-title mb-0">Review List</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.cms_pages.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search pages..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search reviews..." value="{{ request('search') }}" style="width:200px;">
                     </div>
 
                 </form>
-                 <!-- Add -->
-                <a href="{{ route('admin.cms_pages.create') }}" class="btn btn-primary btn-sm">
-                    <i class="ri-add-line me-1"></i> Add
-                </a>
 
             </div>
         </div>
@@ -30,17 +26,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <span>Show</span>
-                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                    <option>7</option>
-                                                                    <option>10</option>
-                                                                    <option>25</option>
-                                                                    <option>50</option>
-                                                                </select>
-                                                                <span>entries</span>
-                                                            </div>
-                                                        </div> -->
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span>Show</span>
+                                                        <select class="form-select form-select-sm" style="width:80px;">
+                                                            <option>7</option>
+                                                            <option>10</option>
+                                                            <option>25</option>
+                                                            <option>50</option>
+                                                        </select>
+                                                        <span>entries</span>
+                                                    </div>
+                                                </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -48,40 +44,59 @@
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
-                        <th>Title</th>
-                        <th>Slug</th>
-                        <th>Content</th>
-                        <th width="120">Status</th>
+                        <th>Booking Slot</th>
+                        <th>Booking</th>
+                        <th>User</th>
+                        <th>Expert</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                        <th width="120">Recommend</th>
                         <th width="120">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($pages as $page)
+                    @forelse($reviews as $review)
                         <tr>
-                            <td>{{ $loop->iteration + ($pages->currentPage() - 1) * $pages->perPage() }}</td>
-
+                            <!-- ID -->
+                            <td>{{ $loop->iteration }}</td>
+                            <!-- Booking Slot -->
+                            <td>{{ $review->booking_slot_id }}</td>
+                            <!-- Booking -->
+                            <td>{{ $review->booking_id ?? '-' }}</td>
+                            <!-- User -->
                             <td>
-                                <span class="fw-semibold">{{ $page->title }}</span>
+                                <span class="fw-semibold">
+                                    {{ $review->user->name ?? '-' }}
+                                </span>
+                            </td>
+                            <!-- Expert -->
+                            <td>
+                                <span class="fw-semibold">
+                                    {{ $review->expert->name ?? '-' }}
+                                </span>
                             </td>
 
-                            <td>{{ $page->slug }}</td>
-
-                            <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                {{ \Illuminate\Support\Str::limit(strip_tags($page->content), 60) }}
+                            <!-- Rating -->
+                            <td>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <i
+                                        class="ri-star{{ $i <= $review->rating ? '-fill text-warning' : '-line text-muted' }}"></i>
+                                @endfor
                             </td>
 
-                            <!-- Status -->
+                            <!-- Review -->
+                            <td style="max-width:200px;">
+                                {{ \Illuminate\Support\Str::limit($review->review, 50) }}
+                            </td>
 
-
+                            <!-- Recommend -->
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input toggle-status" type="checkbox"
-                                        data-id="{{ $page->id }}" style="transform: scale(1.3); cursor:pointer;"
-                                        {{ $page->status ? 'checked' : '' }}>
+                                    <input class="form-check-input toggle-recommend" type="checkbox"
+                                        data-id="{{ $review->id }}" style="transform: scale(1.3); cursor:pointer;"
+                                        {{ $review->would_recommend ? 'checked' : '' }}>
                                 </div>
                             </td>
-
-                            <!-- Actions -->
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -90,34 +105,33 @@
                                     </button>
 
                                     <ul class="dropdown-menu dropdown-menu-end">
-
-                                        <!-- Edit -->
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.cms_pages.edit', $page->id) }}">
+                                            <a class="dropdown-item" href="{{ route('admin.reviews.edit', $review->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>
 
-                                        <!-- Delete -->
                                         <li>
-                                            <form action="{{ route('admin.cms_pages.destroy', $page->id) }}" method="POST">
+                                            <form method="POST"
+                                                action="{{ route('admin.reviews.destroy', $review->id) }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this page?')">
+                                                    onclick="return confirm('Delete service?')">
                                                     <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                 </button>
                                             </form>
                                         </li>
-
                                     </ul>
                                 </div>
                             </td>
 
+
+
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No pages found</td>
+                            <td colspan="8" class="text-center">No reviews found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -127,29 +141,29 @@
         <div class="row px-4 pb-3 align-items-center">
 
 
-            {{ $pages->links('pagination::bootstrap-5') }}
+            {{ $reviews->links('pagination::bootstrap-5') }}
 
 
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
 
-                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+                document.querySelectorAll('.toggle-recommend').forEach(function(toggle) {
 
                     toggle.addEventListener('change', function() {
 
-                        let pageId = this.dataset.id;
+                        let reviewId = this.getAttribute('data-id');
                         let value = this.checked ? 1 : 0;
 
-                        fetch(`/admin/cms_pages/${pageId}`, {
-                                method: 'POST',
+                        fetch(`/admin/reviews/${reviewId}`, {
+                                method: 'POST', // Laravel me PUT spoof karenge
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 body: JSON.stringify({
                                     _method: 'PUT',
-                                    status: value
+                                    would_recommend: value
                                 })
                             })
                             .then(res => res.json())

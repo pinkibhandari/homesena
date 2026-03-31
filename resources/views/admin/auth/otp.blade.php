@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Enter OTP - HomeSena</title>
-<link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}">
+
     <!-- Bootstrap + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -13,71 +16,110 @@
         body {
             margin: 0;
             font-family: sans-serif;
-            background: #f4f4f4;
+            background: #5f2c82;
         }
 
+        /* Top Section */
         .top-section {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
-            height: 220px;
-            color: white;
+            background: white;
+            min-height: 200px;
+            color: #5f2c82;
             text-align: center;
-            padding-top: 40px;
+            padding: 30px 15px;
             border-bottom-left-radius: 60% 20%;
             border-bottom-right-radius: 60% 20%;
         }
 
-        .otp-card {
-            width: 420px;
-            border-radius: 14px;
-            margin: -80px auto 0;
-            position: relative;
-            z-index: 10;
+        .top-section img {
+            max-width: 150px;
         }
 
-        .form-control {
-            height: 45px;
-            border-radius: 8px;
+        /* Card */
+        .otp-card {
+            width: 100%;
+            max-width: 420px;
+            margin: -70px auto 0;
+            border-radius: 14px;
         }
 
         .btn-verify {
-            background: linear-gradient(135deg, #7b2ff7, #5f2c82);
+            background: linear-gradient(135deg, #5f2c82);
             border: none;
             border-radius: 8px;
             font-weight: 500;
-            color: #fff;
         }
 
         .btn-verify:hover {
             opacity: 0.9;
+        }
+
+        /* OTP Input Boxes */
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .otp-inputs input {
+            width: 45px;
+            height: 50px;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .otp-inputs input:focus {
+            border-color: #5f2c82;
+            box-shadow: none;
+            outline: none;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .otp-card {
+                margin-top: -50px;
+                padding: 0 10px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .otp-inputs input {
+                width: 40px;
+                height: 45px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Top Section -->
+    <!-- Top -->
     <div class="top-section">
-        <h4>HomeSena</h4>
+        <img src="{{ asset('assets/img/logo.svg') }}" alt="HomeSena Logo">
         <p class="mt-2">Enter the OTP sent to your email</p>
     </div>
 
-    <!-- OTP Card -->
+    <!-- Card -->
     <div class="card shadow otp-card border-0">
         <div class="card-body p-4">
 
             <h4 class="text-center fw-bold mb-3">Enter OTP</h4>
 
-            {{-- Success Message --}}
+            <!-- Messages -->
             @if(session('success'))
                 <p class="text-success text-center">{{ session('success') }}</p>
             @endif
 
-            {{-- Error Message --}}
             @if(session('error'))
                 <p class="text-danger text-center">{{ session('error') }}</p>
             @endif
 
-            {{-- Validation Errors --}}
             @if ($errors->any())
                 <div class="alert alert-danger p-2">
                     <ul class="mb-0">
@@ -88,38 +130,33 @@
                 </div>
             @endif
 
-            <!-- OTP Form -->
+            <!-- Form -->
             <form method="POST" action="{{ route('admin.verifyOtp') }}" onsubmit="disableBtn()">
                 @csrf
 
-                <!-- Hidden Email -->
                 <input type="hidden" name="email" value="{{ session('email') ?? old('email') }}">
 
-                <!-- OTP Input -->
-                <div class="mb-3">
-                    <label for="otp">OTP</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="ri-shield-keyhole-line"></i>
-                        </span>
-                        <input 
-                            type="number" 
-                            id="otp"
-                            name="otp" 
-                            class="form-control"
-                            placeholder="Enter 6-digit OTP"
-                            maxlength="6"
-                            required>
-                    </div>
+                <!-- OTP Inputs -->
+                <div class="otp-inputs mb-3">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 0)">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 1)">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 2)">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 3)">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 4)">
+                    <input type="text" maxlength="1" oninput="moveNext(this, 5)">
                 </div>
 
-                <!-- Verify Button -->
-                <button id="verifyBtn" type="submit" class="btn btn-verify w-100 py-2">
+                <!-- Hidden OTP field -->
+                <input type="hidden" name="otp" id="otp">
+
+                <!-- Button -->
+                <button id="verifyBtn" type="submit" class="btn btn-verify w-100 py-2 text-white">
                     <i class="ri-check-line me-1"></i> Verify OTP
                 </button>
+
             </form>
 
-            <!-- Back to Login -->
+            <!-- Back -->
             <div class="text-center mt-3">
                 <a href="{{ route('admin.login') }}" class="text-decoration-none">
                     <i class="ri-arrow-left-line"></i> Back to Login
@@ -129,8 +166,24 @@
         </div>
     </div>
 
-    <!-- Disable button script -->
+    <!-- Scripts -->
     <script>
+        function moveNext(input, index) {
+            let value = input.value;
+
+            if (value.length === 1 && index < 5) {
+                input.nextElementSibling.focus();
+            }
+
+            // Combine OTP
+            let otp = '';
+            document.querySelectorAll('.otp-inputs input').forEach(el => {
+                otp += el.value;
+            });
+
+            document.getElementById('otp').value = otp;
+        }
+
         function disableBtn() {
             let btn = document.getElementById('verifyBtn');
             btn.disabled = true;

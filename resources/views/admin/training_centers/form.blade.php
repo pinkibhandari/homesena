@@ -65,7 +65,23 @@
                             @enderror
                         </div>
                     </div>
+                    <!-- Phone -->
+                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <label class="form-label">Phone</label>
 
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ri-phone-line"></i>
+                            </span>
+
+                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
+                                placeholder="Enter phone number" value="{{ old('phone', $center->phone) }}">
+
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                     <!-- Address -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Address</label>
