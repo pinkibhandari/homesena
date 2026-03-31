@@ -5,78 +5,99 @@ namespace App\Http\Controllers\Api\Expert;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ExpertDetail;
-use App\Models\ExpertEmergencyContact;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\ExpertDetailResource;
+use App\Models\ExpertOnlineLog;
 class ExpertController extends Controller
 {
     public function storeDetails(Request $request)
     {
-        $request->validate([
-            // 'registration_code' => 'required',
-            // 'onboarding_agent_code' => 'required',
+        $validator = Validator::make($request->all(), [
             'training_center_id' => 'required|exists:training_centers,id',
-            // 'work_schedule' => 'required'
         ]);
-        $exists = ExpertDetail::where('user_id', auth()->id())->exists();
-        if ($exists) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Profile already created'
-            ]);
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => (object) [],
+            ], 422);
         }
-        $expert = ExpertDetail::create([
-            'user_id' => auth()->id(),
-            // 'registration_code' => $request->registration_code,
-            // 'onboarding_agent_code' => $request->onboarding_agent_code,
-            'training_center_id' => $request->training_center_id,
-            // 'work_schedule' => $request->work_schedule
-        ]);
+        $expert = ExpertDetail::updateOrCreate(
+            ['user_id' => auth()->id()],
+            [
+                'training_center_id' => $request->training_center_id
+            ]
+        );
         if ($expert) {
             return response()->json([
+                'code' => 200,
                 'status' => true,
-                'message' => 'Profile created successfully',
-                'data' => $expert
+                'message' => 'Expert Detail created successfully',
+                'data' => new ExpertDetailResource($expert)
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Profile not created'
-            ], 400);
+                'message' => 'Expert Detail not created',
+                'code' => 422,
+                'data' => (object) []
+            ], 422);
         }
     }
 
-    public function saveEmergencyContacts(Request $request)
+
+
+    public function isOnlineStatusUpdate(Request $request)
     {
         $request->validate([
-            'contacts' => 'required|array',
-            'contacts.*.name' => 'required',
-            'contacts.*.phone' => 'required|regex:/^[6-9]\d{9}$/|distinct'
+            'is_online' => 'required|boolean',
         ]);
         $expert = ExpertDetail::where('user_id', auth()->id())->first();
         if (!$expert) {
             return response()->json([
                 'status' => false,
-                'message' => 'Expert not found'
-            ]);
+                'code' => 422,
+                'message' => 'Expert not found',
+                'data' => (object) []
+            ], 422);
         }
-        foreach ($request->contacts as $contact) {
-            $exists = ExpertEmergencyContact::where('expert_detail_id', $expert->id)
-                ->where('phone', $contact['phone'])
-                ->exists();
-            if ($exists) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Phone already exists: ' . $contact['phone']
-                ], 422);
-            }
-            ExpertEmergencyContact::create([
-                'expert_detail_id' => $expert->id,
-                'name' => $contact['name'] ?? null,
-                'phone' => $contact['phone'],
+        $newStatus = $request->is_online;
+        $oldStatus = $expert->is_online;
+        //  Update status
+        $expert->is_online = $newStatus;
+        $expert->save();
+        //  Only log if status changed
+        if ($newStatus && !$oldStatus) {
+            //  Going ONLINE
+            ExpertOnlineLog::create([
+                'user_id' => auth()->id(),
+                'online_at' => now()
             ]);
+            $message = 'You are now online';
+        } elseif (!$newStatus && $oldStatus) {
+            //  Going OFFLINE
+            $log = ExpertOnlineLog::where('user_id', auth()->id())
+                ->whereNull('offline_at')
+                ->latest()
+                ->first();
+            if ($log) {
+                $log->update([
+                    'offline_at' => now()
+                ]);
+            }
+            $message = 'You are now offline';
+        } else {
+            $message = $newStatus ? 'Already online' : 'Already offline';
         }
         return response()->json([
             'status' => true,
-            'message' => 'Emergency contacts saved successfully'
-        ], 200);
+            'code' => 200,
+            'message' => $message,
+            'data' => [
+                'is_online' => $expert->is_online
+            ]
+        ]);
     }
+
 }

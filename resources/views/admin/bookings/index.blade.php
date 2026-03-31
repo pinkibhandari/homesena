@@ -11,11 +11,11 @@
             <h5 class="card-title mb-0">Booking List</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.bookings.index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search users..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search booking..." value="{{ request('search') }}" style="width:200px;">
                     </div>
                 </form>
             </div>
@@ -66,7 +66,7 @@
                             <td>{{ $booking->booking_subtype }}</td>
                             <td>{{ $booking->start_date }}</td>
                             <td>{{ $booking->end_date }}</td>
-                            <td>{{ $booking->total_amount}}</td>
+                            <td>{{ $booking->total_price}}</td>
                             <td>
                                 <!-- @if($booking->status === 'ACTIVE')
                                     <span class="badge rounded-pill bg-label-success">ACTIVE</span>
@@ -85,16 +85,16 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.edit', $booking->id) }}">
+                                                    <a class="dropdown-item" href="{{ route('admin.bookings.edit', $booking->id) }}">
                                                         <i class="ri-pencil-line me-2"></i>
                                                         Edit
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <form action="{{ route('admin.users.destroy', $booking->id) }}" method="POST">
+                                                    <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this user?')" type="submit" >
+                                                        <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this booking?')" type="submit" >
                                                             <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                         </button>
                                                     </form>

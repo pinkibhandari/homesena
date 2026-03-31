@@ -16,17 +16,25 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next,...$roles)
     {
       
+        //  Check auth
         if (!auth()->check()) {
             return response()->json([
-                'message' => 'Unauthorized'
+                'status' => false,
+                'message' => 'Unauthenticated',
+                'code' => 422,
+                'data' => (object)[]
             ], 422);
         }
 
         $user = auth()->user();
 
+         //  Check role
         if (!in_array($user->role, $roles)) {
             return response()->json([
-                'message' => 'Access Denied'
+                'status' => false,
+                'message' => 'Access denied. Invalid role',
+                'code' => 422,
+                'data' => (object)[]
             ], 422);
         }
 

@@ -17,9 +17,12 @@ class Booking extends Model
         'end_date',
         'time',
         'status',
-        'total_amount',
+        'total_price',
         'payment_status',
-        'booking_created_at'
+        'latitude',
+        'longitude',
+        'address',
+        // 'booking_created_at'
     ];
  // booking code generator
     // protected static function booted()

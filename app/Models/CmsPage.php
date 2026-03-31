@@ -11,6 +11,7 @@ class CmsPage extends Model
         'slug',
         'type', 
         'content',
-        'status'
+        'status',
+        'type',
     ];
 }

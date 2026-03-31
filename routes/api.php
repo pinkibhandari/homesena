@@ -13,14 +13,16 @@ use App\Http\Controllers\Api\Expert\ExpertController;
 use App\Http\Controllers\Api\User\ContactController;
 use App\Http\Controllers\Api\User\UserHomeController;
 use App\Http\Controllers\Api\User\CmsPageController;
+use App\Http\Controllers\Api\Expert\EmergencyContactController;
+use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController;
+use App\Http\Controllers\Api\Expert\TrainingCenterController;
 
 // Route::post('send-otp', [AuthController::class, 'sendOtp']);
 
 Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verifyotp', [AuthController::class, 'verifyOtp']);
 Route::post('resend-otp', [AuthController::class, 'resendOtp']);
- // CmsPage
-Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
+
 
 // service route
 Route::get('services', [ServiceController::class, 'getServices']);
@@ -43,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
    
     
     // boonking route
-    Route::post('/booking/create', [BookingController::class, 'createBooking']);
+    Route::post('booking/create', [BookingController::class, 'createBooking']);
     Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
     Route::get('/bookings', [BookingController::class, 'getUserBookings']);
     Route::get('/booking/{id}', [BookingController::class, 'getBookingById']);
@@ -65,11 +67,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
     // contact-us
     Route::post('contact-us',[ContactController::class, 'store']);
+     // CmsPage
+    Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){
         Route::post('details',[ExpertController::class,'storeDetails']);
-        Route::post('emergency-contacts',[ExpertController::class,'saveEmergencyContacts']);
+        Route::post('save-emergency-contacts',[EmergencyContactController::class,'storeEmergencyContacts']);
+        Route::get('emergency-contact-list',[EmergencyContactController::class,'getEmergencyContacts']);
+        Route::delete('emergency-contact/{id}',[EmergencyContactController::class,'deleteEmergencyContact']);
+            // booking
+        Route::get('bookings', [ExpertBookingController::class, 'bookingList']);
+        Route::get('booking/{id}', [ExpertBookingController::class, 'bookingDetails']);
+        Route::get('upcoming-booking', [ExpertBookingController::class, 'upcomingBooking']); 
+        Route::post('is-online-status-update', [ExpertController::class, 'isOnlineStatusUpdate']);
+        Route::get('training-centers', [TrainingCenterController::class, 'trainingCenterList']);
+        
+     
+
         
 
     });
