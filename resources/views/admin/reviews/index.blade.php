@@ -140,9 +140,7 @@
         <!-- Pagination (Dynamic) -->
         <div class="row px-4 pb-3 align-items-center">
 
-
             {{ $reviews->links('pagination::bootstrap-5') }}
-
 
         </div>
         <script>

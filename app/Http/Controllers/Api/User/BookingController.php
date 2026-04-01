@@ -244,28 +244,29 @@ class BookingController extends Controller
             $availableSlots++;
             foreach ($experts as $expert) {
                 foreach ($expert->devices as $device) {
-                    if (!$device->fcm_token)
+                    if (empty($device->fcm_token)) {
                         continue;
-                    if ($device->fcm_token) {
-                        $firebase->send(
-                            $device->fcm_token,
-                            'New Booking Request',
-                            "Booking on {$slot['date']} at {$slot['time']}",
-                            [
-                                'booking_id' => (string) $booking->id,
-                                'booking_code' => $booking->booking_code,
-                                // 'address_id' => $address->id,
-                                'date' => $slot['date'],
-                                'time' => $slot['time'],
-                                'location' => $address->address,
-                                'earning' => $slot['price'] ?? 0,
-                                'actions' => json_encode([
-                                    ['id' => 'ACCEPT', 'title' => 'Accept'],
-                                    ['id' => 'REJECT', 'title' => 'Reject']
-                                ])
-                            ],
-                        );
                     }
+                    // if ($device->fcm_token) {
+                    $firebase->send(
+                        $device->fcm_token,
+                        'New Booking Request',
+                        "Booking on {$slot['date']} at {$slot['time']}",
+                        [
+                            'booking_id' => (string) $booking->id,
+                            'booking_code' => $booking->booking_code,
+                            // 'address_id' => $address->id,
+                            'date' => $slot['date'],
+                            'time' => $slot['time'],
+                            'location' => $address->address,
+                            'earning' => $slot['price'] ?? 0,
+                            'actions' => json_encode([
+                                ['id' => 'ACCEPT', 'title' => 'Accept'],
+                                ['id' => 'REJECT', 'title' => 'Reject']
+                            ])
+                        ],
+                    );
+                    // }
                 }
             }
         }

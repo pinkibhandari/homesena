@@ -1,45 +1,41 @@
 <?php
 namespace App\Services; 
-
 use Illuminate\Support\Facades\Http;
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 
 class FirebaseService
 {
-    protected function getAccessToken()
+   
+    public function sendNotification($token,$title,$body)
     {
-        $credentials = json_decode(file_get_contents(storage_path('app/firebase.json')), true);
+        $serverKey = env('FIREBASE_SERVER_KEY');
 
-        $client = new \Google_Client();
-        $client->setAuthConfig($credentials);
-        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-
-        $token = $client->fetchAccessTokenWithAssertion();
-
-        return $token['access_token'];
-    }
-
-    public function send($fcmToken, $title, $body, $data = [])
-    {
-        $accessToken = $this->getAccessToken();
-        $projectId = json_decode(file_get_contents(storage_path('app/firebase.json')), true)['project_id'];
-
-        $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
-
-        $response = Http::withToken($accessToken)->post($url, [
-            "message" => [
-                "token" => $fcmToken,
-                "notification" => [
-                    "title" => $title,
-                    "body" => $body
-                ],
-                "data" => $data
+        $data = [
+            "to"=>$token,
+            "notification"=>[
+                "title"=>$title,
+                "body"=>$body
             ]
-        ]);
+        ];
 
-        \Log::info('FCM', $response->json());
+        $headers = [
+            "Authorization: key=".$serverKey,
+            "Content-Type: application/json"
+        ];
+
+        $ch = curl_init();
+
+        curl_setopt($ch,CURLOPT_URL,"https://fcm.googleapis.com/fcm/send");
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,json_encode($data));
+
+        $response=curl_exec($ch);
+
+        curl_close($ch);
+
+        return $response;
     }
+
 
 }
