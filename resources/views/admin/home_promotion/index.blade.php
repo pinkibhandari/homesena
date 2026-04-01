@@ -1,5 +1,5 @@
 @extends('admin.layouts.master')
-@section('title', 'Training Center Table')
+@section('title', 'Home Promotion Table')
 @section('content')
     <div class="card">
         <!-- ALERT MESSAGE -->
@@ -8,38 +8,39 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Training Center</h5>
+            <h5 class="card-title mb-0">Home Promotion</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.training_centers.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.home_promotion.index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search centers..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search promotions..." value="{{ request('search') }}" style="width:200px;">
                     </div>
 
                 </form>
                 <!-- Add -->
-                <a href="{{ route('admin.training_centers.create') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('admin.home_promotion.create') }}" class="btn btn-primary btn-sm">
                     <i class="ri-add-line me-1"></i> Add
                 </a>
+
             </div>
         </div>
         <hr class="my-0">
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <span>Show</span>
-                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                    <option>7</option>
-                                                                    <option>10</option>
-                                                                    <option>25</option>
-                                                                    <option>50</option>
-                                                                </select>
-                                                                <span>entries</span>
-                                                            </div>
-                                                        </div> -->
+                                                                                <div class="d-flex align-items-center gap-2">
+                                                                                    <span>Show</span>
+                                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                                        <option>7</option>
+                                                                                        <option>10</option>
+                                                                                        <option>25</option>
+                                                                                        <option>50</option>
+                                                                                    </select>
+                                                                                    <span>entries</span>
+                                                                                </div>
+                                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -47,45 +48,57 @@
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
-                        <th>Name</th>
-                        <th>City</th>
-                        <th>Phone</th>
-                        <th>Address</th>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Date & Time</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($centers as $center)
+                    @forelse($promotions as $promotion)
                         <tr>
-                            <!-- ✅ Pagination Index Fix -->
+
+                            <!-- ID -->
+                            <td>{{ $loop->iteration }}</td>
+
+                            <!-- IMAGE -->
                             <td>
-                                {{ $loop->iteration + ($centers->currentPage() - 1) * $centers->perPage() }}
+                                @if ($promotion->image)
+                                    <img src="{{ asset('storage/' . $promotion->image) }}" width="50" height="50"
+                                        class="rounded">
+                                @else
+                                    <span class="text-muted">No Image</span>
+                                @endif
                             </td>
 
+                            <!-- TITLE -->
+                            <td>{{ $promotion->title }}</td>
+
+                            <!-- DESCRIPTION -->
+                            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($promotion->description), 60) }}
+                            </td>
+                            <!-- DATE -->
                             <td>
-                                <span class="fw-semibold">{{ $center->name }}</span>
+                                {{ $promotion->promotion_datetime
+                                    ? \Carbon\Carbon::parse($promotion->promotion_datetime)->format('d M Y, h:i A')
+                                    : '-' }}
                             </td>
 
-                            <td>{{ $center->city }}</td>
-                            <td>{{ $center->phone }}</td>
-                            <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                {{ $center->address }}
-                            </td>
+                            <!-- STATUS TOGGLE -->
 
-                            <!-- ✅ Toggle Status (Dynamic) -->
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input toggle-status" type="checkbox"
-                                        data-id="{{ $center->id }}" style="transform: scale(1.3); cursor:pointer;"
-                                        {{ $center->status ? 'checked' : '' }}>
+                                        data-id="{{ $promotion->id }}" style="transform: scale(1.3); cursor:pointer;"
+                                        {{ $promotion->status == 1 ? 'checked' : '' }}>
                                 </div>
                             </td>
-
-                            <!-- Actions -->
+                            <!-- ACTION -->
                             <td>
                                 <div class="dropdown">
-
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
                                         data-bs-toggle="dropdown">
                                         <i class="ri-more-2-line"></i>
@@ -93,36 +106,34 @@
 
                                     <ul class="dropdown-menu dropdown-menu-end">
 
-                                        <!-- Edit -->
                                         <li>
                                             <a class="dropdown-item"
-                                                href="{{ route('admin.training_centers.edit', $center->id) }}">
+                                                href="{{ route('admin.home_promotion.edit', $promotion->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>
 
-                                        <!-- Delete -->
                                         <li>
                                             <form method="POST"
-                                                action="{{ route('admin.training_centers.destroy', $center->id) }}">
+                                                action="{{ route('admin.home_promotion.destroy', $promotion->id) }}">
                                                 @csrf
                                                 @method('DELETE')
 
                                                 <button type="submit" class="dropdown-item text-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this center?')">
+                                                    onclick="return confirm('Delete item?')">
                                                     <i class="ri-delete-bin-6-line me-2"></i> Delete
                                                 </button>
                                             </form>
                                         </li>
 
                                     </ul>
-
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No training centers found</td>
+                            <td colspan="7" class="text-center">No Data Found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -130,11 +141,7 @@
         </div>
         <!-- Pagination (Dynamic) -->
         <div class="row px-4 pb-3 align-items-center">
-
-
-            {{ $centers->links('pagination::bootstrap-5') }}
-
-
+            {{ $promotions->links('pagination::bootstrap-5') }}
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -143,10 +150,10 @@
 
                     toggle.addEventListener('change', function() {
 
-                        let id = this.dataset.id;
+                        let id = this.getAttribute('data-id');
                         let value = this.checked ? 1 : 0;
 
-                        fetch(`/admin/training_centers/${id}`, {
+                        fetch(`/admin/home_promotion/${id}`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

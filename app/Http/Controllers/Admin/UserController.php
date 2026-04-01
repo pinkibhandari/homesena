@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Address;
 use Illuminate\Support\Facades\Hash;
 use App\Models\UserDevice;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -14,7 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('role', 'user')  
+        $users = User::where('role', 'user')
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
                 $q->where(function ($query) use ($search) {
@@ -133,4 +134,14 @@ class UserController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+    // show
+   public function show($id)
+{
+    $user = User::findOrFail($id);
+
+    // User ke saare addresses fetch karo
+    $addresses = Address::where('user_id', $id)->get();
+
+    return view('admin.users.show', compact('user', 'addresses'));
+}
 }

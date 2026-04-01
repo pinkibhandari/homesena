@@ -9,7 +9,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Service Variants List</h5>
+            <h5 class="card-title mb-0">Service Variants</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.service_variants.index') }}" class="d-flex align-items-center">

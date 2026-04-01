@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Expert List</h5>
+            <h5 class="card-title mb-0">Expert</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
@@ -37,11 +37,10 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Registration Code</th>
-                        <!-- <th>Onboarding Agent Code</th> -->
                         <th>Online</th>
-                        <th width="120">Status</th>
                         <th>Approval Status</th>
                         <th>Approval Actions</th>
+                        <th width="120">Status</th>
                         <th width="120">Actions</th>
                     </tr>
                 </thead>
@@ -56,19 +55,13 @@
                             <td class="reg-td">{{ $expert->expertDetail?->registration_code }}</td>
                             <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
                             <td>
-                                @if ($expert->expertDetail?->is_online === 1)
-                                    <span class="badge rounded-pill bg-label-primary">Yes</span>
-                                @else
-                                    <span class="badge rounded-pill bg-label-secondary">No</span>
-                                @endif
-                            </td>
-                            <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
                                         style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
+                                        {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
                                 </div>
                             </td>
+
                             <td class="status-badge">
                                 @if ($expert->expertDetail?->approval_status === 'pending')
                                     <span class="badge rounded-pill bg-label-secondary">Pending</span>
@@ -90,7 +83,13 @@
                                     </button>
                                 @endif
                             </td>
-
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
+                                        {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
+                                </div>
+                            </td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"

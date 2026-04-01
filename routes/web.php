@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ServiceVariantController;
 use App\Http\Controllers\Admin\TimeSlotController;
 use App\Http\Controllers\Admin\CmsPagesController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\HomePromotionController;
 
     Route::get('/', function () {
         return view('landing');
@@ -54,6 +55,7 @@ use App\Http\Controllers\Admin\ReviewController;
         Route::resource('payments', PaymentController::class);
         Route::resource('cms_pages', CmsPagesController::class);
         Route::resource('reviews', ReviewController::class);
+        Route::resource('home_promotion', HomePromotionController::class);
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');
     // Route::get('/users/create', [UserController::class, 'create'])

@@ -92,6 +92,45 @@
                 <div data-i18n="Reviews">Reviews</div>
             </a>
         </li>
+        {{-- Home Promotion --}}
+        <li class="menu-item">
+            <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ri ri-megaphone-line"></i>
+                <div data-i18n="Home Promotion">Home Promotion</div>
+            </a>
+        </li>
+        {{-- Support --}}
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
+                <div data-i18n="Support">Support</div>
+            </a>
+
+            <ul class="menu-sub">
+
+                <!-- User Support -->
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="User Support">User Support</div>
+                    </a>
+                </li>
+
+                <!-- Expert Support -->
+                <li class="menu-item">
+                    <a href="#" class="menu-link">
+                        <div data-i18n="Expert Support">Expert Support</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        {{-- Expert Setting --}}
+        <li class="menu-item">
+            <a href="#" class="menu-link">
+                <i class="menu-icon icon-base ri ri-user-star-line"></i>
+                <div data-i18n="Expert Settings">Expert Settings</div>
+            </a>
+        </li>
         {{-- Payments --}}
         <!-- <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

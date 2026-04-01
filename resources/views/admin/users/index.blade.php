@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">User List</h5>
+            <h5 class="card-title mb-0">User</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
@@ -18,32 +18,32 @@
                             placeholder="Search users..." value="{{ request('search') }}" style="width:200px;">
                     </div>
                     <!-- <select name="status" class="form-select form-select-sm">
-                                    <option value="">All</option>
-                                    <option value="1" {{ request('status')=='1'?'selected':'' }}>Active</option>
-                                    <option value="0" {{ request('status')=='0'?'selected':'' }}>Inactive</option>
-                                </select> -->
+                                        <option value="">All</option>
+                                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                                    </select> -->
                 </form>
                 <!-- Add Button -->
                 <!-- <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">
-                        <i class="ri-add-line me-1"></i> Add User
-                    </a> -->
+                            <i class="ri-add-line me-1"></i> Add User
+                        </a> -->
             </div>
         </div>
         <hr class="my-0">
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span>Show</span>
-                                    <select class="form-select form-select-sm" style="width:80px;">
-                                        <option>7</option>
-                                        <option>10</option>
-                                        <option>25</option>
-                                        <option>50</option>
-                                    </select>
-                                    <span>entries</span>
-                                </div>
-                            </div> -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span>Show</span>
+                                        <select class="form-select form-select-sm" style="width:80px;">
+                                            <option>7</option>
+                                            <option>10</option>
+                                            <option>25</option>
+                                            <option>50</option>
+                                        </select>
+                                        <span>entries</span>
+                                    </div>
+                                </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -55,10 +55,9 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>Profile Completed</th>
-                        <!-- email      -->
+                        <th >Profile Completed</th>
                         <th width="120">Status</th>
-                        <!-- <th width="120">Actions</th> -->
+                        <th width="120">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,7 +66,7 @@
                             <td>{{ $loop->iteration }}</td>
 
                             <td>
-                                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg')}}"
+                                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                                     width="30" height="30" style="border-radius:50%;">
                             </td>
                             <td>
@@ -76,14 +75,14 @@
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                @if($user->profile_completed === 1)
+                                @if ($user->profile_completed === 1)
                                     <span class="badge rounded-pill bg-label-primary">Yes</span>
                                 @else
                                     <span class="badge rounded-pill bg-label-secondary">No</span>
                                 @endif
                             </td>
-                         
-                             <td>
+
+                            <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
                                         style="transform: scale(1.3); cursor: not-allowed;" disabled
@@ -91,31 +90,23 @@
                                 </div>
                             </td>
 
-                            <!-- <td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
-                                                data-bs-toggle="dropdown">
-                                                <i class="ri-more-2-line"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.users.edit', $user->id) }}">
-                                                        <i class="ri-pencil-line me-2"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this user?')" type="submit" >
-                                                            <i class="ri-delete-bin-6-line me-2"></i> Delete
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td> -->
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
+                                        data-bs-toggle="dropdown">
+                                        <i class="ri-more-2-line"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.users.show', $user->id) }}">
+                                                <i class="ri-eye-line me-2"></i>
+                                                Details
+                                            </a>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -128,13 +119,13 @@
         <!-- Pagination (Dynamic) -->
         <div class="row px-4 pb-3 align-items-center">
             <!-- <div class="col-md-6">
-                        <small class="text-muted">
-                            Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
-                        </small>
-                    </div> -->
+                            <small class="text-muted">
+                                Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
+                            </small>
+                        </div> -->
             <!-- <div class="col-md-6 text-end"> -->
             {{ $users->links('pagination::bootstrap-5') }}
 
             <!-- </div> -->
         </div>
-@endsection
+    @endsection
