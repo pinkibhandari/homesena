@@ -201,14 +201,13 @@ class BookingController extends Controller
             $slots[] = [
                 'booking_id' => $booking->id,
                 'date' => $date->format('Y-m-d'),
-                'start_time' => $request->type == 'instant' ? now()->format('H:i:s') : $startTime,
+                // 'start_time' => $request->type == 'instant' ? now()->format('H:i:s') : $startTime,
+                'start_time' => $startTime,
                 'end_time' => $endTime,
-                'time' => $request->time,
+                // 'time' => $request->time,
                 'duration' => $request->duration,
                 'status' => 'pending',
                 'price' => $request->price,
-                // 'created_at' => now(),
-                // 'updated_at' => now(),
             ];
         }
 
@@ -251,13 +250,14 @@ class BookingController extends Controller
                     $firebase->send(
                         $device->fcm_token,
                         'New Booking Request',
-                        "Booking on {$slot['date']} at {$slot['time']}",
+                        "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond to accept or reject.",
                         [
                             'booking_id' => (string) $booking->id,
                             'booking_code' => $booking->booking_code,
                             // 'address_id' => $address->id,
                             'date' => $slot['date'],
-                            'time' => $slot['time'],
+                            'time' => $slot['start_time'],
+                            'duration' => $slot['duration'],
                             'location' => $address->address,
                             'earning' => $slot['price'] ?? 0,
                             'actions' => json_encode([

@@ -25,9 +25,10 @@
         <div class="row px-4 py-3 align-items-center">
         </div>
         <!-- php function -->
-         @php
-            function statusColor($status) {
-                return match($status) {
+        @php
+            function statusColor($status)
+            {
+                return match ($status) {
                     'pending' => 'warning',
                     'accepted' => 'info',
                     'on_the_way' => 'primary',
@@ -38,7 +39,7 @@
                     default => 'light'
                 };
             }
-            @endphp
+        @endphp
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
             <table class="table table-hover align-middle table-bordered">
@@ -52,13 +53,13 @@
                         <th>End Date</th>
                         <th>Total Amount</th>
                         <th width="120">Status</th>
-                        <!-- <th width="120">Actions</th> -->
+                        <th width="120">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($bookings as $booking)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                                  <td>{{ $bookings->firstItem() + $loop->index }}</td>
                             <td>
                                 <span class="fw-semibold">{{ $booking->booking_code}}</span>
                             </td>
@@ -68,40 +69,26 @@
                             <td>{{ $booking->end_date }}</td>
                             <td>{{ $booking->total_price}}</td>
                             <td>
-                                <!-- @if($booking->status === 'ACTIVE')
-                                    <span class="badge rounded-pill bg-label-success">ACTIVE</span>
-                                @else
-                                    <span class="badge rounded-pill bg-label-danger">INACTIVE</span>
-                                @endif -->
                                 <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">
-                                    {{ ucfirst(str_replace('_',' ', $booking->status)) }}
+                                    {{ ucfirst(str_replace('_', ' ', $booking->status)) }}
                                 </span>
                             </td>
-                            <!-- <td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
-                                                data-bs-toggle="dropdown">
-                                                <i class="ri-more-2-line"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a class="dropdown-item" href="{{ route('admin.bookings.edit', $booking->id) }}">
-                                                        <i class="ri-pencil-line me-2"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this booking?')" type="submit" >
-                                                            <i class="ri-delete-bin-6-line me-2"></i> Delete
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td> -->
+                              <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
+                                        data-bs-toggle="dropdown">
+                                        <i class="ri-more-2-line"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.bookings.show', $booking->id) }}">
+                                                <i class="ri-eye-line me-2"></i>
+                                                View Details
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -115,4 +102,5 @@
         <div class="row px-4 pb-3 align-items-center">
             {{ $bookings->links('pagination::bootstrap-5') }}
         </div>
+        
 @endsection

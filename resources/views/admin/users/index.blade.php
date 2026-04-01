@@ -64,7 +64,7 @@
                 <tbody>
                     @forelse($users as $user)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $users->firstItem() + $loop->index }}</td>
 
                             <td>
                                 <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg')}}"
@@ -137,4 +137,5 @@
 
             <!-- </div> -->
         </div>
+        
 @endsection

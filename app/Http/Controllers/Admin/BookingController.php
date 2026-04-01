@@ -9,23 +9,23 @@ use App\Models\Booking;
 class BookingController extends Controller
 {
 
-    public function index(Request $request )
+    public function index(Request $request)
     {
-          $bookings = Booking::with('service','address','slots.expert')
-                    ->when($request->filled('search'), function ($q) use ($request) {
-                        $search = $request->search;
-                        $q->where(function ($query) use ($search) {
-                            $query->where('booking_code', 'like', "%{$search}%")
-                                ->orWhere('booking_subtype', 'like', "%{$search}%")
-                                 ->orWhere('start_date', 'like', "%{$search}%")
-                                  ->orWhere('end_date', 'like', "%{$search}%")
-                                  ->orWhere('type', 'like', "%{$search}%");
-                               
-                        });
-                    })
-                    ->latest()
-                    ->paginate(10)
-                    ->withQueryString();
+        $bookings = Booking::with('service', 'address', 'slots.expert')
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->search;
+                $q->where(function ($query) use ($search) {
+                    $query->where('booking_code', 'like', "%{$search}%")
+                        ->orWhere('booking_subtype', 'like', "%{$search}%")
+                        ->orWhere('start_date', 'like', "%{$search}%")
+                        ->orWhere('end_date', 'like', "%{$search}%")
+                        ->orWhere('type', 'like', "%{$search}%");
+
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
         return view('admin.bookings.index', compact('bookings'));
     }
     //   public function getUserBookings(Request $request)
@@ -64,5 +64,14 @@ class BookingController extends Controller
     public function edit()
     {
         return view('admin.bookings.edit');
+    }
+
+    public function show(Booking $booking)
+    {
+        $booking->load(['service', 'address']);
+        $slots = $booking->slots()
+                ->with('expert')
+                ->paginate(10);
+         return view('admin.bookings.show', compact('booking', 'slots'));
     }
 }

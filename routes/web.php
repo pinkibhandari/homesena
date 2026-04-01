@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\ReviewController;
     Route::post('/admin/verify-otp', [AuthController::class, 'verifyOtp'])->name('admin.verifyOtp');
     Route::get('/admin/reset-password', [AuthController::class, 'showResetPassword'])->name('admin.resetPassword');
     Route::post('/admin/reset-password', [AuthController::class, 'resetPassword'])->name('admin.resetPasswordSubmit');
+    /*  ----------------- admin   ---------------------*/
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         // Admin Change Password Routes
         Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('change_password');
@@ -54,6 +55,7 @@ use App\Http\Controllers\Admin\ReviewController;
         Route::resource('payments', PaymentController::class);
         Route::resource('cms_pages', CmsPagesController::class);
         Route::resource('reviews', ReviewController::class);
+
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');
     // Route::get('/users/create', [UserController::class, 'create'])
