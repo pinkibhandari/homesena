@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Review List</h5>
+            <h5 class="card-title mb-0">Review</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex align-items-center">
