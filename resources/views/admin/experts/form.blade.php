@@ -2,10 +2,10 @@
 @section('title', $expert->id ? 'Edit Expert' : 'Create Expert')
 @section('content')
     <div class="card">
-         <!-- ALERT MESSAGE -->
-    <div class="p-3">
-        @include('admin.layouts.partials.alerts')
-    </div>
+        <!-- ALERT MESSAGE -->
+        <div class="p-3">
+            @include('admin.layouts.partials.alerts')
+        </div>
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
                 {{ $expert->id ? 'Edit Expert' : 'Create Expert' }}
@@ -84,12 +84,12 @@
                                 </div>
                             @enderror
                         </div>
-                        @if($expert->exists)
+                        @if ($expert->exists)
                             <small class="text-muted">Leave blank to keep old password</small>
                         @endif
                     </div>
 
-                    @if(!$expert->exists)
+                    @if (!$expert->exists)
                         <!-- Device ID -->
                         <div class="col-lg-4 col-md-6 col-12 mb-3">
                             <label class="form-label">Device ID</label>
@@ -116,9 +116,11 @@
                                 </span>
                                 <select name="device_type" class="form-select @error('device_type') is-invalid @enderror">
                                     <option selected disabled>Select device</option>
-                                    <option value="android" {{ old('device_type', $expert->device_type) == 'android' ? 'selected' : '' }}>
-                                                Android</option>
-                                    <option value="ios" {{ old('device_type', $expert->device_type) == 'ios' ? 'selected' : '' }}>
+                                    <option value="android"
+                                        {{ old('device_type', $expert->device_type) == 'android' ? 'selected' : '' }}>
+                                        Android</option>
+                                    <option value="ios"
+                                        {{ old('device_type', $expert->device_type) == 'ios' ? 'selected' : '' }}>
                                         IOS</option>
                                     <!-- <option>Web</option> -->
                                 </select>
@@ -132,85 +134,92 @@
                     @endif
                     <!-- Registration Code -->
                     <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <label class="form-label">Registration Code</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ri-barcode-line"></i>
-                            </span>
-                            <input type="text" name="registration_code"
-                                class="form-control @error('registration_code') is-invalid @enderror"
-                                placeholder="Enter registration code"
-                                value="{{ old('registration_code', $expert->expertDetail?->registration_code) }}">
-                            @error('registration_code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div> -->
-                 
+                            <label class="form-label">Registration Code</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ri-barcode-line"></i>
+                                </span>
+                                <input type="text" name="registration_code"
+                                    class="form-control @error('registration_code') is-invalid @enderror"
+                                    placeholder="Enter registration code"
+                                    value="{{ old('registration_code', $expert->expertDetail?->registration_code) }}">
+                                @error('registration_code')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+                            </div>
+                        </div> -->
+
                     <!-- Work Schedule -->
                     <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <label class="form-label">Work Schedule</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ri-calendar-line"></i>
-                            </span>
-                            <select class="form-select @error('work_schedule') is-invalid @enderror" name="work_schedule">
-                                <option selected disabled>Select Work Schedule</option>
-                                <option value="weekend only" {{ old('work_schedule',  $expert->expertDetail?->work_schedule) == 'weekend only' ? 'selected' : '' }}>
-                                    Weekend Only
-                                </option>
-                                <option value="weekdays" {{ old('work_schedule',  $expert->expertDetail?->work_schedule) == 'weekdays' ? 'selected' : '' }}>
-                                    Weekdays
-                                </option>
-                                <option value="night shift" {{ old('work_schedule',  $expert->expertDetail?->work_schedule) == 'night shift' ? 'selected' : '' }}>
-                                    Night Shift
-                                </option>
-                                <option value="anytime" {{ old('work_schedule',  $expert->expertDetail?->work_schedule) == 'anytime' ? 'selected' : '' }}>
-                                    Anytime
-                                </option>
-                            </select>
-                            @error('work_schedule')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div> -->
+                            <label class="form-label">Work Schedule</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ri-calendar-line"></i>
+                                </span>
+                                <select class="form-select @error('work_schedule') is-invalid @enderror" name="work_schedule">
+                                    <option selected disabled>Select Work Schedule</option>
+                                    <option value="weekend only" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'weekend only' ? 'selected' : '' }}>
+                                        Weekend Only
+                                    </option>
+                                    <option value="weekdays" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'weekdays' ? 'selected' : '' }}>
+                                        Weekdays
+                                    </option>
+                                    <option value="night shift" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'night shift' ? 'selected' : '' }}>
+                                        Night Shift
+                                    </option>
+                                    <option value="anytime" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'anytime' ? 'selected' : '' }}>
+                                        Anytime
+                                    </option>
+                                </select>
+                                @error('work_schedule')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+                            </div>
+                        </div> -->
                     <!-- training center -->
-                      <div class="col-lg-4 col-md-6 col-12 mb-3">
+                    <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Training Center</label>
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="ri-calendar-line"></i>
                             </span>
-                         <select class="form-select @error('training_center_id') is-invalid @enderror" name="training_center_id">
-                        <option selected disabled>Select Training Center</option>
+                            <select class="form-select @error('training_center_id') is-invalid @enderror"
+                                name="training_center_id">
+                                <option selected disabled>Select Training Center</option>
 
-                        @foreach($trainingCenters as $center)
-                            <option value="{{ $center->id }}" {{ old('training_center_id', $expert->expertDetail?->training_center_id ?? '') == $center->id ? 'selected' : '' }}>
-                                {{ $center->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('training_center_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                                @foreach ($trainingCenters as $center)
+                                    <option value="{{ $center->id }}"
+                                        {{ old('training_center_id', $expert->expertDetail?->training_center_id ?? '') == $center->id ? 'selected' : '' }}>
+                                        {{ $center->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('training_center_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
-                    </div>
-                         <!-- Status -->
+                    <!-- Status -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Status</label>
+
                         <div class="input-group">
                             <span class="input-group-text">
                                 <i class="ri-shield-check-line"></i>
                             </span>
+
                             <select class="form-select @error('status') is-invalid @enderror" name="status">
-                                <option selected disabled>Select status</option>
-                                <option value="ACTIVE" {{ old('status', $expert->status) == 'ACTIVE' ? 'selected' : '' }}>
+                                <option disabled>Select status</option>
+
+                                <option value="1" {{ old('status', $expert->status) == 1 ? 'selected' : '' }}>
                                     Active
                                 </option>
-                                <option value="INACTIVE" {{ old('status', $expert->status) == 'INACTIVE' ? 'selected' : '' }}>
+
+                                <option value="0" {{ old('status', $expert->status) == 0 ? 'selected' : '' }}>
                                     Inactive
                                 </option>
                             </select>
+
                             @error('status')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -219,22 +228,23 @@
                         </div>
                     </div>
                     <!--  -->
-                     <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" name="is_online" value="1"
-                                {{ old('is_online', $expert->is_online ?? 0) == 1 ? 'checked' : '' }}>
-                            <label class="form-check-label">Online</label>
-                        </div>
-                  </div> -->
-                  <!-- Status Toggle -->
+                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="is_online" value="1"
+                                    {{ old('is_online', $expert->is_online ?? 0) == 1 ? 'checked' : '' }}>
+                                <label class="form-check-label">Online</label>
+                            </div>
+                      </div> -->
+                    <!-- Status Toggle -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Is Online</label>
                         <!-- Hidden input (for OFF value) -->
                         <input type="hidden" name="is_online" value="0">
                         <div class="form-control d-flex align-items-center">
                             <div class="form-check form-switch m-0">
-                                <input class="form-check-input @error('is_online') is-invalid @enderror" type="checkbox" id="statusToggle"
-                                    name="is_online" value="1" {{ old('is_online', $expert->expertDetail->is_online ?? '') == '1' ? 'checked' : '' }}>
+                                <input class="form-check-input @error('is_online') is-invalid @enderror" type="checkbox"
+                                    id="statusToggle" name="is_online" value="1"
+                                    {{ old('is_online', $expert->expertDetail->is_online ?? '') == '1' ? 'checked' : '' }}>
                             </div>
                         </div>
                         @error('is_online')
@@ -244,41 +254,43 @@
                         @enderror
                     </div>
                     <!--  -->
-                 @if(!$expert->exists)
-                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                          Emergency Contacts
-                        </h5>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <label class="form-label">Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ri-user-line"></i>
-                            </span>
-                            <input type="text" name="emergency_contact_name" class="form-control @error('emergency_contact_name') is-invalid @enderror"
-                                placeholder="Enter user id" value="{{ old('emergency_contact_name') }}">
-                            @error('emergency_contact_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                    @if (!$expert->exists)
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Emergency Contacts
+                            </h5>
                         </div>
-                    </div>
-                     <!-- Phone -->
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
-                        <label class="form-label">Phone</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ri-phone-line"></i>
-                            </span>
-                            <input type="text" name="emergency_contact_phone" class="form-control @error('emergency_contact_phone') is-invalid @enderror"
-                                placeholder="Enter phone" value="{{ old('emergency_contact_phone') }}">
-                            @error('emergency_contact_phone')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                            <label class="form-label">Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ri-user-line"></i>
+                                </span>
+                                <input type="text" name="emergency_contact_name"
+                                    class="form-control @error('emergency_contact_name') is-invalid @enderror"
+                                    placeholder="Enter user id" value="{{ old('emergency_contact_name') }}">
+                                @error('emergency_contact_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                    </div>
+                        <!-- Phone -->
+                        <div class="col-lg-4 col-md-6 col-12 mb-3">
+                            <label class="form-label">Phone</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ri-phone-line"></i>
+                                </span>
+                                <input type="text" name="emergency_contact_phone"
+                                    class="form-control @error('emergency_contact_phone') is-invalid @enderror"
+                                    placeholder="Enter phone" value="{{ old('emergency_contact_phone') }}">
+                                @error('emergency_contact_phone')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
                     @endif
                     <!--  -->
                 </div>

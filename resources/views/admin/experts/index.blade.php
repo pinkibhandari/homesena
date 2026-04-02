@@ -83,13 +83,22 @@
                                     </button>
                                 @endif
                             </td>
-                            <td>
+                            {{-- <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
                                         style="transform: scale(1.3); cursor: not-allowed;" disabled
                                         {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
                                 </div>
-                            </td>
+                            </td> --}}
+                            <td>
+    <div class="form-check form-switch">
+        <input class="form-check-input toggle-status"
+            type="checkbox"
+            data-id="{{ $expert->id }}"
+            style="transform: scale(1.3); cursor:pointer;"
+            {{ $expert->status == 1 ? 'checked' : '' }}>
+    </div>
+</td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -106,7 +115,7 @@
                                         <li>
                                             <a class="dropdown-item" href="{{ route('admin.experts.show', $expert->id) }}">
                                                 <i class="ri-eye-line me-2"></i>
-                                                View Details
+                                                Details
                                             </a>
                                         </li>
                                         <li>
@@ -140,57 +149,110 @@
 
     @endsection
     @push('scripts')
-        <script>
-            $(document).ready(function() {
-                $(document).on('change', '.statusToggle', function() {
-                    let toggle = $(this);
-                    let status = toggle.is(':checked') ? 1 : 0;
-                    let id = toggle.data('id');
-                    let row = toggle.closest('tr');
+     <script>
+$(document).ready(function () {
 
-                    // Confirmation before approving
-                    if (status == 1) {
-                        if (!confirm("Are you sure you want to approve this user?")) {
-                            toggle.prop('checked', false); // revert toggle
-                            return;
-                        }
+    $(document).on('change', '.statusToggle', function () {
+
+        let toggle = $(this);
+        let status = toggle.is(':checked') ? 1 : 0;
+        let id = toggle.data('id');
+        let row = toggle.closest('tr');
+
+        if (status === 1) {
+            if (!confirm("Are you sure you want to approve this expert?")) {
+                toggle.prop('checked', false);
+                return;
+            }
+        }
+
+        $.ajax({
+            url: '/admin/update-approve-status', // ✅ FIXED
+            type: 'POST',
+            data: {
+                id: id,
+                approval_status: status,
+                _token: '{{ csrf_token() }}'
+            },
+
+            success: function (response) {
+
+                if (response.status) {
+
+                    // Approved UI
+                    toggle.closest('.align-items-center').html(`
+                        <button class="btn btn-primary btn-sm" disabled>
+                            ✔ Approved
+                        </button>
+                    `);
+
+                    row.find('.status-badge').html(`
+                        <span class="badge rounded-pill bg-label-primary">
+                            Approved
+                        </span>
+                    `);
+
+                    if (response.data && response.data.registration_code) {
+                        row.find('.reg-td').text(response.data.registration_code);
                     }
 
-                    $.ajax({
-                        url: 'update-approve-status',
-                        type: 'POST',
-                        data: {
-                            id: id,
-                            approval_status: status,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        primary: function(response) {
-                            if (status == true) {
-                                toggle.closest('.align-items-center').html(`
-                                        <button class="btn btn-primary btn-sm" disabled>
-                                            ✔ Approved
-                                        </button>
-                                    `);
-                                // 
-                                // Change badge
-                                row.find('.status-badge').html(`
-                                            <span class="badge rounded-pill bg-label-primary">
-                                                Approved
-                                            </span>
-                                        `);
-                                // Update registration number
-                                row.find('.reg-td').text(response.data.registration_code);
+                } else {
+                    alert('Update failed');
+                    toggle.prop('checked', !status);
+                }
+            },
 
-                            }
+            error: function () {
+                alert('Something went wrong');
+                toggle.prop('checked', !status);
+            }
+        });
 
-                        },
-                        error: function() {
-                            alert('Something went wrong');
-                            toggle.prop('checked', false);
-                        }
-                    });
+    });
 
-                });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.toggle-status').forEach(function (toggle) {
+
+        toggle.addEventListener('change', function () {
+
+            let id = this.dataset.id;
+            let value = this.checked ? 1 : 0;
+            let checkbox = this;
+
+            fetch(`/admin/experts/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    _method: 'PUT',
+                    status: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if (!data.status) {
+                    alert('Update failed');
+                    checkbox.checked = !value;
+                }
+
+            })
+            .catch(() => {
+                alert('Something went wrong');
+                checkbox.checked = !value;
             });
-        </script>
+
+        });
+
+    });
+
+});
+</script>
     @endpush

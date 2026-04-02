@@ -1,5 +1,6 @@
 @extends('admin.layouts.master')
 @section('title', 'User Table')
+
 @section('content')
     <div class="card">
         <!-- ALERT MESSAGE -->
@@ -8,42 +9,35 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">User</h5>
+            <h5 class="card-title mb-0">User's</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search users..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search User's..." value="{{ request('search') }}" style="width:200px;">
                     </div>
-                    <!-- <select name="status" class="form-select form-select-sm">
-                                        <option value="">All</option>
-                                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
-                                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
-                                    </select> -->
+
                 </form>
-                <!-- Add Button -->
-                <!-- <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">
-                            <i class="ri-add-line me-1"></i> Add User
-                        </a> -->
+
             </div>
         </div>
         <hr class="my-0">
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span>Show</span>
-                                        <select class="form-select form-select-sm" style="width:80px;">
-                                            <option>7</option>
-                                            <option>10</option>
-                                            <option>25</option>
-                                            <option>50</option>
-                                        </select>
-                                        <span>entries</span>
-                                    </div>
-                                </div> -->
+                                                                                                <div class="d-flex align-items-center gap-2">
+                                                                                                    <span>Show</span>
+                                                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                                                        <option>7</option>
+                                                                                                        <option>10</option>
+                                                                                                        <option>25</option>
+                                                                                                        <option>50</option>
+                                                                                                    </select>
+                                                                                                    <span>entries</span>
+                                                                                                </div>
+                                                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -51,11 +45,11 @@
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
-                        <th>Profile Image</th>
+                        <th>Profile</th>
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th >Profile Completed</th>
+                        <th>Profile Completed</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
                     </tr>
@@ -67,50 +61,52 @@
 
                             <td>
                                 <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
-                                    width="30" height="30" style="border-radius:50%;">
+                                    width="35" height="35" class="rounded-circle">
                             </td>
-                            <td>
-                                <span class="fw-semibold">{{ $user->name ?? ' ' }}</span>
-                            </td>
+
+                            <td><span class="fw-semibold">{{ $user->name }}</span></td>
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->email }}</td>
+
                             <td>
-                                @if ($user->profile_completed === 1)
-                                    <span class="badge rounded-pill bg-label-primary">Yes</span>
+                                @if ($user->profile_completed == 1)
+                                    <span class="badge bg-label-primary rounded-pill">Yes</span>
                                 @else
-                                    <span class="badge rounded-pill bg-label-secondary">No</span>
+                                    <span class="badge bg-label-secondary rounded-pill">No</span>
                                 @endif
                             </td>
 
+                            <!-- ✅ STATUS TOGGLE -->
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $user->status === 'ACTIVE' ? 'checked' : '' }}>
+                                    <input class="form-check-input toggle-status" type="checkbox"
+                                        data-id="{{ $user->id }}" style="transform: scale(1.3); cursor:pointer;"
+                                        {{ $user->status == 1 ? 'checked' : '' }}>
                                 </div>
                             </td>
 
+                            <!-- ACTION -->
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
                                         data-bs-toggle="dropdown">
                                         <i class="ri-more-2-line"></i>
                                     </button>
+
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
                                             <a class="dropdown-item" href="{{ route('admin.users.show', $user->id) }}">
-                                                <i class="ri-eye-line me-2"></i>
-                                                Details
+                                                <i class="ri-eye-line me-2"></i> Details
                                             </a>
                                         </li>
-                                        
                                     </ul>
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No users found</td>
+                            <td colspan="8" class="text-center">No users found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -118,15 +114,54 @@
         </div>
         <!-- Pagination (Dynamic) -->
         <div class="row px-4 pb-3 align-items-center">
-            <!-- <div class="col-md-6">
-                            <small class="text-muted">
-                                Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
-                            </small>
-                        </div> -->
-            <!-- <div class="col-md-6 text-end"> -->
+
+
             {{ $users->links('pagination::bootstrap-5') }}
 
-            <!-- </div> -->
+
         </div>
-        
-@endsection
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+
+                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+
+                    toggle.addEventListener('change', function() {
+
+                        let id = this.dataset.id;
+                        let value = this.checked ? 1 : 0;
+                        let checkbox = this;
+
+                        fetch(`/admin/users/${id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    status: value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+
+                                if (!data.status) {
+                                    alert('Update failed');
+                                    checkbox.checked = !value; // revert properly
+                                }
+
+                            })
+                            .catch(() => {
+                                alert('Something went wrong');
+                                checkbox.checked = !value; // revert properly
+                            });
+
+                    });
+
+                });
+
+            });
+        </script>
+
+    @endsection
