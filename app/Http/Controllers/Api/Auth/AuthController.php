@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserDevice;
-use App\Models\ExpertDetail;
+// use App\Models\ExpertDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 // use App\Http\Requests\Auth\SendOtpRequest;
@@ -20,177 +20,191 @@ class AuthController extends Controller
 
     // public function sendOtp(SendOtpRequest $request)
     public function sendOtp(Request $request)
-     {   
-         $validator = Validator::make($request->all(), [
-              'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
-              'role' => 'required|in:user,expert,admin',
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|digits:10|regex:/^[6-9]\d{9}$/',
+            'role' => 'required|in:user,expert,admin',
+            'deviceId' => 'required|string',
+            'deviceType' => 'required|in:android,ios'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'code' => 422,
-                'message' => $validator->errors()->first(), 
-                'data' => (object)[],
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
             ], 422);
-        } 
-        $user = User::where('phone', $request->phone)->first();
-        if ($user) {
-        //  If role is different → block
-            if ($user->role !== $request->role) {
-                return response()->json([
-                    'code'=>422,
-                    'status' => false,
-                    'data'=> (object)[],
-                    'message' => 'This phone number is already registered with another role'
-                ], 422);
-            }
+        }
+
+        $existingUser = User::where('phone', $request->phone)->first();
+
+        // Block if phone registered with different role
+        if ($existingUser && $existingUser->role !== $request->role) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'This phone number is already registered with another role',
+                'data' => (object) []
+            ], 422);
+        }
+        if ($existingUser && $existingUser->otp_expires_at > now()->subMinute()) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Please wait before requesting OTP again',
+                'data' => (object) []
+            ], 422);
         }
 
         $otp = rand(100000, 999999);
         $user = User::updateOrCreate(
-            ['phone' => $request->phone,
-             ],
-            [ 
-              'otp' => Hash::make($otp),
-              'otp_expires_at' => Carbon::now()->addMinutes(60),
-              'role'=> $request->role ?? 'user',
+            ['phone' => $request->phone],
+            [
+                'otp' => Hash::make($otp),
+                'otp_expires_at' => Carbon::now()->addMinutes(10),
+                'role' => $request->role
             ]
-           );
-          $userDevice = UserDevice::updateOrCreate(
+        );
+
+        $userDevice = UserDevice::updateOrCreate(
             ['device_id' => $request->deviceId],
             [
                 'user_id' => $user->id,
-                'device_type' => $request->deviceType,
+                'device_type' => $request->deviceType
             ]
         );
+
+        // Expert first time registration
         if ($user->role === 'expert' && $user->wasRecentlyCreated) {
-                  $user->update([
-                       'status' => $user->role === 'expert' ? 'INACTIVE' : 'ACTIVE',
-                   ]);
-                    $user->expertDetail()->firstOrCreate(
-                    ['user_id' => $user->id],
-                    ['approval_status' => 'pending']
-                );
-             }
-        
-       $userDevice->makeHidden(['id']);
-       $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
-       $all = collect($user)->merge($userDevice);  
-       if(!$user) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Failed to send OTP',
-                'data'=> (object)[],
-            ], 422);
-        } else {    
-         return response()->json([
-            'code'=> 200, 
-            'status' => true,
-             'message' => 'OTP sent successfully',
-             'data'=> array_merge($all->toArray(), ['otp' => $otp]),
-            // 'otp' => $otp 
-          ],200);
+
+            $user->update([
+                'status' => 'INACTIVE'
+            ]);
+
+            $user->expertDetail()->firstOrCreate(
+                ['user_id' => $user->id],
+                ['approval_status' => 'pending']
+            );
         }
+        $userDevice->makeHidden(['id']);
+        $user->profile_image = $user->profile_image
+            ? url('storage/' . $user->profile_image)
+            : null;
+
+        $all = collect($user)->merge($userDevice);
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'OTP sent successfully',
+            'data' => array_merge($all->toArray(), [
+                'otp' => $otp
+            ])
+        ], 200);
     }
 
-   
-   // Verify OTP
+    // Verify OTP
     // public function verifyOtp(VerifyOtpRequest $request) 
-     public function verifyOtp(Request $request)
-      {
-            $validator = Validator::make($request->all(), [
-                'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
-                'otp' => 'required|digits:6',
-                'role' => 'required|in:user,expert,admin',
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false ,
-                    'code' => 422 ,
-                    'message' => $validator->errors()->first(), 
-                    'data' => (object)[],
-                ], 422);
-            } 
-         $user = User::where('phone', $request->phone)
-                       ->where('role', $request->role)
-                        ->first();
-        if (!$user) {
-            return response()->json([
-                    'status' => false,
-                    'code' => 422,
-                    'message' => 'Invalid user',
-                    'data'=> (object)[],
-                ], 422);
-            }
-            
-         if ($user->otp_expires_at < now()) {
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|digits:10|regex:/^[6-9]\d{9}$/',
+            'otp' => 'required|digits:6',
+            'role' => 'required|in:user,expert,admin',
+            'deviceId' => 'required|string',
+            'deviceType' => 'required|in:android,ios,web'
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'code' => 422,
-                'message' => 'Invalid or expired OTP',
-                'data'=> (object)[],
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
             ], 422);
         }
 
+        $user = User::where('phone', $request->phone)
+            ->where('role', $request->role)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Invalid user',
+                'data' => (object) []
+            ], 422);
+        }
+
+        // Check OTP expiry
+        if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'OTP expired',
+                'data' => (object) []
+            ], 422);
+        }
+
+        // Verify OTP
         if (!Hash::check($request->otp, $user->otp)) {
             return response()->json([
-                'status' => false ,
-                'code'=> 422 ,
+                'status' => false,
+                'code' => 422,
                 'message' => 'Invalid OTP',
-                'data'=> (object)[] ,
+                'data' => (object) []
             ], 422);
         }
 
+        // Clear OTP
         $user->update([
             'otp' => null,
             'otp_expires_at' => null
         ]);
-       
-        // create sanctum token
-        //  $token = $user->createToken('mobile-token')->plainTextToken;
-         $token = $user->createToken('mobile-token');
-         UserDevice::updateOrCreate(
+
+        // Create Sanctum Token
+        $tokenResult = $user->createToken('mobile-token');
+        $token = $tokenResult->plainTextToken;
+
+        // Save device
+        UserDevice::updateOrCreate(
             [
                 'user_id' => $user->id,
                 'device_id' => $request->deviceId
             ],
             [
                 'device_type' => $request->deviceType,
-                'token_id' => $token->accessToken->id
+                'token_id' => $tokenResult->accessToken->id
             ]
         );
-        //   $profileCompleted = false;
-        // if ($user->role == 'expert') {
-        //     $expertDetail = ExpertDetail::where('user_id', $user->id)->first();
-        //     if ($expertDetail) {
-        //          $profileCompleted = true;
-        //     }
-        // }
-        $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
+
+        $user->profile_image = $user->profile_image
+            ? url('storage/' . $user->profile_image)
+            : null;
+
         $data = collect($user)->merge([
-                'token' => $token->plainTextToken
-                // 'profileCompleted' => $profileCompleted
-            ]);
+            'token' => $token
+        ]);
 
         return response()->json([
-            'code'=> 200,
+            'code' => 200,
             'status' => true,
             'token_type' => 'Bearer',
-            'data'=> $data,
-            'message' => 'Otp verify successfully',         
-        ],200);
+            'data' => $data,
+            'message' => 'OTP verified successfully'
+        ], 200);
     }
 
 
-  //  Logout
+    //  Logout
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
-            'code'=> 200,
+            'code' => 200,
             'status' => true,
-            'data'=> (object)[],
+            'data' => (object) [],
             'message' => 'Logged out successfully'
         ]);
     }
@@ -203,53 +217,66 @@ class AuthController extends Controller
         // Soft delete user
         $user->delete();
         return response()->json([
-             'code'=> 200,
+            'code' => 200,
             'status' => true,
-            'data'=> (object)[],
+            'data' => (object) [],
             'message' => 'Account deleted successfully'
         ]);
     }
 
-  public function resendOtp(Request $request)
+    public function resendOtp(Request $request)
     {
-       $validator = Validator::make($request->all(), [
-                'phone'  => 'required| digits:10|regex:/^[6-9]\d{9}$/',
-                'role' => 'required|in:user,expert,admin',
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false ,
-                    'code' => 422 ,
-                    'message' => $validator->errors()->first(), 
-                    'data' => (object)[],
-                ], 422);
-            } 
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|digits:10|regex:/^[6-9]\d{9}$/',
+            'role' => 'required|in:user,expert,admin',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
+            ], 422);
+        }
 
         $user = User::where('phone', $request->phone)
-                ->where('role', $request->role)
-               ->first();
+            ->where('role', $request->role)
+            ->first();
 
         if (!$user) {
-             return response()->json([
-                    'status' => false ,
-                    'code' => 422 ,
-                    'message' => $validator->errors()->first(), 
-                    'data' => (object)[],
-                ], 422);
-           }
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'User not found',
+                'data' => (object) []
+            ], 422);
+        }
+
+        // Prevent OTP spam (allow resend after 60 seconds)
+        if ($user->otp_expires_at && now()->diffInSeconds($user->otp_expires_at, false) > 540) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Please wait before requesting another OTP',
+                'data' => (object) []
+            ], 422);
+        }
 
         // Generate new OTP
-         $otp = rand(100000, 999999);
-        // Update OTP and time
-        $user->otp = Hash::make($otp);
-        $user->otp_expires_at = Carbon::now()->addMinutes(60);
-        $user->save();
+        $otp = rand(100000, 999999);
+
+        $user->update([
+            'otp' => Hash::make($otp),
+            'otp_expires_at' => Carbon::now()->addMinutes(10)
+        ]);
+
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP resent successfully',
-            'data' => $otp 
+            'data' =>  $otp 
         ]);
     }
-                                                                                                                                                                                                                                   
+
 }

@@ -1,5 +1,5 @@
 @extends('admin.layouts.master')
-@section('title', 'Booking Table')
+@section('title', 'Bookings')
 @section('content')
     <div class="card">
         <!-- ALERT MESSAGE -->
@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Booking</h5>
+            <h5 class="card-title mb-0">Bookings</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.bookings.index') }}" class="d-flex align-items-center">
@@ -64,9 +64,9 @@
                                 <span class="fw-semibold">{{ $booking->booking_code}}</span>
                             </td>
                             <td>{{ $booking->type }}</td>
-                            <td>{{ $booking->booking_subtype }}</td>
-                            <td>{{ $booking->start_date }}</td>
-                            <td>{{ $booking->end_date }}</td>
+                            <td>{{ $booking->booking_subtype ?? 'N/A' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y')}}</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y')}}</td>
                             <td>{{ $booking->total_price}}</td>
                             <td>
                                 <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">

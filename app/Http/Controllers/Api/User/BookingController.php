@@ -119,7 +119,7 @@ class BookingController extends Controller
 
         $totalPrice = 0;
         $booking = Booking::create([
-            'booking_code' => 'HS' . now()->format('md') . strtoupper(Str::random(4)),
+            'booking_code' => 'HS-' . now()->format('md') . strtoupper(Str::random(4)),
             'user_id' => auth()->id(),
             'service_id' => $request->serviceId,
             'type' => $request->type,

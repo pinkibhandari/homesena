@@ -8,43 +8,45 @@ use App\Models\ExpertDetail;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ExpertDetailResource;
 use App\Models\ExpertOnlineLog;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\ExpertProfileResource;
 class ExpertController extends Controller
 {
-    public function storeDetails(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'training_center_id' => 'required|exists:training_centers,id',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'code' => 422,
-                'message' => $validator->errors()->first(),
-                'data' => (object) [],
-            ], 422);
-        }
-        $expert = ExpertDetail::updateOrCreate(
-            ['user_id' => auth()->id()],
-            [
-                'training_center_id' => $request->training_center_id
-            ]
-        );
-        if ($expert) {
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'Expert Detail created successfully',
-                'data' => new ExpertDetailResource($expert)
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Expert Detail not created',
-                'code' => 422,
-                'data' => (object) []
-            ], 422);
-        }
-    }
+    // public function storeDetails(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'training_center_id' => 'required|exists:training_centers,id',
+    //     ]);
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'code' => 422,
+    //             'message' => $validator->errors()->first(),
+    //             'data' => (object) [],
+    //         ], 422);
+    //     }
+    //     $expert = ExpertDetail::updateOrCreate(
+    //         ['user_id' => auth()->id()],
+    //         [
+    //             'training_center_id' => $request->training_center_id
+    //         ]
+    //     );
+    //     if ($expert) {
+    //         return response()->json([
+    //             'code' => 200,
+    //             'status' => true,
+    //             'message' => 'Expert Detail created successfully',
+    //             'data' => new ExpertDetailResource($expert)
+    //         ], 200);
+    //     } else {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Expert Detail not created',
+    //             'code' => 422,
+    //             'data' => (object) []
+    //         ], 422);
+    //     }
+    // }
 
 
 
@@ -97,6 +99,52 @@ class ExpertController extends Controller
             'data' => [
                 'is_online' => $expert->is_online
             ]
+        ]);
+    }
+
+    // profile update
+     public function profile(Request $request)
+    {
+        $expert = $request->user();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $expert->id,
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'training_center_id' => 'required|exists:training_centers,id|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => (object) [],
+            ], 422);
+        }
+        $expert->name = $request->name;
+        $expert->email = $request->email;
+        $expert->profile_completed = true;
+        if ($request->hasFile('profile_image')) {
+            // delete old image
+            if ($expert->profile_image && Storage::disk('public')->exists($expert->profile_image)) {
+                Storage::disk('public')->delete($expert->profile_image);
+            }
+            // store new image
+            $imagePath = $request->file('profile_image')->store('profile', 'public');
+            $expert->profile_image = $imagePath;
+        }
+        $expert->save();
+        $expertDetail = ExpertDetail::updateOrCreate(
+                    ['user_id' => $expert->id],
+                    ['training_center_id' => $request->training_center_id]
+                );
+        // $expertDetail->load('trainingCenter');
+        $expert->load('expertDetail.trainingCenter');
+        $expert->profile_image = $expert->profile_image ? url('storage/' . $expert->profile_image) : null;
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'Profile updated successfully',
+            'data' => new ExpertProfileResource($expert)
         ]);
     }
 

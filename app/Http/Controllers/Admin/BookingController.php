@@ -74,4 +74,6 @@ class BookingController extends Controller
                 ->paginate(10);
          return view('admin.bookings.show', compact('booking', 'slots'));
     }
+
+
 }

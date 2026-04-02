@@ -13,11 +13,12 @@ use App\Http\Controllers\Api\Expert\ExpertController;
 use App\Http\Controllers\Api\User\ContactController;
 use App\Http\Controllers\Api\User\UserHomeController;
 use App\Http\Controllers\Api\User\CmsPageController;
+use App\Http\Controllers\Api\User\AddressController;
 use App\Http\Controllers\Api\Expert\EmergencyContactController;
 use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController;
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
 
-// Route::post('send-otp', [AuthController::class, 'sendOtp']);
+
 
 Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verifyotp', [AuthController::class, 'verifyOtp']);
@@ -33,17 +34,23 @@ Route::get('instant-booking-duration', [ServiceController::class, 'instantBookin
 // Route::post('service/create',[ServiceController::class, 'create']);
 // athenticated routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('delete-account', [AuthController::class, 'deleteAccount']);
-    // user details and address
-    Route::post('profile', [UserController::class, 'profile']);
-    Route::get('user-details', [UserController::class, 'userDetails']);
-    Route::post('save-address', [UserController::class, 'saveAddress']);
-    Route::post('update-address/{id}', [UserController::class, 'updateAddress']);
-    Route::get('address-list', [UserController::class, 'addressList']);
-    Route::get('user-home', [UserHomeController::class, 'userHome']);
+     Route::middleware('role:user,expert')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('delete-account', [AuthController::class, 'deleteAccount']);
+        // user details
+        Route::post('profile', [UserController::class, 'profile']);
+        Route::get('user-details', [UserController::class, 'userDetails']);
+        // -------- address route  user/expert both can use this route -----------
+        Route::post('save-address', [AddressController::class, 'saveAddress']);
+        Route::post('update-address/{id}', [AddressController::class, 'updateAddress']);
+        Route::get('address-list', [AddressController::class, 'addressList']);
+        Route::delete('delete-address/{id}', [AddressController::class, 'deleteAddress']);
+        // cms page route
+        Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
+
+     });
    
-    
+    Route::get('user-home', [UserHomeController::class, 'userHome']);
     // boonking route
     Route::post('booking/create', [BookingController::class, 'createBooking']);
     Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
@@ -68,14 +75,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // contact-us
     Route::post('contact-us',[ContactController::class, 'store']);
      // CmsPage
-    Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
+    
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){
-        Route::post('details',[ExpertController::class,'storeDetails']);
+        
+        Route::post('profile',[ExpertController::class,'profile']);
+        // Route::post('details',[ExpertController::class,'storeDetails']);
         Route::post('save-emergency-contacts',[EmergencyContactController::class,'storeEmergencyContacts']);
         Route::get('emergency-contact-list',[EmergencyContactController::class,'getEmergencyContacts']);
         Route::delete('emergency-contact/{id}',[EmergencyContactController::class,'deleteEmergencyContact']);
+        Route::put('update-emergency-contact/{id}',[EmergencyContactController::class,'updateEmergencyContact']);
             // booking
         Route::get('bookings', [ExpertBookingController::class, 'bookingList']);
         Route::get('booking/{id}', [ExpertBookingController::class, 'bookingDetails']);

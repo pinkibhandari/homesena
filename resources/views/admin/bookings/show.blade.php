@@ -2,208 +2,143 @@
 @section('title', 'Show Booking')
 @section('content')
     <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <!-- Booking Code -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Code</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-
-                <!-- User -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">User</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-
-                <!-- Service -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Service</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-
-                <!-- Address -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Address</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-
-                </div>
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Address Latitude</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Address Longitude</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-
-
-                <!-- Booking Type -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Type</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Sub Type</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- Booking Date -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Start Date</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}" >
-                    </div>
-                </div>
-
-                <!-- Booking Date -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking End Date</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- Booking Date -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Time</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- Total Amount -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Total Amount</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- booking create at -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Booking Created Date and time </label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- Status -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Payment Status</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- Status -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Status</label>
-                    <div class="input-group">
-                        <!-- <span class="input-group-text"><i class="ri-file-copy-line"></i></span> -->
-                        <input type="text" class="form-control" value="{{ $booking->device_id}}">
-                    </div>
-                </div>
-                <!-- ---- -->
-            </div>
-            <!--  booking slot  -->
-            <!-- php function -->
-            @php
-                function statusColor($status)
-                {
-                    return match ($status) {
-                        'pending' => 'warning',
-                        'accepted' => 'info',
-                        'on_the_way' => 'primary',
-                        'ongoing' => 'dark',
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                        'partial' => 'secondary',
-                        default => 'light'
-                    };
-                }
-            @endphp
-            <!-- Table -->
-            <div class="card-header">
-                <h5 class="card-title mb-0">Booking Slot List</h5>
-            </div>
-            <div class="table-responsive px-4 pb-3">
-                <table class="table table-hover align-middle table-bordered">
-                    <thead class="bg-label-secondary">
-                        <tr>
-                            <th width="60">ID</th>
-                            <th>Expert Name</th>
-                            <th>Date</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Duration</th>
-                            <th>Otp</th>
-                            <th>Amount</th>
-                            <!-- <th>Payment Status</th> -->
-                            <th>Check In Time</th> 
-                            <th>Status</th>
-                            <!-- <th width="120">Actions</th> -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($slots as $slot)
-                            <tr>
-                                <td>{{ $slots->firstItem() + $loop->index }}</td>
-                                <td>
-                                    <span class="fw-semibold">{{ $slot->expert?->name}}</span>
-                                </td>
-                                <td>{{ $slot->date }}</td>
-                                <td>{{ $slot->start_time }}</td>
-                                <td>{{ $slot->end_time }}</td>
-                                <td>{{ $slot->duration }}</td>
-                                <td>{{ $slot->otp}}</td>
-                                <td>{{ $slot->price }}</td>
-                                <td>{{ $slot->check_in_time }}</td>
-                                <td>
-                                    <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
-                                        {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center">No booking slot found</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination (Dynamic) -->
-            <div class="row px-4 pb-3 align-items-center">
-                {{ $slots->links('pagination::bootstrap-5') }}
-            </div>
-            <!-- end booking slot -->
+          @php
+            function statusColor($status)
+            {
+                return match ($status) {
+                    'pending' => 'warning',
+                    'accepted' => 'info',
+                    'on_the_way' => 'primary',
+                    'ongoing' => 'dark',
+                    'completed' => 'success',
+                    'cancelled' => 'danger',
+                    'partial' => 'secondary',
+                    default => 'light'
+                };
+            }
+        @endphp
+        <!-- Header -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Booking Details</h5>
+            <a href="{{ route('admin.bookings.index') }}" class="btn btn-sm btn-secondary">
+                <i class="ri-arrow-left-line me-1"></i> Back
+            </a>
         </div>
-    <!-- </div> -->
+        <hr class="my-0">
+        <!-- booking Info -->
+        <div class="row px-4 py-3">
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Code:</strong> {{ $booking->booking_code }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>User:</strong> {{ $booking->user?->name }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Service:</strong> {{ $booking->service?->name }}
+                    </div>
+<!--  -->
+                      <div class="col-md-4 mb-2">
+                        <strong>Address:</strong> {{ $booking->address?->address }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Address Latitude:</strong> {{ $booking->address?->address_lat }}
+                    </div>
+                      <div class="col-md-4 mb-2">
+                        <strong>Address Longitude:</strong> {{ $booking->address?->address_long }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Type:</strong> {{ $booking->type }}
+                    </div>
+                      <div class="col-md-4 mb-2">
+                        <strong>Booking Sub Type:</strong> {{ $booking->booking_subtype??'N/A' }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Start Date:</strong> {{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y')}} 
+                    </div>
+                      <div class="col-md-4 mb-2">
+                        <strong>Booking End Date:</strong> {{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y')}}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Time:</strong> {{ \Carbon\Carbon::parse($booking->time)->format('h:i A') }}
+                    </div>
+                     
+                      <div class="col-md-4 mb-2">
+                        <strong>Total Amount:</strong> {{ $booking->total_price }}
+                    </div>
+                   
+                      <div class="col-md-4 mb-2">
+                        <strong>Payment Status:</strong> {{ $booking->payment_status }}
+                    </div>
+                    
+                    <div class="col-md-4 mb-2">
+                        <strong>Status:</strong>
+                         
+                                <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">
+                                    {{ ucfirst(str_replace('_', ' ', $booking->status)) }}
+                                </span>
+                    </div>
+                    <div class=" mb-2">
+                        <strong>Booking Created Date/Time:</strong> {{ \Carbon\Carbon::parse($booking->created_at )->format('d M Y h:i A')}}
+                </div>
+            </div>
+        </div>
+        <hr class="my-0">
+      
+        <!-- Address Table -->
+        <div class="card-header">
+            <h6 class="mb-0">Booking Slots</h6>
+        </div>
+        <div class="table-responsive px-4 pb-3">
+            <table class="table table-hover align-middle table-bordered">
+                <thead class="bg-label-secondary">
+                    <tr>
+                        <th width="60">ID</th>
+                        <th>Expert Name</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Otp</th>
+                        <th>Amount</th>
+                        <th>Check In Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($slots as $slot)
+                        <tr>
+                            <td>{{ $slots->firstItem() + $loop->index }}</td>
+                            <td>
+                                <span class="fw-semibold">{{ $slot->expert?->name}}</span>
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($slot->date)->format('d M Y')}}</td>
+                            <td> {{ \Carbon\Carbon::parse($slot->start_date)->format('d M Y')}} </td>
+                            <td> {{ \Carbon\Carbon::parse($slot->end_time)->format('d M Y')}} </td>
+                            <td>{{ $slot->duration }}</td>
+                            <td>{{ $slot->otp_code}}</td>
+                            <td>{{ $slot->price }}</td>
+                            <td>{{ \Carbon\Carbon::parse($slot->check_in_time )->format('d M Y h:i A')}}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
+                                    {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">No booking slot found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Pagination (Dynamic) -->
+        <div class="row px-4 pb-3 align-items-center">
+            {{ $slots->links('pagination::bootstrap-5') }}
+        </div>
+        <!-- end booking slot -->
+    </div>
 @endsection

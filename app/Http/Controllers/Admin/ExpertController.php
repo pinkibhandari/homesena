@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ExpertDetail;
+use App\Models\ExpertRatingStat;
 use App\Models\User;
 use App\Models\TrainingCenter;
 use Illuminate\Support\Facades\Hash;
@@ -212,15 +213,7 @@ class ExpertController extends Controller
     }
     public function show(User $expert)
     {
-        // ensure expert role
-        if ($expert->role !== 'expert') {
-            abort(404);
-        }
-
-        $expert->load([
-            'expertDetail.trainingCenter',
-            'expertDetail.emergencyContacts'
-        ]);
+        $expert->load(['addresses', 'ratingStat',  'expertDetail.emergencyContacts']);
 
         return view('admin.experts.show', compact('expert'));
     }

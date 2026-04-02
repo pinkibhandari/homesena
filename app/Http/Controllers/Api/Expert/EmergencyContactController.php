@@ -106,8 +106,8 @@ class EmergencyContactController extends Controller
             ], 422);
         }
         $contact = ExpertEmergencyContact::where('id', $id)
-                ->where('expert_detail_id', $expert->id)
-                ->first();
+            ->where('expert_detail_id', $expert->id)
+            ->first();
         if (!$contact) {
             return response()->json([
                 'status' => false,
@@ -123,5 +123,73 @@ class EmergencyContactController extends Controller
             'message' => 'Emergency contact deleted successfully',
             'data' => (object) []
         ]);
+    }
+
+    public function updateEmergencyContact(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'required|regex:/^[6-9]\d{9}$/'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => []
+            ], 422);
+        }
+
+        $expert = ExpertDetail::where('user_id', auth()->id())->first();
+
+        if (!$expert) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Expert not found',
+                'data' => []
+            ], 422);
+        }
+
+        $contact = ExpertEmergencyContact::where('expert_detail_id', $expert->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$contact) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Emergency contact not found',
+                'data' => []
+            ], 422);
+        }
+
+        // Check duplicate phone except current contact
+        $exists = ExpertEmergencyContact::where('expert_detail_id', $expert->id)
+            ->where('phone', $request->phone)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'This phone number already exists',
+                'data' => []
+            ], 422);
+        }
+
+        $contact->update([
+            'name' => $request->name,
+            'phone' => $request->phone
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Emergency contact updated successfully',
+            'data' => new ExpertEmergencyContactResource($contact)
+        ], 200);
     }
 }
