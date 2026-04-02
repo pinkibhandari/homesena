@@ -71,7 +71,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(BookingSlot::class,'expert_id');
     }
-
+public function expert()
+{
+    return $this->belongsTo(User::class, 'expert_id');
+}
     public function reviews()
     {
         return $this->hasMany(Review::class,'expert_id');
