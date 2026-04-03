@@ -140,9 +140,7 @@ class EmergencyContactController extends Controller
                 'data' => []
             ], 422);
         }
-
         $expert = ExpertDetail::where('user_id', auth()->id())->first();
-
         if (!$expert) {
             return response()->json([
                 'status' => false,
@@ -151,11 +149,9 @@ class EmergencyContactController extends Controller
                 'data' => []
             ], 422);
         }
-
         $contact = ExpertEmergencyContact::where('expert_detail_id', $expert->id)
             ->where('id', $id)
             ->first();
-
         if (!$contact) {
             return response()->json([
                 'status' => false,
@@ -164,13 +160,11 @@ class EmergencyContactController extends Controller
                 'data' => []
             ], 422);
         }
-
         // Check duplicate phone except current contact
         $exists = ExpertEmergencyContact::where('expert_detail_id', $expert->id)
             ->where('phone', $request->phone)
             ->where('id', '!=', $id)
             ->exists();
-
         if ($exists) {
             return response()->json([
                 'status' => false,
@@ -179,12 +173,10 @@ class EmergencyContactController extends Controller
                 'data' => []
             ], 422);
         }
-
         $contact->update([
             'name' => $request->name,
             'phone' => $request->phone
         ]);
-
         return response()->json([
             'status' => true,
             'code' => 200,

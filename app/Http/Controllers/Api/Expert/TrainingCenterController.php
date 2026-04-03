@@ -15,7 +15,7 @@ class TrainingCenterController extends Controller
             'status' => true,
             'code' => 200,
             'message' => $trainingCenters->isEmpty() ? 'No training centers found' : 'Training center list retrieved successfully',
-            'data' =>  $trainingCenters->isEmpty() ? [] : $trainingCenters
+            'data' =>  $trainingCenters
         ], 200);
     }
 }

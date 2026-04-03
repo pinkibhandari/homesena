@@ -56,9 +56,7 @@
                             <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
+                                  <input class="form-check-input" type="checkbox"style="transform: scale(1.3); cursor: not-allowed;" disabled {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
                                 </div>
                             </td>
 
@@ -73,8 +71,8 @@
                                 @if ($expert->expertDetail?->approval_status === 'pending')
                                     <div class="d-flex align-items-center">
                                         <div class="form-check form-switch m-0">
-                                            <input class="form-check-input statusToggle" type="checkbox"
-                                                name="approval_status" value="1" data-id="{{ $expert->id }}">
+                                            <input class="form-check-input statusToggle" type="checkbox" name="approval_status"
+                                                value="1" data-id="{{ $expert->id }}">
                                         </div>
                                     </div>
                                 @else
@@ -86,19 +84,16 @@
                             {{-- <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox"
-                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
+                                        style="transform: scale(1.3); cursor: not-allowed;" disabled {{ $expert->status === 1 ?
+                                    'checked' : '' }}>
                                 </div>
                             </td> --}}
                             <td>
-    <div class="form-check form-switch">
-        <input class="form-check-input toggle-status"
-            type="checkbox"
-            data-id="{{ $expert->id }}"
-            style="transform: scale(1.3); cursor:pointer;"
-            {{ $expert->status == 1 ? 'checked' : '' }}>
-    </div>
-</td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" type="checkbox" data-id="{{ $expert->id }}"
+                                        style="transform: scale(1.3); cursor:pointer;" {{ $expert->status == 1 ? 'checked' : '' }}>
+                                </div>
+                            </td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -119,8 +114,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}"
-                                                method="POST">
+                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="dropdown-item text-danger"
@@ -147,112 +141,112 @@
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
 
-    @endsection
+@endsection
     @push('scripts')
-     <script>
-$(document).ready(function () {
+        <script>
+            $(document).ready(function () {
 
-    $(document).on('change', '.statusToggle', function () {
+                $(document).on('change', '.statusToggle', function () {
 
-        let toggle = $(this);
-        let status = toggle.is(':checked') ? 1 : 0;
-        let id = toggle.data('id');
-        let row = toggle.closest('tr');
+                    let toggle = $(this);
+                    let status = toggle.is(':checked') ? 1 : 0;
+                    let id = toggle.data('id');
+                    let row = toggle.closest('tr');
 
-        if (status === 1) {
-            if (!confirm("Are you sure you want to approve this expert?")) {
-                toggle.prop('checked', false);
-                return;
-            }
-        }
-
-        $.ajax({
-            url: '/admin/update-approve-status', // ✅ FIXED
-            type: 'POST',
-            data: {
-                id: id,
-                approval_status: status,
-                _token: '{{ csrf_token() }}'
-            },
-
-            success: function (response) {
-
-                if (response.status) {
-
-                    // Approved UI
-                    toggle.closest('.align-items-center').html(`
-                        <button class="btn btn-primary btn-sm" disabled>
-                            ✔ Approved
-                        </button>
-                    `);
-
-                    row.find('.status-badge').html(`
-                        <span class="badge rounded-pill bg-label-primary">
-                            Approved
-                        </span>
-                    `);
-
-                    if (response.data && response.data.registration_code) {
-                        row.find('.reg-td').text(response.data.registration_code);
+                    if (status === 1) {
+                        if (!confirm("Are you sure you want to approve this expert?")) {
+                            toggle.prop('checked', false);
+                            return;
+                        }
                     }
 
-                } else {
-                    alert('Update failed');
-                    toggle.prop('checked', !status);
-                }
-            },
+                    $.ajax({
+                        url: '/admin/update-approve-status', // ✅ FIXED
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            approval_status: status,
+                            _token: '{{ csrf_token() }}'
+                        },
 
-            error: function () {
-                alert('Something went wrong');
-                toggle.prop('checked', !status);
-            }
-        });
+                        success: function (response) {
 
-    });
+                            if (response.status) {
 
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+                                // Approved UI
+                                toggle.closest('.align-items-center').html(`
+                            <button class="btn btn-primary btn-sm" disabled>
+                                ✔ Approved
+                            </button>
+                        `);
 
-    document.querySelectorAll('.toggle-status').forEach(function (toggle) {
+                                row.find('.status-badge').html(`
+                            <span class="badge rounded-pill bg-label-primary">
+                                Approved
+                            </span>
+                        `);
 
-        toggle.addEventListener('change', function () {
+                                if (response.data && response.data.registration_code) {
+                                    row.find('.reg-td').text(response.data.registration_code);
+                                }
 
-            let id = this.dataset.id;
-            let value = this.checked ? 1 : 0;
-            let checkbox = this;
+                            } else {
+                                alert('Update failed');
+                                toggle.prop('checked', !status);
+                            }
+                        },
 
-            fetch(`/admin/experts/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    _method: 'PUT',
-                    status: value
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
+                        error: function () {
+                            alert('Something went wrong');
+                            toggle.prop('checked', !status);
+                        }
+                    });
 
-                if (!data.status) {
-                    alert('Update failed');
-                    checkbox.checked = !value;
-                }
+                });
 
-            })
-            .catch(() => {
-                alert('Something went wrong');
-                checkbox.checked = !value;
             });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
 
-        });
+                document.querySelectorAll('.toggle-status').forEach(function (toggle) {
 
-    });
+                    toggle.addEventListener('change', function () {
 
-});
-</script>
+                        let id = this.dataset.id;
+                        let value = this.checked ? 1 : 0;
+                        let checkbox = this;
+
+                        fetch(`/admin/experts/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                _method: 'PUT',
+                                status: value
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+
+                                if (!data.status) {
+                                    alert('Update failed');
+                                    checkbox.checked = !value;
+                                }
+
+                            })
+                            .catch(() => {
+                                alert('Something went wrong');
+                                checkbox.checked = !value;
+                            });
+
+                    });
+
+                });
+
+            });
+        </script>
     @endpush

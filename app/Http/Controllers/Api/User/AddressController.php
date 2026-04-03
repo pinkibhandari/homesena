@@ -14,80 +14,80 @@ class AddressController extends Controller
     public function saveAddress(Request $request)
     {
         $user = $request->user();
+
         if (!$user) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'User not found',
+                'message' => 'Unauthorized',
                 'data' => (object) []
-            ], 422);
+            ]);
         }
+
         $validator = Validator::make($request->all(), [
             'address' => 'required|string|max:255',
+            'flat_no' => 'nullable|string|max:100',
+            'landmark' => 'nullable|string|max:255',
+            'save_as' => 'nullable|in:home,office,other',
+            // 'pets' => 'nullable|boolean',
+            'address_lat' => 'nullable|numeric',
+            'address_long' => 'nullable|numeric',
         ]);
+
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'code' => 422,
+                'status' => false,
                 'message' => $validator->errors()->first(),
                 'data' => (object) []
-            ], 422);
+            ]);
         }
+
         $addressText = strtolower(trim($request->address));
-        $flatNo = $request->flatNo ? strtolower(trim($request->flatNo)) : null;
-        // Check duplicate address
-        $query = Address::where('user_id', $user->id)
-            ->where('address', $addressText);
-        if ($flatNo) {
-            $query->where('flat_no', $flatNo);
-        } else {
-            $query->where(function ($q) {
-                $q->whereNull('flat_no')
-                    ->orWhere('flat_no', '');
-            });
-        }
-        if ($query->exists()) {
+        $flatNo = $request->flat_no ? strtolower(trim($request->flat_no)) : null;
+
+        $duplicate = Address::where('user_id', $user->id)
+            ->where('address', $addressText)
+            ->where('flat_no', $flatNo)
+            ->exists();
+
+        if ($duplicate) {
             return response()->json([
-                'status' => false,
                 'code' => 422,
+                'status' => false,
                 'message' => 'Address already exists',
                 'data' => (object) []
-            ], 422);
+            ]);
         }
-        // Create address
+
         $address = Address::create([
             'user_id' => $user->id,
             'address' => $addressText,
             'flat_no' => $flatNo,
-            'landmark' => $request->Landmark,
-            'save_as' => $request->saveAs,
-            'pets' => $request->Pets,
-            'address_lat' => $request->addressLat,
-            'address_long' => $request->addressLong,
+            'landmark' => $request->landmark,
+            'save_as' => $request->save_as,
+            'pets' => $request->pets,
+            'address_lat' => $request->address_lat,
+            'address_long' => $request->address_long,
         ]);
 
-        if (!$address) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Failed to save address',
-                'data' => (object) []
-            ], 422);
-        }
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'Address saved successfully',
             'data' => $address
-        ], 200);
+        ]);
     }
 
     // update address auth user address
     public function updateAddress(Request $request, $id)
     {
+        $userId = auth()->id();
+
         $address = Address::where('id', $id)
-            ->where('user_id', auth()->id())
+            ->where('user_id', $userId)
             ->first();
+
         if (!$address) {
             return response()->json([
                 'code' => 422,
@@ -96,9 +96,17 @@ class AddressController extends Controller
                 'data' => (object) []
             ], 422);
         }
+
         $validator = Validator::make($request->all(), [
             'address' => 'required|string|max:255',
+            'flat_no' => 'nullable|string|max:100',
+            'landmark' => 'nullable|string|max:255',
+            'save_as' => 'nullable|string',
+            'pets' => 'nullable',
+            'address_lat' => 'nullable|numeric',
+            'address_long' => 'nullable|numeric'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -107,20 +115,21 @@ class AddressController extends Controller
                 'data' => (object) []
             ], 422);
         }
+
         $addressText = strtolower(trim($request->address));
-        $flatNo = $request->flatNo ? strtolower(trim($request->flatNo)) : null;
+        $flatNo = $request->flat_no ? strtolower(trim($request->flat_no)) : null;
+
         // Duplicate check
-        $query = Address::where('user_id', auth()->id())
+        $query = Address::where('user_id', $userId)
             ->where('address', $addressText)
             ->where('id', '!=', $id);
+
         if ($flatNo) {
             $query->where('flat_no', $flatNo);
         } else {
-            $query->where(function ($q) {
-                $q->whereNull('flat_no')
-                    ->orWhere('flat_no', '');
-            });
+            $query->whereNull('flat_no');
         }
+
         if ($query->exists()) {
             return response()->json([
                 'status' => false,
@@ -129,23 +138,17 @@ class AddressController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        $updated = $address->update([
+
+        $address->update([
             'address' => $addressText,
             'flat_no' => $flatNo,
-            'landmark' => $request->Landmark,
-            'save_as' => $request->saveAs,
-            'pets' => $request->Pets,
-            'address_lat' => $request->addressLat,
-            'address_long' => $request->addressLong,
+            'landmark' => $request->landmark,
+            'save_as' => $request->save_as,
+            'pets' => $request->pets,
+            'address_lat' => $request->address_lat,
+            'address_long' => $request->address_long,
         ]);
-        if (!$updated) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Failed to update address',
-                'data' => (object) []
-            ], 422);
-        }
+
         return response()->json([
             'code' => 200,
             'status' => true,
@@ -158,22 +161,22 @@ class AddressController extends Controller
     public function addressList(Request $request)
     {
         $user = $request->user();
+
         if (!$user) {
             return response()->json([
                 'code' => 422,
-                'data' => (object) [],
                 'status' => false,
-                'message' => 'User not found'
+                'message' => 'Unauthorized',
+                'data' => (object) []
             ], 422);
-        } else {
-            $addresses = $user->addresses()->latest()->get();
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'Address list retrieved successfully',
-                'data' => $addresses
-            ]);
         }
+        $addresses = $user->addresses()->latest()->get();
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'Address list retrieved successfully',
+            'data' => $addresses
+        ]);
     }
 
 
@@ -184,7 +187,7 @@ class AddressController extends Controller
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'User not found',
+                'message' => 'Unauthorized',
                 'data' => (object) []
             ], 422);
         }
@@ -199,31 +202,23 @@ class AddressController extends Controller
                 'data' => (object) []
             ], 422);
         }
-
-        $bookingExists = Booking::where('address_id', $id)->exists();
-
+        $bookingExists = Booking::where('address_id', $id)
+            ->whereDate('end_date', '>=', today())
+            ->exists();
         if ($bookingExists) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'Address cannot be deleted because it is used in bookings',
-                'data' => (object) []
-            ]);
-        }
-        $deleted = $address->delete();
-        if (!$deleted) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Failed to delete address',
+                'message' => 'This address cannot be deleted because it is associated with upcoming bookings.',
                 'data' => (object) []
             ], 422);
         }
+        $address->delete();
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'Address deleted successfully',
             'data' => (object) []
-        ], 200);
+        ]);
     }
 }

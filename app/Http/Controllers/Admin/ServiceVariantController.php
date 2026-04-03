@@ -22,8 +22,8 @@ class ServiceVariantController extends Controller
                         $sub->where('name', 'like', '%' . $request->search . '%');
                     })
                     ->orWhere('duration_minutes', 'like', '%' . $request->search . '%')
-                    ->orWhere('base_price', 'like', '%' . $request->search . '%')
-                    ->orWhere('tax_percentage', 'like', '%' . $request->search . '%');
+                    ->orWhere('price', 'like', '%' . $request->search . '%');
+                    // ->orWhere('tax_percentage', 'like', '%' . $request->search . '%');
                 });
             })
 
@@ -106,7 +106,7 @@ class ServiceVariantController extends Controller
         return $request->validate([
             'service_id'        => 'required|exists:services,id',
             'duration_minutes'  => 'required|numeric|min:1',
-            'base_price'        => 'required|numeric|min:0',
+            'price'        => 'required|numeric|min:0',
             'discount_price'    => 'nullable|numeric',
             'tax_percentage'    => 'nullable|numeric|min:0|max:100',
             'is_active'         => 'required|in:0,1',

@@ -90,7 +90,7 @@ class BookingService
             $longitude = $address->address_long;
             //  Haversine Formula to calculate distance and find experts within radius
             $experts = User::where('users.role', 'expert')
-                    ->where('users.status', 'ACTIVE')
+                    ->where('users.status', 1)
                     ->join('addresses', 'addresses.user_id', '=', 'users.id')
                     ->select('users.*')
                     ->selectRaw(

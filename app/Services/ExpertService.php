@@ -23,7 +23,7 @@ class ExpertService
             $radius = $addressRequest->input('radius_km', 1); // Default radius is 1 km if not provided
             //  Haversine Formula to calculate distance and find experts within radius
             $experts = User::where('users.role', 'expert')
-                    ->where('users.status', 'ACTIVE')
+                    ->where('users.status', 1)
                     ->join('addresses', 'addresses.user_id', '=', 'users.id')
                     ->select('users.*')
                     ->selectRaw(

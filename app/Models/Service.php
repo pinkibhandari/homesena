@@ -7,15 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Service extends Model
 {
     protected $fillable = [
-        // 'name',
-        // 'slug',
-        // 'description',
-        // 'icon',
-        // 'image',
-        // 'base_price',
-        // 'tax_percentage',
-        // 'new_flag',
-        // 'is_active'
         'name',
         'slug',
         'description',              // Quill editor content

@@ -138,9 +138,9 @@
                             </span>
                             <select class="form-select @error('status') is-invalid @enderror" name="status">
                                 <option selected disabled>Select status</option>
-                                <option value="ACTIVE" {{ old('status', $user->status) == 'ACTIVE' ? 'selected' : '' }}>Active
+                                <option value="ACTIVE" {{ old('status', $user->status) == 1 ? 'selected' : '' }}>Active
                                 </option>
-                                <option value="INACTIVE" {{ old('status', $user->status) == 'INACTIVE' ? 'selected' : '' }}>
+                                <option value="INACTIVE" {{ old('status', $user->status) == 0 ? 'selected' : '' }}>
                                     Inactive
                                 </option>
                             </select>
