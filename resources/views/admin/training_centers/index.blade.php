@@ -136,41 +136,55 @@
 
 
         </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+       <script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+        document.querySelectorAll('.toggle-status').forEach(function(toggle) {
 
-                    toggle.addEventListener('change', function() {
+            toggle.addEventListener('change', function() {
 
-                        let id = this.dataset.id;
-                        let value = this.checked ? 1 : 0;
+                let id = this.dataset.id;
+                let value = this.checked ? 1 : 0;
 
-                        fetch(`/admin/training_centers/${id}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    _method: 'PUT',
-                                    status: value
-                                })
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (!data.status) {
-                                    alert('Update failed');
-                                }
-                            })
-                            .catch(() => {
-                                alert('Something went wrong');
-                            });
+                // 🔥 Confirm Alert (Before Action)
+                let confirmAction = confirm(
+                    value === 1 
+                    ? "Are you sure you want to activate this?" 
+                    : "Are you sure you want to inactivate this?"
+                );
 
+                if (!confirmAction) {
+                    this.checked = !this.checked;
+                    return;
+                }
+
+                fetch(`/admin/training_centers/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            _method: 'PUT',
+                            status: value
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.status) {
+                            alert('Update failed');
+                            this.checked = !value; 
+                        }
+                    })
+                    .catch(() => {
+                        alert('Something went wrong');
+                        this.checked = !value; 
                     });
 
-                });
-
             });
-        </script>
+
+        });
+
+    });
+</script>
     @endsection

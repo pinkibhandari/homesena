@@ -9,7 +9,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">User's</h5>
+            <h5 class="card-title mb-0">Users</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
@@ -27,17 +27,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                                                <div class="d-flex align-items-center gap-2">
-                                                                                                    <span>Show</span>
-                                                                                                    <select class="form-select form-select-sm" style="width:80px;">
-                                                                                                        <option>7</option>
-                                                                                                        <option>10</option>
-                                                                                                        <option>25</option>
-                                                                                                        <option>50</option>
-                                                                                                    </select>
-                                                                                                    <span>entries</span>
-                                                                                                </div>
-                                                                                            </div> -->
+                                                                                                    <div class="d-flex align-items-center gap-2">
+                                                                                                        <span>Show</span>
+                                                                                                        <select class="form-select form-select-sm" style="width:80px;">
+                                                                                                            <option>7</option>
+                                                                                                            <option>10</option>
+                                                                                                            <option>25</option>
+                                                                                                            <option>50</option>
+                                                                                                        </select>
+                                                                                                        <span>entries</span>
+                                                                                                    </div>
+                                                                                                </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -131,6 +131,17 @@
                         let value = this.checked ? 1 : 0;
                         let checkbox = this;
 
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this user?" :
+                            "Are you sure you want to deactivate this user?"
+                        );
+
+                        if (!confirmAction) {
+                            checkbox.checked = !checkbox.checked;
+                            return;
+                        }
+
                         fetch(`/admin/users/${id}`, {
                                 method: 'POST',
                                 headers: {
@@ -148,13 +159,13 @@
 
                                 if (!data.status) {
                                     alert('Update failed');
-                                    checkbox.checked = !value; // revert properly
+                                    checkbox.checked = !value; 
                                 }
 
                             })
                             .catch(() => {
                                 alert('Something went wrong');
-                                checkbox.checked = !value; // revert properly
+                                checkbox.checked = !value; 
                             });
 
                     });

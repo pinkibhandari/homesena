@@ -19,7 +19,7 @@
                     </div>
 
                 </form>
-                 <!-- Add -->
+                <!-- Add -->
                 <a href="{{ route('admin.cms_pages.create') }}" class="btn btn-primary btn-sm">
                     <i class="ri-add-line me-1"></i> Add
                 </a>
@@ -30,17 +30,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <span>Show</span>
-                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                    <option>7</option>
-                                                                    <option>10</option>
-                                                                    <option>25</option>
-                                                                    <option>50</option>
-                                                                </select>
-                                                                <span>entries</span>
-                                                            </div>
-                                                        </div> -->
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <span>Show</span>
+                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                        <option>7</option>
+                                                                        <option>10</option>
+                                                                        <option>25</option>
+                                                                        <option>50</option>
+                                                                    </select>
+                                                                    <span>entries</span>
+                                                                </div>
+                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -100,7 +100,8 @@
 
                                         <!-- Delete -->
                                         <li>
-                                            <form action="{{ route('admin.cms_pages.destroy', $page->id) }}" method="POST">
+                                            <form action="{{ route('admin.cms_pages.destroy', $page->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger"
@@ -141,6 +142,19 @@
                         let pageId = this.dataset.id;
                         let value = this.checked ? 1 : 0;
 
+                        //  Confirm Alert
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this page?" :
+                            "Are you sure you want to deactivate this page?"
+                        );
+
+                        if (!confirmAction) {
+                        
+                            this.checked = !this.checked;
+                            return;
+                        }
+
                         fetch(`/admin/cms_pages/${pageId}`, {
                                 method: 'POST',
                                 headers: {
@@ -156,10 +170,12 @@
                             .then(data => {
                                 if (!data.status) {
                                     alert('Update failed');
+                                    this.checked = !value; 
                                 }
                             })
                             .catch(() => {
                                 alert('Something went wrong');
+                                this.checked = !value; 
                             });
 
                     });

@@ -8,7 +8,7 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Expert</h5>
+            <h5 class="card-title mb-0">Experts</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
                 <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
@@ -83,22 +83,14 @@
                                     </button>
                                 @endif
                             </td>
-                            {{-- <td>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $expert->status === 'ACTIVE' ? 'checked' : '' }}>
-                                </div>
-                            </td> --}}
+                           
                             <td>
-    <div class="form-check form-switch">
-        <input class="form-check-input toggle-status"
-            type="checkbox"
-            data-id="{{ $expert->id }}"
-            style="transform: scale(1.3); cursor:pointer;"
-            {{ $expert->status == 1 ? 'checked' : '' }}>
-    </div>
-</td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" type="checkbox"
+                                        data-id="{{ $expert->id }}" style="transform: scale(1.3); cursor:pointer;"
+                                        {{ $expert->status == 1 ? 'checked' : '' }}>
+                                </div>
+                            </td>
                             <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
@@ -149,110 +141,123 @@
 
     @endsection
     @push('scripts')
-     <script>
-$(document).ready(function () {
+        <script>
+            $(document).ready(function() {
 
-    $(document).on('change', '.statusToggle', function () {
+                $(document).on('change', '.statusToggle', function() {
 
-        let toggle = $(this);
-        let status = toggle.is(':checked') ? 1 : 0;
-        let id = toggle.data('id');
-        let row = toggle.closest('tr');
+                    let toggle = $(this);
+                    let status = toggle.is(':checked') ? 1 : 0;
+                    let id = toggle.data('id');
+                    let row = toggle.closest('tr');
 
-        if (status === 1) {
-            if (!confirm("Are you sure you want to approve this expert?")) {
-                toggle.prop('checked', false);
-                return;
-            }
-        }
+                    if (status === 1) {
+                        if (!confirm("Are you sure you want to approve this expert?")) {
+                            toggle.prop('checked', false);
+                            return;
+                        }
+                    }
 
-        $.ajax({
-            url: '/admin/update-approve-status', // ✅ FIXED
-            type: 'POST',
-            data: {
-                id: id,
-                approval_status: status,
-                _token: '{{ csrf_token() }}'
-            },
+                    $.ajax({
+                        url: '/admin/update-approve-status', // ✅ FIXED
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            approval_status: status,
+                            _token: '{{ csrf_token() }}'
+                        },
 
-            success: function (response) {
+                        success: function(response) {
 
-                if (response.status) {
+                            if (response.status) {
 
-                    // Approved UI
-                    toggle.closest('.align-items-center').html(`
+                                // Approved UI
+                                toggle.closest('.align-items-center').html(`
                         <button class="btn btn-primary btn-sm" disabled>
                             ✔ Approved
                         </button>
                     `);
 
-                    row.find('.status-badge').html(`
+                                row.find('.status-badge').html(`
                         <span class="badge rounded-pill bg-label-primary">
                             Approved
                         </span>
                     `);
 
-                    if (response.data && response.data.registration_code) {
-                        row.find('.reg-td').text(response.data.registration_code);
-                    }
+                                if (response.data && response.data.registration_code) {
+                                    row.find('.reg-td').text(response.data.registration_code);
+                                }
 
-                } else {
-                    alert('Update failed');
-                    toggle.prop('checked', !status);
-                }
-            },
+                            } else {
+                                alert('Update failed');
+                                toggle.prop('checked', !status);
+                            }
+                        },
 
-            error: function () {
-                alert('Something went wrong');
-                toggle.prop('checked', !status);
-            }
-        });
+                        error: function() {
+                            alert('Something went wrong');
+                            toggle.prop('checked', !status);
+                        }
+                    });
 
-    });
+                });
 
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    document.querySelectorAll('.toggle-status').forEach(function (toggle) {
-
-        toggle.addEventListener('change', function () {
-
-            let id = this.dataset.id;
-            let value = this.checked ? 1 : 0;
-            let checkbox = this;
-
-            fetch(`/admin/experts/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    _method: 'PUT',
-                    status: value
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-
-                if (!data.status) {
-                    alert('Update failed');
-                    checkbox.checked = !value;
-                }
-
-            })
-            .catch(() => {
-                alert('Something went wrong');
-                checkbox.checked = !value;
             });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-        });
+                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
 
-    });
+                    toggle.addEventListener('change', function() {
 
-});
-</script>
+                        let id = this.dataset.id;
+                        let value = this.checked ? 1 : 0;
+                        let checkbox = this;
+
+                        // 🔥 Confirm Alert
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this expert?" :
+                            "Are you sure you want to deactivate this expert?"
+                        );
+
+                        if (!confirmAction) {
+                            // ❌ Cancel → revert toggle
+                            checkbox.checked = !checkbox.checked;
+                            return;
+                        }
+
+                        fetch(`/admin/experts/${id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    status: value
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+
+                                if (!data.status) {
+                                    alert('Update failed');
+                                    checkbox.checked = !value; // rollback
+                                }
+
+                            })
+                            .catch(() => {
+                                alert('Something went wrong');
+                                checkbox.checked = !value; // rollback
+                            });
+
+                    });
+
+                });
+
+            });
+        </script>
     @endpush

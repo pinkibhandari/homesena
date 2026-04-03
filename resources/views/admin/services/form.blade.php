@@ -86,33 +86,7 @@
                         </div>
                     </div>
 
-                    <!-- Price -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <label class="form-label">Price</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-coin-line"></i></span>
-                            <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
-                                placeholder="Enter price" value="{{ old('price', $service->price) }}">
-                            @error('price')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Discount Price -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <label class="form-label">Discount Price</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-price-tag-3-line"></i></span>
-                            <input type="number" name="discount_price"
-                                class="form-control @error('discount_price') is-invalid @enderror"
-                                placeholder="Enter discount price"
-                                value="{{ old('discount_price', $service->discount_price) }}">
-                            @error('discount_price')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                   
 
                     <!-- Description -->
                     <div class="col-12">

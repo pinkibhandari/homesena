@@ -26,17 +26,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <span>Show</span>
-                                                        <select class="form-select form-select-sm" style="width:80px;">
-                                                            <option>7</option>
-                                                            <option>10</option>
-                                                            <option>25</option>
-                                                            <option>50</option>
-                                                        </select>
-                                                        <span>entries</span>
-                                                    </div>
-                                                </div> -->
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span>Show</span>
+                                                            <select class="form-select form-select-sm" style="width:80px;">
+                                                                <option>7</option>
+                                                                <option>10</option>
+                                                                <option>25</option>
+                                                                <option>50</option>
+                                                            </select>
+                                                            <span>entries</span>
+                                                        </div>
+                                                    </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -153,8 +153,21 @@
                         let reviewId = this.getAttribute('data-id');
                         let value = this.checked ? 1 : 0;
 
+                        //  Confirm Alert
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to mark this as Recommended?" :
+                            "Are you sure you want to remove from Recommended?"
+                        );
+
+                        if (!confirmAction) {
+
+                            this.checked = !this.checked;
+                            return;
+                        }
+
                         fetch(`/admin/reviews/${reviewId}`, {
-                                method: 'POST', // Laravel me PUT spoof karenge
+                                method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -168,10 +181,12 @@
                             .then(data => {
                                 if (!data.status) {
                                     alert('Update failed');
+                                    this.checked = !value;
                                 }
                             })
                             .catch(() => {
                                 alert('Something went wrong');
+                                this.checked = !value;
                             });
 
                     });

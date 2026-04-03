@@ -30,17 +30,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                            <div class="d-flex align-items-center gap-2">
-                                                                                <span>Show</span>
-                                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                                    <option>7</option>
-                                                                                    <option>10</option>
-                                                                                    <option>25</option>
-                                                                                    <option>50</option>
-                                                                                </select>
-                                                                                <span>entries</span>
-                                                                            </div>
-                                                                        </div> -->
+                                                                                    <div class="d-flex align-items-center gap-2">
+                                                                                        <span>Show</span>
+                                                                                        <select class="form-select form-select-sm" style="width:80px;">
+                                                                                            <option>7</option>
+                                                                                            <option>10</option>
+                                                                                            <option>25</option>
+                                                                                            <option>50</option>
+                                                                                        </select>
+                                                                                        <span>entries</span>
+                                                                                    </div>
+                                                                                </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -49,7 +49,7 @@
                     <tr>
                         <th width="60">ID</th>
                         <th width="120">Image</th>
-                        <th>Service</th>
+                        <th>Title</th>
                         <th>Description</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
@@ -106,7 +106,12 @@
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>
-
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.services.show', $service->id) }}">
+                                                <i class="ri-eye-line me-2"></i>
+                                                Details
+                                            </a>
+                                        </li>
                                         <li>
                                             <form method="POST"
                                                 action="{{ route('admin.services.destroy', $service->id) }}">
@@ -151,6 +156,17 @@
                         let id = this.dataset.id;
                         let value = this.checked ? 1 : 0;
                         let checkbox = this;
+
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this service?" :
+                            "Are you sure you want to deactivate this service?"
+                        );
+
+                        if (!confirmAction) {
+                            checkbox.checked = !checkbox.checked;
+                            return;
+                        }
 
                         fetch(`/admin/services/${id}`, {
                                 method: 'POST',

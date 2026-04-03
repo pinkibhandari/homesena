@@ -83,7 +83,7 @@
                                         <li>
                                             <a class="dropdown-item" href="{{ route('admin.bookings.show', $booking->id) }}">
                                                 <i class="ri-eye-line me-2"></i>
-                                                View Details
+                                                Details
                                             </a>
                                         </li>
                                     </ul>

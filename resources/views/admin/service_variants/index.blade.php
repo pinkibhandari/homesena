@@ -31,17 +31,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                            <div class="d-flex align-items-center gap-2">
-                                                                                <span>Show</span>
-                                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                                    <option>7</option>
-                                                                                    <option>10</option>
-                                                                                    <option>25</option>
-                                                                                    <option>50</option>
-                                                                                </select>
-                                                                                <span>entries</span>
-                                                                            </div>
-                                                                        </div> -->
+                                                                                <div class="d-flex align-items-center gap-2">
+                                                                                    <span>Show</span>
+                                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                                        <option>7</option>
+                                                                                        <option>10</option>
+                                                                                        <option>25</option>
+                                                                                        <option>50</option>
+                                                                                    </select>
+                                                                                    <span>entries</span>
+                                                                                </div>
+                                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -150,6 +150,17 @@
                         let value = this.checked ? 1 : 0;
                         let checkbox = this;
 
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this service variant?" :
+                            "Are you sure you want to deactivate this service variant?"
+                        );
+
+                        if (!confirmAction) {
+                            checkbox.checked = !checkbox.checked;
+                            return;
+                        }
+
                         fetch(`/admin/service_variants/${id}`, {
                                 method: 'POST',
                                 headers: {
@@ -167,13 +178,13 @@
 
                                 if (!data.status) {
                                     alert('Update failed');
-                                    checkbox.checked = !value;
+                                    checkbox.checked = !value; 
                                 }
 
                             })
                             .catch(() => {
                                 alert('Something went wrong');
-                                checkbox.checked = !value;
+                                checkbox.checked = !value; 
                             });
 
                     });

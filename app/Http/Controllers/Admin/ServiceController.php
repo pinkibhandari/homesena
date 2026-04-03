@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ServiceController extends Controller
 {
@@ -18,9 +19,9 @@ class ServiceController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%')
-                          ->orWhere('description', 'like', '%' . $request->search . '%')
-                          ->orWhere('slider_title', 'like', '%' . $request->search . '%')
-                          ->orWhere('slider_description', 'like', '%' . $request->search . '%');
+                        ->orWhere('description', 'like', '%' . $request->search . '%')
+                        ->orWhere('slider_title', 'like', '%' . $request->search . '%')
+                        ->orWhere('slider_description', 'like', '%' . $request->search . '%');
                 });
             })
 
@@ -50,12 +51,23 @@ class ServiceController extends Controller
     {
         $data = $this->validateData($request);
 
-        //  Main Image Upload
+        // 🔥 Slug Auto Generate (Unique)
+        $slug = \Illuminate\Support\Str::slug($request->name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (\App\Models\Service::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        $data['slug'] = $slug;
+
+        // Main Image Upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
         }
 
-        //  Slider Image Upload
+        // Slider Image Upload
         if ($request->hasFile('slider_image')) {
             $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
         }
@@ -70,6 +82,7 @@ class ServiceController extends Controller
     // ================= UPDATE =================
     public function update(Request $request, Service $service)
     {
+        // 🔁 Status Toggle (AJAX)
         if ($request->has('status') && !$request->has('name')) {
 
             $service->update([
@@ -85,7 +98,22 @@ class ServiceController extends Controller
         // ✅ Normal Update
         $data = $this->validateData($request);
 
-        //  Replace Main Image
+        // 🔥 Slug Auto Update (Unique + Ignore Current ID)
+        $slug = \Illuminate\Support\Str::slug($request->name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (
+            \App\Models\Service::where('slug', $slug)
+            ->where('id', '!=', $service->id)
+            ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        $data['slug'] = $slug;
+
+        // 🔁 Replace Main Image
         if ($request->hasFile('image')) {
 
             if ($service->image && Storage::disk('public')->exists($service->image)) {
@@ -95,7 +123,7 @@ class ServiceController extends Controller
             $data['image'] = $request->file('image')->store('services', 'public');
         }
 
-        //  Replace Slider Image
+        // 🔁 Replace Slider Image
         if ($request->hasFile('slider_image')) {
 
             if ($service->slider_image && Storage::disk('public')->exists($service->slider_image)) {
@@ -111,7 +139,6 @@ class ServiceController extends Controller
             ->route('admin.services.index')
             ->with('success', 'Service updated successfully');
     }
-
     // ================= DELETE =================
     public function destroy(Service $service)
     {
@@ -137,20 +164,36 @@ class ServiceController extends Controller
         return $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
-
             'status' => 'required|in:0,1',
-
-            'price' => 'nullable|numeric',
-            'discount_price' => 'nullable|numeric',
-
             'slider_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
             'slider_title' => 'nullable|string|max:255',
             'slider_description' => 'nullable|string',
-
             'includes' => 'nullable|string',
             'does_not_include' => 'nullable|string',
         ]);
+    }
+    public function show($id)
+    {
+        $service = Service::findOrFail($id);
+        return view('admin.services.show', compact('service'));
+    }
+    private function generateSlug($name, $id = null)
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (
+            Service::where('slug', $slug)
+            ->when($id, function ($query) use ($id) {
+                return $query->where('id', '!=', $id);
+            })
+            ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        return $slug;
     }
 }

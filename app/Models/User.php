@@ -8,12 +8,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class User extends Authenticatable
-{  
+{
     use HasApiTokens;
     use HasFactory, Notifiable, SoftDeletes;
     protected $fillable = [
-        'name',     
+        'name',
         'email',
         'profile_image',
         'password',
@@ -22,10 +23,10 @@ class User extends Authenticatable
         'role',
         'remember_token',
         'email_verified_at',
-        'otp_expires_at', 
+        'otp_expires_at',
         'status',
         'profile_completed'
-      ];
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -52,32 +53,32 @@ class User extends Authenticatable
         ];
     }
 
-    public function addresses()  
-     {
-       return $this->hasMany(Address::class);
-     }
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
 
-     public function bookings()
+    public function bookings()
     {
         return $this->hasMany(Booking::class);
     }
 
-    public function services() 
+    public function services()
     {
         return $this->belongsToMany(Service::class, 'service_experts', 'expert_id', 'service_id'); // expert_id ==>user's table id for expert
     }
 
     public function expertSlots()
     {
-        return $this->hasMany(BookingSlot::class,'expert_id');
+        return $this->hasMany(BookingSlot::class, 'expert_id');
     }
-public function expert()
-{
-    return $this->belongsTo(User::class, 'expert_id');
-}
+    public function expert()
+    {
+        return $this->belongsTo(User::class, 'expert_id');
+    }
     public function reviews()
     {
-        return $this->hasMany(Review::class,'expert_id');
+        return $this->hasMany(Review::class, 'expert_id');
     }
 
     public function ratingStat()
@@ -94,12 +95,15 @@ public function expert()
     {
         return $this->hasMany(UserDevice::class);
     }
+public function onlineLogs()
+{
+    return $this->hasMany(ExpertOnlineLog::class, 'user_id');
+}
 
-  
     // scope for available experts
     public function scopeExperts($query)
     {
         return $query->where('role', 'expert')
-                    ->where('is_active', 1);
+            ->where('is_active', 1);
     }
 }
