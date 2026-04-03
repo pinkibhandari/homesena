@@ -52,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
    
     Route::get('user-home', [UserHomeController::class, 'userHome']);
     // boonking route
-    Route::post('booking/create', [BookingController::class, 'createBooking']);
+    Route::post('booking/create', [BookingController::class, 'storeBooking']);
     Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
     Route::get('/bookings', [BookingController::class, 'getUserBookings']);
     Route::get('/booking/{id}', [BookingController::class, 'getBookingById']);

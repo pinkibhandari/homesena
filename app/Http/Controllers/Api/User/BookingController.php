@@ -20,10 +20,8 @@ use App\Models\BookingSlot;
 class BookingController extends Controller
 {
 
-    public function createBooking(Request $request)
+    public function storeBooking(Request $request)
     {
-
-
         $validator = Validator::make($request->all(), [
             // 'serviceId' => 'required_if:type,scheduled',
             'addressId' => 'required|exists:addresses,id',
@@ -296,7 +294,7 @@ class BookingController extends Controller
     {
         $radiusKm = 1;
         return User::where('users.role', 'expert')
-            ->where('users.status', 'ACTIVE')
+            ->where('users.status', 1)
             ->join('addresses', 'addresses.user_id', '=', 'users.id')
             ->join('expert_details', 'expert_details.user_id', '=', 'users.id')
             ->where('expert_details.is_online', true)
@@ -332,22 +330,20 @@ class BookingController extends Controller
             'address',
             'slots.expert'
         ])->find($id);
-
         if (!$booking) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
                 'message' => 'Booking not found',
-                'data' => (object) [],
-            ]);
-        } else {
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'Booking retrieved successfully',
-                'data' => new BookingResource($booking)
-            ]);
+                'data' => (object) []
+            ], 422);
         }
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'Booking retrieved successfully',
+            'data' => new BookingResource($booking)
+        ]);
     }
     // get auth user bookings
     public function getUserBookings(Request $request)
@@ -357,17 +353,16 @@ class BookingController extends Controller
             'address',
             'slots.expert'
         ])->where('user_id', auth()->id());
-        if ($request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        // $bookings = $query->latest()->paginate(10);
         $bookings = $query->latest()->get();
         return response()->json([
             'code' => 200,
             'status' => true,
-            'message' => $bookings->count() > 0
-                ? 'User bookings retrieved successfully'
-                : 'No bookings found for this user',
+            'message' => $bookings->isEmpty()
+                ? 'No bookings found for this user'
+                : 'User bookings retrieved successfully',
             'data' => BookingResource::collection($bookings),
             // 'pagination' => [
             //     'current_page' => $bookings->currentPage(),

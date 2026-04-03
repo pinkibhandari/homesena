@@ -73,7 +73,7 @@
 
                             <td>{{ $variant->duration_minutes }} min</td>
 
-                            <td>₹ {{ number_format($variant->base_price, 2) }}</td>
+                            <td>₹ {{ number_format($variant->price, 2) }}</td>
 
                             <td>
                                 {{ $variant->discount_price ? '₹ ' . number_format($variant->discount_price, 2) : '-' }}

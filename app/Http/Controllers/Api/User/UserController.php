@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\UserResource;
 class UserController extends Controller
 {
 
@@ -13,26 +14,21 @@ class UserController extends Controller
     public function userDetails(Request $request)
     {
         $user = $request->user();
-        $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
         if (!$user) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'User not found',
-                'data' => (object) [],
+                'message' => 'User not authenticated',
+                'data' => (object) []
             ], 422);
-        } else {
-            return response()->json([
-                'code' => 200,
-                'status' => true,
-                'message' => 'successfully',
-                'data' => $user
-            ]);
-
         }
+        return response()->json([
+            'code' => 200,
+            'status' => true,
+            'message' => 'User details fetched successfully',
+            'data' => new UserResource($user)
+        ]);
     }
-
-   
 
     public function profile(Request $request)
     {
@@ -44,10 +40,10 @@ class UserController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'code' => 422,
+                'status' => false,
                 'message' => $validator->errors()->first(),
-                'data' => (object) [],
+                'data' => (object) []
             ], 422);
         }
         $user->name = $request->name;
@@ -63,12 +59,11 @@ class UserController extends Controller
             $user->profile_image = $imagePath;
         }
         $user->save();
-        $user->profile_image = $user->profile_image ? url('storage/' . $user->profile_image) : null;
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'Profile updated successfully',
-            'data' => $user
+            'data' => new UserResource($user)
         ]);
     }
 }

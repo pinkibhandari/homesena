@@ -8,7 +8,7 @@ use App\Models\Review;
 
 class ReviewController extends Controller
 {
-    // ✅ LIST + SEARCH + FILTER
+    //  LIST + SEARCH + FILTER
     public function index(Request $request)
     {
         $reviews = Review::with(['user', 'expert'])
@@ -41,16 +41,16 @@ class ReviewController extends Controller
         return view('admin.reviews.index', compact('reviews'));
     }
 
-    // ✅ EDIT
+    //  EDIT
     public function edit(Review $review)
     {
         return view('admin.reviews.form', compact('review'));
     }
 
-    // ✅ UPDATE (Form + Toggle both)
+    //  UPDATE (Form + Toggle both)
     public function update(Request $request, Review $review)
     {
-        // 🔥 AJAX Toggle (Switch)
+        //  AJAX Toggle (Switch)
         if ($request->has('would_recommend') && !$request->has('rating')) {
 
             $review->update([
@@ -63,7 +63,7 @@ class ReviewController extends Controller
             ]);
         }
 
-        // ✅ Normal Form Update
+        //  Normal Form Update
         $data = $this->validateData($request);
 
         $review->update($data);
@@ -73,7 +73,7 @@ class ReviewController extends Controller
             ->with('success', 'Review updated successfully');
     }
 
-    // ✅ DELETE
+    // DELETE
     public function destroy(Review $review)
     {
         $review->delete();
@@ -83,7 +83,7 @@ class ReviewController extends Controller
             ->with('success', 'Review deleted successfully');
     }
 
-    // ✅ VALIDATION
+    //  VALIDATION
     private function validateData($request)
     {
         return $request->validate([

@@ -56,9 +56,7 @@
                             <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                        style="transform: scale(1.3); cursor: not-allowed;" disabled
-                                        {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
+                                  <input class="form-check-input" type="checkbox"style="transform: scale(1.3); cursor: not-allowed;" disabled {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
                                 </div>
                             </td>
 
@@ -73,8 +71,8 @@
                                 @if ($expert->expertDetail?->approval_status === 'pending')
                                     <div class="d-flex align-items-center">
                                         <div class="form-check form-switch m-0">
-                                            <input class="form-check-input statusToggle" type="checkbox"
-                                                name="approval_status" value="1" data-id="{{ $expert->id }}">
+                                            <input class="form-check-input statusToggle" type="checkbox" name="approval_status"
+                                                value="1" data-id="{{ $expert->id }}">
                                         </div>
                                     </div>
                                 @else
@@ -111,8 +109,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}"
-                                                method="POST">
+                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="dropdown-item text-danger"
@@ -139,7 +136,7 @@
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
 
-    @endsection
+@endsection
     @push('scripts')
         <script>
             $(document).ready(function() {

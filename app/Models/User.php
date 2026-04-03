@@ -101,9 +101,5 @@ public function onlineLogs()
 }
 
     // scope for available experts
-    public function scopeExperts($query)
-    {
-        return $query->where('role', 'expert')
-            ->where('is_active', 1);
-    }
+    
 }

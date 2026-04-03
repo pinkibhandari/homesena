@@ -42,7 +42,7 @@ class ExpertController extends Controller
     public function create()
     {
         $expert = new User();
-        $expert->setRelation('expertDetail', new ExpertDetail()); // 👈 important
+        $expert->setRelation('expertDetail', new ExpertDetail()); //  important
         $trainingCenters = TrainingCenter::select('id', 'name')->get();
         return view('admin.experts.form', compact('expert', 'trainingCenters'));
     }
@@ -86,20 +86,13 @@ class ExpertController extends Controller
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'registration_code' => 'REG' . rand(100000, 999999),
+                        'registration_code' => 'EXP-' . rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
                         'is_online' => $data['is_online'],
                         'approval_status' => 'approved',
                         'approved_by' => auth()->id(),
                         'approved_at' => now()
                     ]
-                    // collect($data)->only([
-                    //     'registration_code',
-                    //     'onboarding_agent_code',
-                    //     'training_center_id',
-                    //     'work_schedule',
-                    //     'is_online'
-                    // ])->toArray()
                 );
                 ExpertEmergencyContact::updateOrCreate(
                     ['expert_detail_id' => $expertDetail->id],
@@ -120,36 +113,29 @@ class ExpertController extends Controller
     // UPDATE
     public function update(Request $request, User $expert)
     {
-        // ✅ STATUS TOGGLE (same as USER)
+        //  STATUS TOGGLE (same as USER)
         if ($request->wantsJson() && $request->has('status')) {
-
             $expert->update([
                 'status' => $request->status // 1 or 0
             ]);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Status updated successfully'
             ]);
         }
-
-        // ✅ NORMAL UPDATE
+        //  NORMAL UPDATE
         $data = $this->validateData($request, $expert->id);
-
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
             unset($data['password']);
         }
-
         try {
             DB::transaction(function () use ($data, $expert) {
-
                 $expert->update([
                     ...$data,
                     'role' => 'expert'
                 ]);
-
                 UserDevice::updateOrCreate(
                     [
                         'user_id' => $expert->id,
@@ -159,7 +145,6 @@ class ExpertController extends Controller
                         'device_type' => $data['device_type'] ?? null,
                     ]
                 );
-
                 ExpertDetail::updateOrCreate(
                     ['user_id' => $expert->id],
                     [
@@ -168,7 +153,6 @@ class ExpertController extends Controller
                     ]
                 );
             });
-
             return redirect()->route('admin.experts.index')
                 ->with('success', 'Expert updated successfully');
         } catch (\Exception $e) {
@@ -180,6 +164,7 @@ class ExpertController extends Controller
     // DELETE
     public function destroy(User $expert)
     {
+        $expert->tokens()->delete(); // remove tokens
         $expert->delete();
         return redirect()->route('admin.experts.index')
             ->with('success', 'Expert deleted successfully');
@@ -206,32 +191,29 @@ class ExpertController extends Controller
     public function updateApproveStatus(Request $request)
     {
         $expert = ExpertDetail::where('user_id', $request->id)->first();
-
         if (!$expert) {
             return response()->json([
                 'status' => false,
                 'message' => 'Expert not found'
             ], 422);
         }
-
-        // ✅ APPROVE
+        //  APPROVE
         if ($request->approval_status == 1) {
 
             $expert->update([
                 'approval_status' => 'approved',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
-                'registration_code' => 'REG' . rand(100000, 999999)
+                'registration_code' => 'EXP-' . rand(100000, 999999)
             ]);
         } else {
-            // ❗ OPTIONAL: unapprove
+            //  OPTIONAL: unapprove
             $expert->update([
                 'approval_status' => 'pending',
                 'approved_by' => null,
                 'approved_at' => null
             ]);
         }
-
         return response()->json([
             'status' => true,
             'message' => 'Status updated successfully',

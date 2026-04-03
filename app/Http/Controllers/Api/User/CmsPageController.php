@@ -11,10 +11,10 @@ class CmsPageController extends Controller
     public function getCmsPage(Request $request, $slug)
     {
         $user = $request->user();
-        $role = $user->role;
+        // $role = $user->role;
         $page = CmsPage::where('slug', $slug)
             ->where('status', 1)
-            ->where('type', $role)
+            ->where('type', $user->role)
             ->first();
         if (!$page) {
             return response()->json([

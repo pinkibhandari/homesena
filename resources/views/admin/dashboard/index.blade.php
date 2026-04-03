@@ -650,7 +650,7 @@
                                     </td>
 
                                     @php
-                                        $statusClass = $user->status == 'active' ? 'success' : 'secondary';
+                                        $statusClass = $user->status == 1 ? 'success' : 'secondary';
                                         $statusText = ucfirst($user->status);
                                     @endphp
 

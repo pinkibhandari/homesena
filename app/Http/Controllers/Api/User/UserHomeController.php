@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\Address;
+use App\Models\HomePromotion;
 use App\Http\Resources\ServiceResource;
 class UserHomeController extends Controller
 {
@@ -16,8 +17,10 @@ class UserHomeController extends Controller
             // Check latitude & longitude
             if (!$address->address_lat || !$address->address_long) {
                 return response()->json([
+                    'code' => 422,
                     'success' => false,
-                    'message' => 'Selected address does not have valid location. Please update address.'
+                    'message' => 'Selected address does not have valid location. Please update address.',
+                    'data' => (object) []
                 ], 422);
             }
              $lat =  $address->address_lat;
@@ -29,15 +32,19 @@ class UserHomeController extends Controller
         }
         
         $experts = $this->getExperts($lat, $lng);
-        $services = Service::with('activeVariants')->where('status','ACTIVE')->get();
+        $services = Service::with('activeVariants')->where('status', 1)->get();
         $allServices = ServiceResource::collection($services);
+        $superSavePack = HomePromotion::where('status', 1)->where('promotion_datetime','>=',now())->get();
+        $referral_reward = 100;
         return response()->json([
                 'status' => true,
                 'code' => 200,
                 'message' => 'Experts and service list',
                 'data' => [
                     'experts' => $experts,
-                    'services' => $allServices
+                    'services' => $allServices,
+                    'superSavePack' => $superSavePack,
+                    'referralReward' => $referral_reward   
             ]
        ]);
 
@@ -47,7 +54,7 @@ private function getExperts( $lat, $lng)
     {
            $radiusKm = 1;
            return User::where('users.role', 'expert')
-                    ->where('users.status', 'ACTIVE')
+                    ->where('users.status', 1)
                     ->join('addresses', 'addresses.user_id', '=', 'users.id')
                     ->join('expert_details', 'expert_details.user_id', '=', 'users.id') 
                     ->where('expert_details.is_online', true) 
