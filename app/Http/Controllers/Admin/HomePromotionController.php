@@ -13,7 +13,7 @@ class HomePromotionController extends Controller
     {
         $promotions = HomePromotion::query()
 
-            // 🔍 Search
+            // Search
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
 
@@ -23,11 +23,11 @@ class HomePromotionController extends Controller
                 });
             })
 
-            // 📅 Date Filter
+            //  Date Filter
             ->when($request->filled('date'), fn($q) =>
             $q->whereDate('promotion_datetime', $request->date))
 
-            // 🔘 Status Filter
+            //  Status Filter
             ->when($request->filled('status'), fn($q) =>
             $q->where('status', $request->status))
 
@@ -49,10 +49,10 @@ class HomePromotionController extends Controller
     {
         $data = $this->validateData($request);
 
-        // ✅ Checkbox fix (important)
+        //  Checkbox fix (important)
         $data['status'] = $request->has('status') ? 1 : 0;
 
-        // ✅ Image Upload
+        //  Image Upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('home_promotion', 'public');
         }
@@ -72,7 +72,7 @@ class HomePromotionController extends Controller
     //  UPDATE (Form + Toggle)
     public function update(Request $request, HomePromotion $home_promotion)
     {
-        // 🔥 AJAX Toggle (Status)
+        //  AJAX Toggle (Status)
         if ($request->has('status') && !$request->has('title')) {
 
             $home_promotion->update([

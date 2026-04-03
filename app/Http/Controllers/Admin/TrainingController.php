@@ -13,7 +13,7 @@ class TrainingController extends Controller
     {
         $centers = TrainingCenter::query()
 
-            // 🔍 Search (grouped)
+            //  Search (grouped)
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%')
@@ -61,7 +61,7 @@ class TrainingController extends Controller
     // ================= UPDATE =================
     public function update(Request $request, TrainingCenter $training_center)
     {
-        // 🔥 AJAX STATUS TOGGLE
+        //  AJAX STATUS TOGGLE
         if ($request->has('status') && !$request->has('name')) {
 
             $training_center->update([
@@ -74,7 +74,7 @@ class TrainingController extends Controller
             ]);
         }
 
-        // ✅ Normal update
+        //  Normal update
         $data = $this->validateData($request);
 
         $training_center->update($data);
@@ -101,7 +101,7 @@ class TrainingController extends Controller
             'name'    => 'required|string|max:255',
             'city'    => 'required|string|max:255',
             'address' => 'required|string|max:500',
-            'phone'   => 'required|string|max:15', // ✅ added
+            'phone'   => 'required|string|max:15', //  added
             'status'  => 'required|in:0,1',
         ]);
     }

@@ -6,19 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserDevice;
-// use App\Models\ExpertDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
-// use App\Http\Requests\Auth\SendOtpRequest;
-// use App\Http\Requests\Auth\VerifyOtpRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 
 class AuthController extends Controller
 {
     // send opt in mob.and create new user
 
-    // public function sendOtp(SendOtpRequest $request)
     public function sendOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -48,7 +45,7 @@ class AuthController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        if ($existingUser && $existingUser->otp_expires_at > now()->subMinute()) {
+        if ($existingUser && $existingUser->otp_expires_at && $existingUser->otp_expires_at->isFuture()) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
@@ -58,53 +55,34 @@ class AuthController extends Controller
         }
 
         $otp = rand(100000, 999999);
+        $status = $request->role === 'expert' ? 0 : 1;
         $user = User::updateOrCreate(
             ['phone' => $request->phone],
             [
                 'otp' => Hash::make($otp),
-                'otp_expires_at' => Carbon::now()->addMinutes(10),
-                'role' => $request->role
+                'otp_expires_at' => Carbon::now()->addMinutes(5),
+                'role' => $request->role,
+                'status' => $status
             ]
         );
-
-        $userDevice = UserDevice::updateOrCreate(
-            ['device_id' => $request->deviceId],
-            [
-                'user_id' => $user->id,
-                'device_type' => $request->deviceType
-            ]
-        );
-
         // Expert first time registration
         if ($user->role === 'expert' && $user->wasRecentlyCreated) {
-
-            $user->update([
-                'status' => 'INACTIVE'
-            ]);
-
             $user->expertDetail()->firstOrCreate(
                 ['user_id' => $user->id],
                 ['approval_status' => 'pending']
             );
         }
-        $userDevice->makeHidden(['id']);
-        $user->profile_image = $user->profile_image
-            ? url('storage/' . $user->profile_image)
-            : null;
-
-        $all = collect($user)->merge($userDevice);
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP sent successfully',
-            'data' => array_merge($all->toArray(), [
+            'data' => array_merge($user->toArray(), [
                 'otp' => $otp
             ])
         ], 200);
     }
 
     // Verify OTP
-    // public function verifyOtp(VerifyOtpRequest $request) 
     public function verifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -162,7 +140,20 @@ class AuthController extends Controller
             'otp' => null,
             'otp_expires_at' => null
         ]);
-
+        // generate referral code for this user
+        if (!$user->referral_code) {
+            $user->referral_code = $this->generateReferralCode();
+        }
+        // convert referral code to user id
+        if ($user->referred_by) {
+            $referrer = User::where('referral_code', $user->referred_by)->first();
+            if ($referrer) {
+                $user->referred_by = $referrer->id;
+            } else {
+                $user->referred_by = null;
+            }
+        }
+        $user->save();
         // Create Sanctum Token
         $tokenResult = $user->createToken('mobile-token');
         $token = $tokenResult->plainTextToken;
@@ -178,11 +169,9 @@ class AuthController extends Controller
                 'token_id' => $tokenResult->accessToken->id
             ]
         );
-
         $user->profile_image = $user->profile_image
             ? url('storage/' . $user->profile_image)
             : null;
-
         $data = collect($user)->merge([
             'token' => $token
         ]);
@@ -268,15 +257,25 @@ class AuthController extends Controller
 
         $user->update([
             'otp' => Hash::make($otp),
-            'otp_expires_at' => Carbon::now()->addMinutes(10)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP resent successfully',
-            'data' =>  $otp 
+            'data' => $otp
         ]);
+    }
+
+    //  Add the referral code generator here
+    private function generateReferralCode()
+    {
+        do {
+            $code = strtoupper(Str::random(6));
+        } while (User::where('referral_code', $code)->exists());
+
+        return $code;
     }
 
 }

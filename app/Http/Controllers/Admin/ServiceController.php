@@ -82,7 +82,7 @@ class ServiceController extends Controller
             ]);
         }
 
-        // ✅ Normal Update
+        //  Normal Update
         $data = $this->validateData($request);
 
         //  Replace Main Image

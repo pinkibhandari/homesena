@@ -16,8 +16,10 @@ class UserHomeController extends Controller
             // Check latitude & longitude
             if (!$address->address_lat || !$address->address_long) {
                 return response()->json([
+                    'code' => 422,
                     'success' => false,
-                    'message' => 'Selected address does not have valid location. Please update address.'
+                    'message' => 'Selected address does not have valid location. Please update address.',
+                    'data' => (object) []
                 ], 422);
             }
              $lat =  $address->address_lat;
@@ -31,13 +33,17 @@ class UserHomeController extends Controller
         $experts = $this->getExperts($lat, $lng);
         $services = Service::with('activeVariants')->where('status','ACTIVE')->get();
         $allServices = ServiceResource::collection($services);
+        $superSavePack = (object)[];
+        $referral_reward = 100;
         return response()->json([
                 'status' => true,
                 'code' => 200,
                 'message' => 'Experts and service list',
                 'data' => [
                     'experts' => $experts,
-                    'services' => $allServices
+                    'services' => $allServices,
+                    'superSavePack' => $superSavePack,
+                    'referralReward' => $referral_reward   
             ]
        ]);
 

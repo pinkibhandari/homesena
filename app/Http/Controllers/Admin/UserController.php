@@ -82,10 +82,10 @@ class UserController extends Controller
         }
     }
 
-    // UPDATE (🔥 FIXED)
+    // UPDATE ( FIXED)
     public function update(Request $request, User $user)
 {
-    // ✅ AJAX STATUS UPDATE
+    //  AJAX STATUS UPDATE
     if ($request->wantsJson() && $request->has('status')) {
 
         $user->status = $request->status;
@@ -114,13 +114,14 @@ class UserController extends Controller
     // DELETE
     public function destroy(User $user)
     {
+        $user->tokens()->delete(); // remove tokens
         $user->delete();
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User deleted successfully');
     }
 
-    // VALIDATION (🔥 CLEANED)
+    // VALIDATION ( CLEANED)
     private function validateData($request, $id = null)
     {
         return $request->validate([
@@ -133,7 +134,7 @@ class UserController extends Controller
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'device_id'   => $id ? 'nullable' : 'required',
 
-            // 🔥 IMPORTANT
+            //  IMPORTANT
             'status' => 'required|in:0,1',
         ]);
     }
