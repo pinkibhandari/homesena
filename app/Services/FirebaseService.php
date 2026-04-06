@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Http;
 class FirebaseService
 {
    
-    public function sendNotification($token,$title,$body)
+   public function sendNotification($token, $title, $body, $data = [])
     {
         $serverKey = env('FIREBASE_SERVER_KEY');
 

@@ -22,32 +22,7 @@ class BookingController extends Controller
 
     public function storeBooking(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            // 'serviceId' => 'required_if:type,scheduled',
-            'addressId' => 'required|exists:addresses,id',
-            'type' => 'required|in:instant,scheduled',
-            // 'booking_subtype' => 'required|in:single,recurring',
-            'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
-            'time' => 'required',
-
-            'date' => 'required_if:booking_subtype,single|date',
-
-            'start_date' => 'required_if:booking_subtype,recurring|date',
-            'end_date' => 'required_if:booking_subtype,recurring|date|after_or_equal:start_date',
-            'recurring_type' => 'required_if:booking_subtype,recurring|in:daily,weekly,monthly',
-
-            'days' => 'required_if:recurring_type,weekly|array',
-            'monthly_date' => 'nullable|integer|min:1|max:31',
-            'week' => 'nullable|integer|min:1|max:5',
-            'day' => 'nullable|string',
-
-            // 'latitude' => 'required',
-            // 'longitude' => 'required',
-            // 'address' => 'required',
-            'duration' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'total_price' => 'required|numeric|min:0',
-        ]);
+        $validator = $this->validateBookingRequest($request);
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -56,8 +31,10 @@ class BookingController extends Controller
                 'data' => [],
             ], 422);
         }
-        $address = Address::find($request->addressId);
-        // Check latitude & longitude
+
+         $address = Address::where('id', $request->addressId)
+                  ->where('user_id', auth()->id())
+                  ->first();
         if (!$address || empty($address->address_lat) || empty($address->address_long)) {
             return response()->json([
                 'code' => 422,
@@ -66,32 +43,8 @@ class BookingController extends Controller
                 'message' => 'Invalid address or missing location.'
             ], 422);
         }
-        $query = Booking::where('user_id', auth()->id())
-            ->where('type', $request->type)
-            ->where('time', $request->time)
-            ->where('address_id', $request->addressId)
 
-            // apply only if not null
-            ->when($request->serviceId, function ($q) use ($request) {
-                $q->where('service_id', $request->serviceId);
-            });
-        if ($request->booking_subtype === 'single') {
-
-            $query->where('booking_subtype', 'single')
-                ->whereDate('start_date', $request->date);
-
-        } elseif ($request->booking_subtype === 'recurring') {
-
-            $query->where('booking_subtype', 'recurring')
-                ->whereDate('start_date', $request->start_date)
-                ->whereDate('end_date', $request->end_date);
-
-        } elseif ($request->type === 'instant') {
-
-            $query->whereDate('start_date', $request->start_date ?? now());
-        }
-        $existingBooking = $query->exists();
-        if ($existingBooking) {
+        if ($this->bookingExists($request)) {
             return response()->json([
                 'code' => 422,
                 'data' => [],
@@ -99,24 +52,91 @@ class BookingController extends Controller
                 'message' => 'Booking already exists for this slot and user'
             ]);
         }
+
+        $booking = $this->createBooking($request);
+        $dates = $this->generateBookingDates($request);
+        $slots = $this->generateBookingSlots($booking, $dates, $request);
+
+        BookingSlot::insertOrIgnore($slots);
+
+        $result = $this->processBookingNotifications($booking, $slots, $address);
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => $result['message'],
+            'data' => [
+                'booking' => new BookingResource($booking),
+            ]
+        ]);
+    }
+
+    private function validateBookingRequest(Request $request)
+    {
+        return  Validator::make($request->all(), [
+            // 'serviceId' => 'required_if:type,scheduled',
+            'serviceId' => 'nullable|exists:services,id',   
+            'addressId' => 'required|exists:addresses,id',
+            'type' => 'required|in:instant,scheduled',
+            'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
+            'time' => 'required',
+            'date' => 'required_if:booking_subtype,single|date',
+            'start_date' => 'required_if:booking_subtype,recurring|date',
+            'end_date' => 'required_if:booking_subtype,recurring|date|after_or_equal:start_date',
+            'recurring_type' => 'required_if:booking_subtype,recurring|in:daily,weekly,monthly',
+            'days' => 'required_if:recurring_type,weekly|array',
+            'days.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
+            'monthly_date' => 'nullable|integer|min:1|max:31',
+            'week' => 'nullable|integer|min:1|max:5',
+            'day' => 'nullable|string',
+            'duration' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
+        ]);
+
+      
+    }
+
+    private function bookingExists(Request $request): bool
+    {
+        $query = Booking::where('user_id', auth()->id())
+            ->where('type', $request->type)
+            ->where('time', $request->time)
+            ->where('address_id', $request->addressId)
+            ->when($request->serviceId, function ($q) use ($request) {
+                $q->where('service_id', $request->serviceId);
+            });
+
+        if ($request->booking_subtype === 'single') {
+            $query->where('booking_subtype', 'single')->whereDate('start_date', $request->date);
+        } elseif ($request->booking_subtype === 'recurring') {
+            $query->where('booking_subtype', 'recurring')
+                ->whereDate('start_date', $request->start_date)
+                ->whereDate('end_date', $request->end_date);
+        } elseif ($request->type === 'instant') {
+            $query->whereDate('start_date', $request->start_date ?? now());
+        }
+
+        return $query->exists();
+    }
+
+    private function createBooking(Request $request): Booking
+    {
         $startDate = null;
         $endDate = null;
+
         if ($request->type === 'instant') {
             $startDate = now();
             $endDate = now();
         } elseif ($request->booking_subtype === 'single') {
-
             $startDate = $request->date;
             $endDate = $request->date;
-
         } elseif ($request->booking_subtype === 'recurring') {
-
             $startDate = $request->start_date;
             $endDate = $request->end_date;
         }
 
-        $totalPrice = 0;
-        $booking = Booking::create([
+        return Booking::create([
             'booking_code' => 'HS-' . now()->format('md') . strtoupper(Str::random(4)),
             'user_id' => auth()->id(),
             'service_id' => $request->serviceId,
@@ -126,167 +146,160 @@ class BookingController extends Controller
             'end_date' => $endDate,
             'time' => $request->time,
             'status' => 'pending',
-            // 'latitude' => $request->latitude,
-            // 'longitude' => $request->longitude,
             'address_id' => $request->addressId,
             'total_price' => $request->total_price,
-            // 'booking_created_at' => now()
         ]);
+    }
 
+    private function generateBookingDates(Request $request): array
+    {
         $dates = [];
-        // Instant
-        if ($request->type == 'instant') {
+
+        if ($request->type === 'instant') {
             $dates[] = now();
-        }
-        //  Single
-        elseif ($request->booking_subtype == 'single') {
+        } elseif ($request->booking_subtype === 'single') {
             $dates[] = Carbon::parse($request->date);
+        } else {
+            $dates = $this->generateRecurringDates($request);
         }
-        //  Recurring
-        else {
-            $current = Carbon::parse($request->start_date);
-            $end = Carbon::parse($request->end_date);
 
-            if ($request->recurring_type == 'daily') {
-                while ($current <= $end) {
+        return $dates;
+    }
+
+    private function generateRecurringDates(Request $request): array
+    {
+        $dates = [];
+        $current = Carbon::parse($request->start_date);
+        $end = Carbon::parse($request->end_date);
+
+        if ($request->recurring_type === 'daily') {
+            while ($current <= $end) {
+                $dates[] = $current->copy();
+                $current->addDay();
+            }
+        } elseif ($request->recurring_type === 'weekly') {
+            while ($current <= $end) {
+                if (in_array(strtolower($current->format('D')), $request->days)) {
                     $dates[] = $current->copy();
-                    $current->addDay();
                 }
-            } elseif ($request->recurring_type == 'weekly') {
-                while ($current <= $end) {
-                    if (in_array(strtolower($current->format('D')), $request->days)) {
-                        $dates[] = $current->copy();
-                    }
-                    $current->addDay();
+                $current->addDay();
+            }
+        } elseif ($request->recurring_type === 'monthly') {
+            $dates = $this->generateMonthlyDates($request, $current, $end);
+        }
+
+        return $dates;
+    }
+
+    private function generateMonthlyDates(Request $request, Carbon $current, Carbon $end): array
+    {
+        $dates = [];
+
+        if ($request->monthly_date) {
+            $current = Carbon::parse($request->start_date)->startOfMonth();
+            while ($current <= $end) {
+                $day = min($request->monthly_date, $current->daysInMonth);
+                $date = $current->copy()->day($day);
+
+                if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
+                    $dates[] = $date;
                 }
-            } elseif ($request->recurring_type == 'monthly') {
-
-                if ($request->monthly_date) {
-                    $current = Carbon::parse($request->start_date)->startOfMonth();
-
-                    while ($current <= $end) {
-                        $day = min($request->monthly_date, $current->daysInMonth);
-                        $date = $current->copy()->day($day);
-
-                        if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
-                            $dates[] = $date;
-                        }
-
-                        $current->addMonth();
-                    }
-                } elseif ($request->week && $request->day) {
-                    $current = Carbon::parse($request->start_date)->startOfMonth();
-
-                    while ($current <= $end) {
-                        $date = $current->copy()->modify("{$request->week} {$request->day}");
-
-                        if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
-                            $dates[] = $date;
-                        }
-
-                        $current->addMonth();
-                    }
+                $current->addMonth();
+            }
+        } elseif ($request->week && $request->day) {
+            $current = Carbon::parse($request->start_date)->startOfMonth();
+            while ($current <= $end) {
+                $date = $current->copy()->modify("{$request->week} {$request->day}");
+                if ($date >= Carbon::parse($request->start_date) && $date <= $end) {
+                    $dates[] = $date;
                 }
+                $current->addMonth();
             }
         }
 
+        return $dates;
+    }
+
+    private function generateBookingSlots(Booking $booking, array $dates, Request $request): array
+    {
         $startTime = Carbon::parse($request->time);
         $endTime = $startTime->copy()->addMinutes($request->duration);
 
-        $dates = collect($dates)->unique()->values();
         $slots = [];
-        foreach ($dates as $date) {
+        foreach (collect($dates)->unique()->values() as $date) {
             $slots[] = [
                 'booking_id' => $booking->id,
                 'date' => $date->format('Y-m-d'),
-                // 'start_time' => $request->type == 'instant' ? now()->format('H:i:s') : $startTime,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                // 'time' => $request->time,
                 'duration' => $request->duration,
                 'status' => 'pending',
                 'price' => $request->price,
             ];
         }
 
-        BookingSlot::insertOrIgnore($slots);
-        // $totalPrice = collect($slots)->sum('price');
+        return $slots;
+    }
 
-        // $booking->update([
-        //     'total_price' => $totalPrice
-        // ]);
-
-        $latitude = $address->address_lat;
-        $longitude = $address->address_long;
-        //  SEND NOTIFICATION FOR ALL
+    private function processBookingNotifications(Booking $booking, array $slots, Address $address): array
+    {
         $firebase = new FirebaseService();
         $totalSlots = count($slots);
         $availableSlots = 0;
+
         foreach ($slots as $slot) {
-            $experts = $this->getExperts($slot['date'], $slot['start_time'], $slot['end_time'], $latitude, $longitude);
-            // Determine status
+            $experts = $this->getExperts($slot['date'], $slot['start_time'], $slot['end_time'], $address->address_lat, $address->address_long);
             $slotStatus = $experts->isEmpty() ? 'not_available' : 'available';
-            // update slot status
+
             BookingSlot::where('booking_id', $booking->id)
                 ->where('date', $slot['date'])
-                ->update([
-                    'status' => $slotStatus
-                ]);
-            // Update slot array for response
-            $slot['status'] = $slotStatus;
-            // if no expert → skip notification
+                ->update(['status' => $slotStatus]);
+
             if ($experts->isEmpty()) {
                 continue;
             }
+
             $availableSlots++;
-            foreach ($experts as $expert) {
-                foreach ($expert->devices as $device) {
-                    if (empty($device->fcm_token)) {
-                        continue;
-                    }
-                    // if ($device->fcm_token) {
-                    $firebase->send(
-                        $device->fcm_token,
-                        'New Booking Request',
-                        "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond to accept or reject.",
-                        [
-                            'booking_id' => (string) $booking->id,
-                            'booking_code' => $booking->booking_code,
-                            // 'address_id' => $address->id,
-                            'date' => $slot['date'],
-                            'time' => $slot['start_time'],
-                            'duration' => $slot['duration'],
-                            'location' => $address->address,
-                            'earning' => $slot['price'] ?? 0,
-                            'actions' => json_encode([
-                                ['id' => 'ACCEPT', 'title' => 'Accept'],
-                                ['id' => 'REJECT', 'title' => 'Reject']
-                            ])
-                        ],
-                    );
-                    // }
+            $this->sendNotificationsToExperts($firebase, $experts, $booking, $slot, $address);
+        }
+
+        $message = match (true) {
+            $availableSlots === 0 => 'Booking created but no experts available right now',
+            $availableSlots === $totalSlots => 'Booking created & notifications sent for all slots',
+            default => 'Booking created & notifications sent for some slots'
+        };
+
+        return ['message' => $message];
+    }
+
+    private function sendNotificationsToExperts(FirebaseService $firebase, $experts, Booking $booking, array $slot, Address $address): void
+    {
+        foreach ($experts as $expert) {
+            foreach ($expert->devices as $device) {
+                if (empty($device->fcm_token)) {
+                    continue;
                 }
+
+                $firebase->sendNotification(
+                    $device->fcm_token,
+                    'New Booking Request',
+                    "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond to accept or reject.",
+                    [
+                        'booking_id' => (string) $booking->id,
+                        'booking_code' => $booking->booking_code,
+                        'date' => $slot['date'],
+                        'time' => $slot['start_time'],
+                        'duration' => $slot['duration'],
+                        'location' => $address->address,
+                        'earning' => $slot['price'] ?? 0,
+                        'actions' => json_encode([
+                            ['id' => 'ACCEPT', 'title' => 'Accept'],
+                            ['id' => 'REJECT', 'title' => 'Reject']
+                        ])
+                    ],
+                );
             }
         }
-        //  FINAL MESSAGE
-        if ($availableSlots === 0) {
-            $message = 'Booking created but no experts available right now';
-        } elseif ($availableSlots === $totalSlots) {
-            $message = 'Booking created & notifications sent for all slots';
-        } else {
-            $message = 'Booking created & notifications sent for some slots';
-        }
-
-        return response()->json([
-            'status' => true,
-            'code' => 200,
-            'message' => $message,
-            'data' => [
-                'booking' => new BookingResource($booking),
-                // 'slots'=>$slots
-            ]
-        ]);
-
     }
 
     //  Get nearby + free experts

@@ -34,6 +34,20 @@ class AuthController extends Controller
             ], 422);
         }
 
+        //  Fixed user case
+        if ($request->phone == config('app.fixed_phone') && $request->role == 'user') {
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'OTP sent successfully',
+                'is_fixed' => true,
+                'data' => [
+                    'phone' => $request->phone,
+                    'otp' => '123456',
+                ]
+            ]);
+        }
+
         $existingUser = User::where('phone', $request->phone)->first();
 
         // Block if phone registered with different role
@@ -102,59 +116,65 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('phone', $request->phone)
-            ->where('role', $request->role)
-            ->first();
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'code' => 422,
-                'message' => 'Invalid user',
-                'data' => (object) []
-            ], 422);
-        }
-
-        // Check OTP expiry
-        if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
-            return response()->json([
-                'status' => false,
-                'code' => 422,
-                'message' => 'OTP expired',
-                'data' => (object) []
-            ], 422);
-        }
-
-        // Verify OTP
-        if (!Hash::check($request->otp, $user->otp)) {
-            return response()->json([
-                'status' => false,
-                'code' => 422,
-                'message' => 'Invalid OTP',
-                'data' => (object) []
-            ], 422);
-        }
-
-        // Clear OTP
-        $user->update([
-            'otp' => null,
-            'otp_expires_at' => null
-        ]);
-        // generate referral code for this user
-        if (!$user->referral_code) {
-            $user->referral_code = $this->generateReferralCode();
-        }
-        // convert referral code to user id
-        if ($user->referred_by) {
-            $referrer = User::where('referral_code', $user->referred_by)->first();
-            if ($referrer) {
-                $user->referred_by = $referrer->id;
-            } else {
-                $user->referred_by = null;
+        if ($request->phone == config('app.fixed_phone') && $request->otp == config('app.fixed_otp') && $request->role == 'user') {
+            $user = User::where('phone', config('app.fixed_phone'))->first();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Fixed user not found'
+                ], 404);
             }
+        } else {
+            $user = User::where('phone', $request->phone)
+                ->where('role', $request->role)
+                ->first();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Invalid user',
+                    'data' => (object) []
+                ], 422);
+            }
+            // Check OTP expiry
+            if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'OTP expired',
+                    'data' => (object) []
+                ], 422);
+            }
+            // Verify OTP
+            if (!Hash::check($request->otp, $user->otp)) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Invalid OTP',
+                    'data' => (object) []
+                ], 422);
+            }
+            // Clear OTP
+            $user->update([
+                'otp' => null,
+                'otp_expires_at' => null
+            ]);
+            // generate referral code for this user
+            if (!$user->referral_code) {
+                $user->referral_code = $this->generateReferralCode();
+            }
+            // convert referral code to user id
+            if ($user->referred_by) {
+                $referrer = User::where('referral_code', $user->referred_by)->first();
+                if ($referrer) {
+                    $user->referred_by = $referrer->id;
+                } else {
+                    $user->referred_by = null;
+                }
+            }
+            $user->save();
         }
-        $user->save();
-        // Create Sanctum Token
+        // Create Sanctum Token  (common for fixed and normal user after OTP verification)
         $tokenResult = $user->createToken('mobile-token');
         $token = $tokenResult->plainTextToken;
 
@@ -274,7 +294,6 @@ class AuthController extends Controller
         do {
             $code = strtoupper(Str::random(6));
         } while (User::where('referral_code', $code)->exists());
-
         return $code;
     }
 
