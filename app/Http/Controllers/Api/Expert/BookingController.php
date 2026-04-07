@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use App\Http\Resources\ExpertBookingResource;
 use App\Http\Resources\ExpertBookingSlotResource;
 use App\Models\Booking;
+use App\Models\BookingSlot;
+use App\Models\UserDevice;
+use App\Services\FirebaseService;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -93,5 +98,120 @@ class BookingController extends Controller
         ], 200);
     }
 
+    //  ACCEPT BOOKING
+    public function accept(Request $request, FirebaseService $firebase)
+    {
+        
+        $validator = Validator::make($request->all(), [
+           'booking_slot_id' => 'required|exists:booking_slots,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
+            ], 422);
+        }
+        $expert = auth()->user();
+        $slot = BookingSlot::find($request->booking_slot_id);
+        //  Security check
+        if ($slot->expert_id != $expert->id) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Unauthorized',
+                'data' => (object) []
+            ], 422);
+        }
 
+        //  Already processed
+        if ($slot->status != 'pending') {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Already processed',
+                'data' => (object) []
+            ], 422);
+        }
+        //  Accept
+        $slot->status = 'accepted';
+        $slot->save();
+        //  Notify user
+        $booking = Booking::find($slot->booking_id);
+        if ($booking && $booking->user_id) {
+            $this->sendToUserDevices(
+                $booking->user_id,
+                "Booking Accepted",
+                "Your booking has been accepted by expert",
+                ['type' => 'booking_accept'],
+                $firebase
+            );
+        }
+        return response()->json([
+            'code'=> 200,
+            'status' => true,
+            'message' => 'Booking accepted successfully',
+            'data'=>  $slot
+        ]);
+    }
+
+     
+    //  REJECT BOOKING
+
+    public function reject(Request $request, FirebaseService $firebase)
+    {
+        $request->validate([
+            'booking_slot_id' => 'required|exists:booking_slots,id',
+            'reason' => 'nullable|string'
+        ]);
+        $expert = auth()->user();
+        $slot = BookingSlot::find($request->booking_slot_id);
+        if ($slot->expert_id != $expert->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+        if ($slot->status != 'pending') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Already processed'
+            ], 422);
+        }
+        //  Reject
+        $slot->status = 'rejected';
+        $slot->reject_reason = $request->reason;
+        $slot->save();
+        //  Notify user
+        $booking = Booking::find($slot->booking_id);
+        if ($booking && $booking->user_id) {
+            $this->sendToUserDevices(
+                $booking->user_id,
+                "Booking Rejected",
+                "Your booking has been rejected by expert",
+                ['type' => 'booking_reject'],
+                $firebase
+            );
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Booking rejected successfully'
+        ]);
+    }
+  
+    // SEND NOTIFICATION
+  
+    private function sendToUserDevices($userId, $title, $body, $data = [], $firebase)
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->unique()
+            ->toArray();
+
+        foreach ($tokens as $token) {
+            $firebase->send($token, $title, $body, $data);
+        }
+    }
 }

@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class FrontendPage extends Model
 {
     // ✅ Correct table name
-    protected $table = 'cms_pages';
+    // protected $table = 'cms_pages';
 
     protected $fillable = [
         'title',

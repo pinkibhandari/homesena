@@ -17,7 +17,8 @@
 
                     <!-- Logo -->
                     <a href="/">
-                        <img src="landing/img/logo.svg" class="logo" style="width:140px; height:auto;">
+                        
+                        <img src="{{ asset('landing/img/logo.svg') }}" class="logo" style="width:140px; height:auto;">
                     </a>
                     <!-- Right Links -->
                     <div class="nav-right">
@@ -27,7 +28,7 @@
 
                     <!-- Mobile Brand Name -->
                     <a href="/" class="mobile-logo-wrap">
-                        <img src="landing/img/logo.svg" class="mobile-nav-logo" alt="Homesena Logo">
+                        <img src="{{ asset('landing/img/logo.svg') }}" class="mobile-nav-logo" alt="Homesena Logo">
                     </a>
 
                     <!-- Mobile Menu Button -->
@@ -43,7 +44,7 @@
 
                 <div class="mobile-header">
                     <div class="mobile-sidebar-brand">
-                        <img src="landing/img/logo.svg" class="mobile-sidebar-logo" alt="Homesena Logo">
+                        <img src="{{ asset('landing/img/logo.svg') }}" class="mobile-sidebar-logo" alt="Homesena Logo">
                     </div>
                     <span id="closeMenu">&times;</span>
                 </div>
@@ -57,6 +58,6 @@
     </div>
 
     {{-- HERO --}}
-    @include('frontend.sections.hero')
+       @yield('hero')
 
 </section>

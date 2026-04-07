@@ -17,13 +17,13 @@ use App\Http\Controllers\Api\User\AddressController;
 use App\Http\Controllers\Api\Expert\EmergencyContactController;
 use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController;
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
+use App\Http\Controllers\Api\Expert\ExpertSOSController;
 
 
 
 Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verifyotp', [AuthController::class, 'verifyOtp']);
 Route::post('resend-otp', [AuthController::class, 'resendOtp']);
-
 
 // service route
 Route::get('services', [ServiceController::class, 'getServices']);
@@ -89,9 +89,13 @@ Route::middleware('auth:sanctum')->group(function () {
             // booking
         Route::get('bookings', [ExpertBookingController::class, 'bookingList']);
         Route::get('booking/{id}', [ExpertBookingController::class, 'bookingDetails']);
+        Route::post('booking-slot/accept', [ExpertBookingController::class, 'acceptSlot']);
+        Route::post('booking-slot/reject', [ExpertBookingController::class, 'rejectSlot']);
         Route::get('upcoming-booking', [ExpertBookingController::class, 'upcomingBooking']); 
         Route::post('is-online-status-update', [ExpertController::class, 'isOnlineStatusUpdate']);
         Route::get('training-centers', [TrainingCenterController::class, 'trainingCenterList']);
+        // expert sos
+        Route::post('sos', [ExpertSOSController::class, 'sendSOS']);
         
      
 

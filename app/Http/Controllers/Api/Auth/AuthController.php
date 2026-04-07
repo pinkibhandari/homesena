@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 
 class AuthController extends Controller
@@ -34,19 +35,30 @@ class AuthController extends Controller
             ], 422);
         }
 
-        //  Fixed user case
-        if ($request->phone == config('app.fixed_phone') && $request->role == 'user') {
-            return response()->json([
-                'status' => true,
-                'code' => 200,
-                'message' => 'OTP sent successfully',
-                'is_fixed' => true,
-                'data' => [
-                    'phone' => $request->phone,
-                    'otp' => '123456',
-                ]
-            ]);
-        }
+        // //  Fixed user case
+        // if ($request->phone == config('app.fixed_phone')) {
+        //     $user = User::updateOrCreate(
+        //         ['mobile' => $request->phone],
+        //         [
+        //             'otp'  => Hash::make(config('app.fixed_otp')),
+        //             'otp_expires_at' => Carbon::now()->addMinutes(1),
+        //             'role' => $request->role,
+        //         ]
+        //     );
+        //     $message = "Your OTP for " . config('app.name') . " is: " . config('app.fixed_otp');
+        //     $response = $this->sendSms($request->phone, $message);
+        //     return response()->json([
+        //         'status' => true,
+        //         'code' => 200,
+        //         'message' => 'OTP sent successfully',
+        //         'is_fixed' => true,
+        //         'data' => [
+        //             'phone' => $request->phone,
+        //             'otp' => '123456',
+        //             'sms_response' => $response
+        //         ]
+        //     ]);
+        // }
 
         $existingUser = User::where('phone', $request->phone)->first();
 
@@ -59,22 +71,28 @@ class AuthController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        if ($existingUser && $existingUser->otp_expires_at && $existingUser->otp_expires_at->isFuture()) {
+
+        // Prevent OTP spam (allow resend after 60 seconds)    
+        if ($existingUser && $existingUser->otp_last_sent_at && $existingUser->otp_last_sent_at->addMinutes(1)->isFuture()) {
+            $secondsLeft = now()->diffInSeconds($existingUser->otp_last_sent_at->addMinutes(1));
+            $secondsLeft = floor($secondsLeft);
+
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'Please wait before requesting OTP again',
+                'message' => "Please wait {$secondsLeft} seconds before requesting OTP again",
                 'data' => (object) []
             ], 422);
         }
-
-        $otp = rand(100000, 999999);
+        $otp = $request->phone == config('app.fixed_phone') ? config('app.fixed_otp') : rand(100000, 999999);
+        // $otp = rand(100000, 999999);
         $status = $request->role === 'expert' ? 0 : 1;
         $user = User::updateOrCreate(
             ['phone' => $request->phone],
             [
                 'otp' => Hash::make($otp),
                 'otp_expires_at' => Carbon::now()->addMinutes(5),
+                'otp_last_sent_at' => Carbon::now(),
                 'role' => $request->role,
                 'status' => $status
             ]
@@ -86,15 +104,19 @@ class AuthController extends Controller
                 ['approval_status' => 'pending']
             );
         }
+        $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
+        $response = $this->sendSms($request->phone, $message);
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP sent successfully',
             'data' => array_merge($user->toArray(), [
-                'otp' => $otp
+                'otp' => $otp,
+                'sms_response' => $response
             ])
         ], 200);
     }
+
 
     // Verify OTP
     public function verifyOtp(Request $request)
@@ -116,64 +138,55 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if ($request->phone == config('app.fixed_phone') && $request->otp == config('app.fixed_otp') && $request->role == 'user') {
-            $user = User::where('phone', config('app.fixed_phone'))->first();
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Fixed user not found'
-                ], 404);
-            }
-        } else {
-            $user = User::where('phone', $request->phone)
-                ->where('role', $request->role)
-                ->first();
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'code' => 422,
-                    'message' => 'Invalid user',
-                    'data' => (object) []
-                ], 422);
-            }
-            // Check OTP expiry
-            if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
-                return response()->json([
-                    'status' => false,
-                    'code' => 422,
-                    'message' => 'OTP expired',
-                    'data' => (object) []
-                ], 422);
-            }
-            // Verify OTP
-            if (!Hash::check($request->otp, $user->otp)) {
-                return response()->json([
-                    'status' => false,
-                    'code' => 422,
-                    'message' => 'Invalid OTP',
-                    'data' => (object) []
-                ], 422);
-            }
-            // Clear OTP
-            $user->update([
-                'otp' => null,
-                'otp_expires_at' => null
-            ]);
-            // generate referral code for this user
-            if (!$user->referral_code) {
-                $user->referral_code = $this->generateReferralCode();
-            }
-            // convert referral code to user id
-            if ($user->referred_by) {
-                $referrer = User::where('referral_code', $user->referred_by)->first();
-                if ($referrer) {
-                    $user->referred_by = $referrer->id;
-                } else {
-                    $user->referred_by = null;
-                }
-            }
-            $user->save();
+        $user = User::where('phone', $request->phone)
+            ->where('role', $request->role)
+            ->first();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Invalid user',
+                'data' => (object) []
+            ], 422);
         }
+        // Check OTP expiry
+        if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'OTP expired',
+                'data' => (object) []
+            ], 422);
+        }
+        // Verify OTP
+        if (!Hash::check($request->otp, $user->otp)) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Invalid OTP',
+                'data' => (object) []
+            ], 422);
+        }
+        // Clear OTP
+        $user->update([
+            'otp' => null,
+            'otp_expires_at' => null
+        ]);
+        // generate referral code for this user
+        if (!$user->referral_code) {
+            $user->referral_code = $this->generateReferralCode();
+        }
+        // convert referral code to user id
+        if ($user->referred_by) {
+            $referrer = User::where('referral_code', $user->referred_by)->first();
+            if ($referrer) {
+                $user->referred_by = $referrer->id;
+            } else {
+                $user->referred_by = null;
+            }
+        }
+        $user->save();
+
         // Create Sanctum Token  (common for fixed and normal user after OTP verification)
         $tokenResult = $user->createToken('mobile-token');
         $token = $tokenResult->plainTextToken;
@@ -263,28 +276,35 @@ class AuthController extends Controller
         }
 
         // Prevent OTP spam (allow resend after 60 seconds)
-        if ($user->otp_expires_at && now()->diffInSeconds($user->otp_expires_at, false) > 540) {
+        if ($user->otp_last_sent_at && now()->lessThan($user->otp_last_sent_at->addMinute())) {
+            $diff = now()->diffInSeconds($user->otp_last_sent_at->addMinute());
+            $diff = floor($diff);
             return response()->json([
                 'status' => false,
                 'code' => 422,
-                'message' => 'Please wait before requesting another OTP',
+                'message' => "Please wait {$diff} seconds before requesting another OTP",
                 'data' => (object) []
             ], 422);
         }
 
         // Generate new OTP
         $otp = rand(100000, 999999);
-
         $user->update([
             'otp' => Hash::make($otp),
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_expires_at' => Carbon::now()->addMinutes(5),
+            'otp_last_sent_at' => Carbon::now(),
         ]);
 
+        $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
+        $response = $this->sendSms($request->phone, $message);
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP resent successfully',
-            'data' => $otp
+            'data' => [
+                'otp' => $otp,
+                'sms_response' => $response
+            ]
         ]);
     }
 
@@ -295,6 +315,23 @@ class AuthController extends Controller
             $code = strtoupper(Str::random(6));
         } while (User::where('referral_code', $code)->exists());
         return $code;
+    }
+
+    //  Common SMS Function
+    public function sendSms($mobile, $message)
+    {
+        $response = Http::asForm()->post(
+            'http://sms.bulksmsserviceproviders.com/api/send_http.php',
+            [
+                'authkey' => env('SMS_AUTH_KEY'),
+                'mobiles' => $mobile,
+                'message' => $message,
+                // 'message' => urlencode($message),
+                'sender' => env('SMS_SENDER_ID'),
+                'route' => env('SMS_ROUTE'),
+            ]
+        );
+        return json_decode($response->body(), true);
     }
 
 }

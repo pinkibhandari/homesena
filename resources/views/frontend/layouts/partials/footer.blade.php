@@ -14,8 +14,8 @@
 
                 <!-- LEFT LINKS -->
                 <div class="footer-left">
-                    @foreach ($frontend_pages as $page)
-                        <a href="{{ url($page->slug) }}">
+                    @foreach ($cms_pages as $page)
+                        <a href="{{ url('page/' . $page->slug) }}">
                             {{ $page->title }}
                         </a>
                     @endforeach

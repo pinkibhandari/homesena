@@ -1,7 +1,10 @@
-@extends('frontend.master')
+@extends('frontend.layouts.master')
 
 @section('title', 'Home')
 
+@section('hero')
+    @include('frontend.sections.hero')
+@endsection
 @section('content')
 
 @include('frontend.sections.services')
