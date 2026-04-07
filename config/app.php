@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'HomeSena'),
 
     /*
     |--------------------------------------------------------------------------
@@ -124,6 +124,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'fixed_phone' => env('FIXED_PHONE','9953044591'),
+    'fixed_phone' => env('FIXED_PHONE','9953044581'),
     'fixed_otp' => env('FIXED_OTP','123456'),
 ];

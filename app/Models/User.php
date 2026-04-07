@@ -8,7 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Exceptions\FixedUserException;
 
 class User extends Authenticatable
 {
@@ -25,6 +24,7 @@ class User extends Authenticatable
         'remember_token',
         'email_verified_at',
         'otp_expires_at',
+        'otp_last_sent_at',
         'status',
         'profile_completed'
     ];
@@ -50,25 +50,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'otp_expires_at' => 'datetime',
+            'otp_last_sent_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-
-     protected static function boot()
-    {
-        parent::boot();
-        static::updating(function ($user) {
-            if ($user->is_fixed) {
-                throw new FixedUserException("Fixed user cannot be updated");
-            }
-        });
-
-        static::deleting(function ($user) {
-            if ($user->is_fixed) {
-                throw new FixedUserException("Fixed user cannot be deleted");
-            }
-        });
     }
 
     public function addresses()
