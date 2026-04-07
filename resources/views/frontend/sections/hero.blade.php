@@ -6,7 +6,7 @@
             <!-- Left Content -->
             <div class="col-lg-6 hero-content">
                 <div class="hero-mobile-img">
-                    <img src="landing/img/homesena.png" alt="Homesena Professional">
+                    <img src="{{ asset('landing/img/homesena.png') }}" alt="Homesena Professional">
                 </div>
                 <h1>
                     Book Trusted <span>Home Services</span> in Minutes

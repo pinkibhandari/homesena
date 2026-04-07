@@ -14,49 +14,49 @@
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/01.jpeg">
+                           <img src="{{ asset('landing/img/service/01.jpeg') }}" alt="Service Image">
                             <h4>Bathroom Cleaning</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/02.jpeg">
+                           <img src="{{ asset('landing/img/service/02.jpeg') }}" alt="Service Image">
                             <h4>Laundry</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/03.jpeg">
+                            <img src="{{ asset('landing/img/service/03.jpeg') }}" alt="Service Image">
                             <h4>Utensils</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/04.jpeg">
+                             <img src="{{ asset('landing/img/service/04.jpeg') }}" alt="Service Image">
                             <h4>Balcony Cleaning</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/05.jpeg">
+                              <img src="{{ asset('landing/img/service/05.jpeg') }}" alt="Service Image">  
                             <h4>Kitchen Cleaning</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/06.jpeg">
+                            <img src="{{ asset('landing/img/service/06.jpeg') }}" alt="Service Image">
                             <h4>Window Cleaning</h4>
                         </div>
                     </div>
 
                     <div class="service-item">
                         <div class="service-img-box">
-                            <img src="landing/img/service/07.jpeg">
+                            <img src="{{ asset('landing/img/service/07.jpeg') }}" alt="Service Image">
                             <h4>Sweeping</h4>
                         </div>
                     </div>

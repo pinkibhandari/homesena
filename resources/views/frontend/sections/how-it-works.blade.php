@@ -36,7 +36,7 @@
 
                 <!-- CENTER IMAGE -->
                 <div class="col-md-4 text-center">
-                    <img src="landing/img/mobile.png" class="phone-img">
+                    <img src="{{ asset('landing/img/mobile.png') }}" class="phone-img">
                 </div>
 
                 <!-- RIGHT STEPS -->
