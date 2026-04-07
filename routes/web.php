@@ -14,49 +14,54 @@ use App\Http\Controllers\Admin\TimeSlotController;
 use App\Http\Controllers\Admin\CmsPagesController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
+use App\Http\Controllers\FrontendController;
 
-    Route::get('/', function () {
-        return view('landing');
-    });
-    Route::get('admin/login', function () {
-       // If already logged in AND admin
-            if (auth()->check() && auth()->user()->role === 'admin') {
-                return redirect('/admin/dashboard');
-             }
-               return view('admin.login');
-            })->name('admin.login');
-    Route::post('admin/login', [AuthController::class, 'adminLogin']);
-    /* forgot password  */
-    Route::get('/admin/forgot-password', [AuthController::class, 'showForgot'])->name('admin.forgot');
-    Route::post('/admin/otp', [AuthController::class, 'sendOtp'])->name('admin.sendOtp');
-    Route::get('/admin/otp', [AuthController::class, 'showOtp'])->name('admin.otp');
-    Route::post('/admin/verify-otp', [AuthController::class, 'verifyOtp'])->name('admin.verifyOtp');
-    Route::get('/admin/reset-password', [AuthController::class, 'showResetPassword'])->name('admin.resetPassword');
-    Route::post('/admin/reset-password', [AuthController::class, 'resetPassword'])->name('admin.resetPasswordSubmit');
-    /*  ----------------- admin   ---------------------*/
-    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-        // Admin Change Password Routes
-        Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('change_password');
-        Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('update_password');
-        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-        Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
-        Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        // Users 
-        Route::resource('users', UserController::class);
-        Route::delete('/admin/device/{id}', [UserController::class, 'deleteDevice'])->name('device.delete');
-        Route::resource('experts', ExpertController::class);
-        Route::post('update-approve-status', [ExpertController::class, 'updateApproveStatus']);
-        // Route::get('expert/view/{id}', [ExpertController::class, 'view'])->name('view.expert');
-        Route::resource('services', ServiceController::class);
-        Route::resource('bookings', BookingController::class);
-        Route::resource('training_centers', TrainingController::class);
-        Route::resource('service_variants', ServiceVariantController::class);
-        Route::resource('time_slots', TimeSlotController::class);
-        Route::resource('payments', PaymentController::class);
-        Route::resource('cms_pages', CmsPagesController::class);
-        Route::resource('reviews', ReviewController::class);
-        Route::resource('home_promotion', HomePromotionController::class);
+
+// Route::get('/', function () {
+//     return view('landing');
+// });
+Route::get('/', function () {
+    return view('frontend.home');
+});
+Route::get('admin/login', function () {
+    // If already logged in AND admin
+    if (auth()->check() && auth()->user()->role === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    return view('admin.login');
+})->name('admin.login');
+Route::post('admin/login', [AuthController::class, 'adminLogin']);
+/* forgot password  */
+Route::get('/admin/forgot-password', [AuthController::class, 'showForgot'])->name('admin.forgot');
+Route::post('/admin/otp', [AuthController::class, 'sendOtp'])->name('admin.sendOtp');
+Route::get('/admin/otp', [AuthController::class, 'showOtp'])->name('admin.otp');
+Route::post('/admin/verify-otp', [AuthController::class, 'verifyOtp'])->name('admin.verifyOtp');
+Route::get('/admin/reset-password', [AuthController::class, 'showResetPassword'])->name('admin.resetPassword');
+Route::post('/admin/reset-password', [AuthController::class, 'resetPassword'])->name('admin.resetPasswordSubmit');
+/*  ----------------- admin   ---------------------*/
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin Change Password Routes
+    Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('change_password');
+    Route::post('/change-password', [AuthController::class, 'updatePassword'])->name('update_password');
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+    Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Users 
+    Route::resource('users', UserController::class);
+    Route::delete('/admin/device/{id}', [UserController::class, 'deleteDevice'])->name('device.delete');
+    Route::resource('experts', ExpertController::class);
+    Route::post('update-approve-status', [ExpertController::class, 'updateApproveStatus']);
+    // Route::get('expert/view/{id}', [ExpertController::class, 'view'])->name('view.expert');
+    Route::resource('services', ServiceController::class);
+    Route::resource('bookings', BookingController::class);
+    Route::resource('training_centers', TrainingController::class);
+    Route::resource('service_variants', ServiceVariantController::class);
+    Route::resource('time_slots', TimeSlotController::class);
+    Route::resource('payments', PaymentController::class);
+    Route::resource('cms_pages', CmsPagesController::class);
+    Route::resource('reviews', ReviewController::class);
+    Route::resource('home_promotion', HomePromotionController::class);
     // Route::get('/users', [UserController::class, 'index'])
     //     ->name('admin.users.index');
     // Route::get('/users/create', [UserController::class, 'create'])
@@ -111,5 +116,6 @@ use App\Http\Controllers\Admin\HomePromotionController;
     // ->name('admin.payments.create_payment_methods');
     //  Route::get('/payments/edit-payment-methods', [PaymentController::class, 'editPaymentMethods'])
     // ->name('admin.payments.edit_payment_methods');
-    
+
 });
+Route::get('/{slug}', [FrontendController::class, 'page'])->name('page');

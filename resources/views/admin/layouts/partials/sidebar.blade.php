@@ -1,134 +1,149 @@
-<!-- Layout wrapper -->
-
-<!-- Menu -->
-
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+    <!-- LOGO -->
     <div class="app-brand demo">
-        <a href="index.html" class="app-brand-link">
-            <span class="app-brand-logo demo me-1">
-                <span class="text-primary">
-                </span>
-            </span>
-            <!-- <span class="app-brand-text demo menu-text fw-semibold ms-2"> -->
-            <a href="#" class="app-brand-link d-flex align-items-center">
-                <img src="{{ asset('assets/img/logo.svg') }}" alt="HomeSena Logo" style="height: 40px; width: auto;">
-            </a>
-            <!-- </span> -->
+        <a href="{{ route('admin.dashboard') }}" class="app-brand-link d-flex align-items-center">
+            <img src="{{ asset('assets/img/logo.svg') }}" alt="HomeSena Logo" style="height: 40px;">
         </a>
     </div>
 
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        <li class="menu-item">
+        <li class="menu-item #">
+
         </li>
-        <!-- Dashboards -->
-        <li class="menu-item">
+        {{-- Dashboard --}}
+        <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <a href="{{ route('admin.dashboard') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-home-smile-line"></i>
-                <div data-i18n="Dashboards">Dashboards</div>
+                <i class="menu-icon ri ri-home-smile-line"></i>
+                <div>Dashboard</div>
             </a>
         </li>
-        {{-- User --}}
-        <li class="menu-item">
+
+        {{-- Users --}}
+        <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
             <a href="{{ route('admin.users.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-user-line"></i>
-                <div data-i18n="User">Users</div>
+                <i class="menu-icon ri ri-user-line"></i>
+                <div>Users</div>
             </a>
         </li>
+
         {{-- Experts --}}
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('admin.experts.*') ? 'active' : '' }}">
             <a href="{{ route('admin.experts.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-user-line"></i>
-                <div data-i18n="Expert">Experts</div>
+                <i class="menu-icon ri ri-user-star-line"></i>
+                <div>Experts</div>
             </a>
         </li>
-        {{-- Services --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.services.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
-                <div data-i18n="Service">Services</div>
-            </a>
-        </li>
-        {{-- Time slots --}}
-        <li class="menu-item">
+
+        {{-- Time Slots --}}
+        <li class="menu-item {{ request()->routeIs('admin.time_slots.*') ? 'active' : '' }}">
             <a href="{{ route('admin.time_slots.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-time-line"></i>
-                <div data-i18n="Time Slots">Time Slots</div>
+                <i class="menu-icon ri ri-time-line"></i>
+                <div>Time Slots</div>
             </a>
         </li>
-        {{-- service durations --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.service_variants.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-timer-line"></i>
-                <div data-i18n="Service Duration">Service Durations</div>
-            </a>
-        </li>
-        {{-- Bookings --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.bookings.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-calendar-check-line"></i>
-                <div data-i18n="Bookings">Bookings</div>
-            </a>
-        </li>
-        {{-- Training Centers --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-building-line"></i>
-                <div data-i18n="Training Centers">Training Centers</div>
-            </a>
-        </li>
-        {{-- Cms Pages --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-file-text-line"></i>
-                <div data-i18n="CMS Pages">CMS Pages</div>
-            </a>
-        </li>
-        {{-- Review --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.reviews.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-star-line"></i>
-                <div data-i18n="Reviews">Reviews</div>
-            </a>
-        </li>
-        {{-- Home Promotion --}}
-        <li class="menu-item">
-            <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
-                <i class="menu-icon icon-base ri ri-megaphone-line"></i>
-                <div data-i18n="Home Promotion">Home Promotion</div>
-            </a>
-        </li>
-        {{-- Support --}}
-        <li class="menu-item">
+
+        {{-- Service Management --}}
+        <li
+            class="menu-item 
+            {{ request()->routeIs('admin.services.*') || request()->routeIs('admin.service_variants.*') ? 'active open' : '' }}">
+
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-customer-service-2-line"></i>
-                <div data-i18n="Support">Support</div>
+                <i class="menu-icon ri ri-customer-service-2-line"></i>
+                <div>Service Management</div>
             </a>
 
             <ul class="menu-sub">
 
-                <!-- User Support -->
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <div data-i18n="User Support">User Support</div>
+                <li class="menu-item {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.services.index') }}" class="menu-link">
+                        <div>Services</div>
                     </a>
                 </li>
 
-                <!-- Expert Support -->
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <div data-i18n="Expert Support">Expert Support</div>
+                <li class="menu-item {{ request()->routeIs('admin.service_variants.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.service_variants.index') }}" class="menu-link">
+                        <div>Service Durations</div>
                     </a>
                 </li>
 
             </ul>
         </li>
-        {{-- Expert Setting --}}
-        <li class="menu-item">
+
+        {{-- Bookings --}}
+        <li class="menu-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.bookings.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-calendar-check-line"></i>
+                <div>Bookings</div>
+            </a>
+        </li>
+
+        {{-- Training Centers --}}
+        <li class="menu-item {{ request()->routeIs('admin.training_centers.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-building-line"></i>
+                <div>Training Centers</div>
+            </a>
+        </li>
+
+        {{-- CMS Pages --}}
+        <li class="menu-item {{ request()->routeIs('admin.cms_pages.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-file-text-line"></i>
+                <div>CMS Pages</div>
+            </a>
+        </li>
+
+        {{-- Reviews --}}
+        <li class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.reviews.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-star-line"></i>
+                <div>Reviews</div>
+            </a>
+        </li>
+
+        {{-- Home Promotion --}}
+        <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-megaphone-line"></i>
+                <div>Home Promotion</div>
+            </a>
+        </li>
+
+        {{-- Support --}}
+        <li
+            class="menu-item 
+            {{ request()->is('admin/user-support*') || request()->is('admin/expert-support*') ? 'active open' : '' }}">
+
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon ri ri-customer-service-line"></i>
+                <div>Support</div>
+            </a>
+
+            <ul class="menu-sub">
+
+                <li class="menu-item {{ request()->is('admin/user-support*') ? 'active' : '' }}">
+                    <a href="#" class="menu-link">
+                        <div>User Support</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ request()->is('admin/expert-support*') ? 'active' : '' }}">
+                    <a href="#" class="menu-link">
+                        <div>Expert Support</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+
+        {{-- Expert Settings --}}
+        <li class="menu-item {{ request()->is('admin/expert-settings*') ? 'active' : '' }}">
             <a href="#" class="menu-link">
-                <i class="menu-icon icon-base ri ri-user-star-line"></i>
-                <div data-i18n="Expert Settings">Expert Settings</div>
+                <i class="menu-icon ri ri-settings-3-line"></i>
+                <div>Expert Settings</div>
             </a>
         </li>
         {{-- Payments --}}
@@ -156,7 +171,28 @@
 
         <!-- </ul> -->
         <!-- </li> -->
-        <!-- Layouts -->
+
     </ul>
 </aside>
-<!-- / Menu -->
+<style>
+    .menu-item.active>.menu-link {
+        background-color: #696cff !important;
+        color: #fff !important;
+        border-radius: 8px;
+    }
+
+    .menu-item.active>.menu-link i {
+        color: #fff !important;
+    }
+
+    .menu-item.open>.menu-link {
+        background-color: rgba(105, 108, 255, 0.1);
+        color: #696cff;
+    }
+
+    .menu-link:hover {
+        background-color: rgba(105, 108, 255, 0.08);
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+</style>

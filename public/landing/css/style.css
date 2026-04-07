@@ -900,7 +900,6 @@ text-decoration:underline;
 }
 
 .copyright i{
-color:#ff4d6d;
 margin:0 3px;
 }
 
@@ -1071,3 +1070,198 @@ HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH*/
         right: 50px;
     }
 }
+/* new css */
+
+
+/* ROW */
+.footer-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 25px;
+    text-align: center;
+}
+
+/* LINKS */
+.footer-left {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* LINK STYLE */
+.footer-left a {
+    color: #ddd;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    transition: 0.3s;
+}
+
+/* HOVER */
+.footer-left a:hover {
+    color: #fff;
+}
+
+/* UNDERLINE ANIMATION */
+.footer-left a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0%;
+    height: 2px;
+    background: #fff;
+    transition: 0.3s;
+}
+
+.footer-left a:hover::after {
+    width: 100%;
+}
+
+/* SOCIAL ICONS */
+.footer-center {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* ICON STYLE */
+.footer-center a {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+/* HOVER (same purple color) */
+.footer-center a:hover {
+    background: #fff;
+    color: #764ba2;
+    transform: translateY(-3px);
+}
+
+/* COPYRIGHT SECTION (LEFT / CENTER / RIGHT SUPPORT) */
+.copyright {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.copyright p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* LEFT, CENTER, RIGHT ALIGN HELP */
+.copyright-left {
+    text-align: left;
+}
+
+.copyright-center {
+    text-align: center;
+}
+
+.copyright-right {
+    text-align: right;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .footer-left {
+        gap: 10px;
+    }
+
+    .copyright {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .copyright-left,
+    .copyright-center,
+    .copyright-right {
+        text-align: center;
+    }
+}
+ .hero-mobile-img {
+            display: none;
+        }
+
+        @media (max-width: 992px) {
+            .hero-mobile-img {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 25px;
+                position: relative !important;
+            }
+
+            .hero-mobile-img img {
+                max-width: 240px !important;
+                width: 100% !important;
+                height: auto !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
+
+            .hero-mobile-img::after {
+                content: '' !important;
+                display: block !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 45% !important;
+                background: linear-gradient(to bottom, transparent, #f5f3ff) !important;
+                pointer-events: none !important;
+            }
+
+            .hero-images-desktop {
+                display: none !important;
+            }
+
+            /* Hide desktop site-logo on mobile (mobile-logo-wrap handles it) */
+            .site-logo {
+                display: none !important;
+            }
+
+            /* Mobile navbar logo — expands to fill the space */
+            .mobile-logo-wrap {
+                display: inline-flex !important;
+                align-items: center !important;
+                text-decoration: none !important;
+                flex: 1 !important;
+            }
+
+            .mobile-nav-logo {
+                display: block !important;
+                height: 40px !important;
+                width: auto !important;
+                max-width: 160px !important;
+                object-fit: contain !important;
+            }
+
+            /* Mobile sidebar logo — expands to fill the space */
+            .mobile-sidebar-brand {
+                display: flex !important;
+                align-items: center !important;
+                flex: 1 !important;
+            }
+
+            .mobile-sidebar-logo {
+                display: block !important;
+                height: 40px !important;
+                width: auto !important;
+                max-width: 160px !important;
+                object-fit: contain !important;
+            }
+        }

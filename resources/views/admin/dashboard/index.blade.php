@@ -2,6 +2,41 @@
 
 @section('content')
     <div class="row gy-6">
+        <!-- Welcome Banner -->
+        <div class="card mb-3 border-0" style="border-radius:10px; transition: all 0.3s ease;">
+
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap" style="padding:14px 18px;">
+
+                <!-- Left Content -->
+                <div>
+                    <h5 class="mb-1 fw-semibold text-primary">
+                        Welcome to HomeSena Admin 👋
+                    </h5>
+                    <small class="text-muted">
+                        Manage users, experts, services & bookings efficiently.
+                    </small>
+                </div>
+
+                <!-- Right Tags -->
+                <div class="d-flex gap-2 mt-2 mt-md-0">
+                    <span class="badge bg-label-primary"
+                        style="font-size:11px; padding:5px 10px; border-radius:6px;">Users</span>
+
+                    <span class="badge bg-label-success"
+                        style="font-size:11px; padding:5px 10px; border-radius:6px;">Experts</span>
+
+                    <span class="badge bg-label-warning"
+                        style="font-size:11px; padding:5px 10px; border-radius:6px;">Services</span>
+
+                    <span class="badge bg-label-info"
+                        style="font-size:11px; padding:5px 10px; border-radius:6px;">Bookings</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Hover Effect -->
+
         <!-- Congratulations card -->
         <div class="col-md-12 col-lg-4">
             <div class="card">
@@ -669,4 +704,17 @@
         <!--/ Data Tables -->
     </div>
     <!-- / Content -->
+    <script>
+    const banner = document.querySelector('.card.mb-3');
+
+    banner.addEventListener('mouseenter', () => {
+        banner.style.transform = 'translateY(-3px)';
+        banner.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
+    });
+
+    banner.addEventListener('mouseleave', () => {
+        banner.style.transform = 'translateY(0)';
+        banner.style.boxShadow = 'none';
+    });
+</script>
 @endsection
