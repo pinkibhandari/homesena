@@ -124,4 +124,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'fixed_phone' => env('FIXED_PHONE','9953044591'),
+    'fixed_otp' => env('FIXED_OTP','123456'),
 ];
