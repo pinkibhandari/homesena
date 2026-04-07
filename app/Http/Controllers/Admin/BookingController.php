@@ -28,34 +28,7 @@ class BookingController extends Controller
             ->withQueryString();
         return view('admin.bookings.index', compact('bookings'));
     }
-    //   public function getUserBookings(Request $request)
-    //  { 
-    //      $query  = Booking::with([
-    //                     'service',
-    //                     'address',
-    //                     'slots.expert'
-    //                     ])->where('user_id', auth()->id());
-    //      if ($request->status) {
-    //             $query->where('status', $request->status);
-    //          }
-    //     $bookings = $query->latest()->paginate(10);
-
-    //     if($bookings->isEmpty()) {
-    //         return response()->json([
-    //             'code' => 422,
-    //             'data'=> (object)[],
-    //             'status' => false,
-    //             'message' => 'No bookings found for this user'
-    //         ], 422);
-    //        } else {
-    //         return response()->json([
-    //             'code'=>200,
-    //             'status' => true,
-    //             'message' => 'User Bookings retrieved successfully',
-    //             'data' => BookingResource::collection($bookings)
-    //         ],200);
-    //        }
-    //   }
+    
 
     public function create()
     {

@@ -29,17 +29,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <span>Show</span>
-                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                    <option>7</option>
-                                                                    <option>10</option>
-                                                                    <option>25</option>
-                                                                    <option>50</option>
-                                                                </select>
-                                                                <span>entries</span>
-                                                            </div>
-                                                        </div> -->
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <span>Show</span>
+                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                        <option>7</option>
+                                                                        <option>10</option>
+                                                                        <option>25</option>
+                                                                        <option>50</option>
+                                                                    </select>
+                                                                    <span>entries</span>
+                                                                </div>
+                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -136,55 +136,55 @@
 
 
         </div>
-       <script>
-    document.addEventListener('DOMContentLoaded', function() {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-        document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+                document.querySelectorAll('.toggle-status').forEach(function(toggle) {
 
-            toggle.addEventListener('change', function() {
+                    toggle.addEventListener('change', function() {
 
-                let id = this.dataset.id;
-                let value = this.checked ? 1 : 0;
+                        let id = this.dataset.id;
+                        let value = this.checked ? 1 : 0;
 
-                // 🔥 Confirm Alert (Before Action)
-                let confirmAction = confirm(
-                    value === 1 
-                    ? "Are you sure you want to activate this?" 
-                    : "Are you sure you want to inactivate this?"
-                );
+                        // 🔥 Confirm Alert (Before Action)
+                        let confirmAction = confirm(
+                            value === 1 ?
+                            "Are you sure you want to activate this?" :
+                            "Are you sure you want to inactivate this?"
+                        );
 
-                if (!confirmAction) {
-                    this.checked = !this.checked;
-                    return;
-                }
-
-                fetch(`/admin/training_centers/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            _method: 'PUT',
-                            status: value
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data.status) {
-                            alert('Update failed');
-                            this.checked = !value; 
+                        if (!confirmAction) {
+                            this.checked = !this.checked;
+                            return;
                         }
-                    })
-                    .catch(() => {
-                        alert('Something went wrong');
-                        this.checked = !value; 
+
+                        fetch(`/admin/training_centers/${id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    _method: 'PUT',
+                                    status: value
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (!data.status) {
+                                    alert('Update failed');
+                                    this.checked = !value;
+                                }
+                            })
+                            .catch(() => {
+                                alert('Something went wrong');
+                                this.checked = !value;
+                            });
+
                     });
 
+                });
+
             });
-
-        });
-
-    });
-</script>
+        </script>
     @endsection

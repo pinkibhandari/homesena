@@ -45,11 +45,11 @@
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
-                        <th>Profile</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>Profile Completed</th>
+                        <th>Completed Profile</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
                     </tr>

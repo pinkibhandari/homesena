@@ -34,11 +34,11 @@
                 <thead class="bg-label-secondary">
                     <tr>
                         <th width="60">ID</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Registration Code</th>
                         <th>Online</th>
-                        <th>Approval Status</th>
                         <th>Approval Actions</th>
                         <th width="120">Status</th>
                         <th width="120">Actions</th>
@@ -49,6 +49,10 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
+                                <img src="{{ $expert->profile_image ? asset('storage/' . $expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                    width="35" height="35" class="rounded-circle">
+                            </td>
+                            <td>
                                 <span class="fw-semibold">{{ $expert->name ?? ' ' }}</span>
                             </td>
                             <td>{{ $expert->phone }}</td>
@@ -56,32 +60,35 @@
                             <!-- <td>{{ $expert->expertDetail?->onboarding_agent_code }}</td> -->
                             <td>
                                 <div class="form-check form-switch">
-                                  <input class="form-check-input" type="checkbox"style="transform: scale(1.3); cursor: not-allowed;" disabled {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
+                                    <input class="form-check-input"
+                                        type="checkbox"style="transform: scale(1.3); cursor: not-allowed;" disabled
+                                        {{ $expert->expertDetail?->is_online ? 'checked' : '' }}>
                                 </div>
                             </td>
 
-                            <td class="status-badge">
+                            {{-- <td class="status-badge">
                                 @if ($expert->expertDetail?->approval_status === 'pending')
                                     <span class="badge rounded-pill bg-label-secondary">Pending</span>
                                 @elseif($expert->expertDetail?->approval_status === 'approved')
                                     <span class="badge rounded-pill bg-label-primary">Approved</span>
                                 @endif
-                            </td>
+                            </td> --}}
                             <td>
-                                @if ($expert->expertDetail?->approval_status === 'pending')
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-switch m-0">
-                                            <input class="form-check-input statusToggle" type="checkbox" name="approval_status"
-                                                value="1" data-id="{{ $expert->id }}">
-                                        </div>
-                                    </div>
+                                @if ($expert->expertDetail?->approval_status === 'approved')
+                                    <button
+                                        class="btn btn-primary btn-sm rounded-pill px-2 py-1 d-flex align-items-center gap-1"
+                                        disabled>
+                                        <i class="bi bi-check-circle"></i> Approved
+                                    </button>
                                 @else
-                                    <button class="btn btn-primary btn-sm" disabled>
-                                        ✔ Approved
+                                    <button
+                                        class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1 d-flex align-items-center gap-1 approveBtn"
+                                        data-id="{{ $expert->id }}">
+                                        <i class="bi bi-lightning-charge"></i> Pending Approval
                                     </button>
                                 @endif
                             </td>
-                           
+
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input toggle-status" type="checkbox"
@@ -109,7 +116,8 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}" method="POST">
+                                            <form action="{{ route('admin.experts.destroy', $expert->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="dropdown-item text-danger"
@@ -136,31 +144,35 @@
             {{ $experts->links('pagination::bootstrap-5') }}
         </div>
 
-@endsection
+    @endsection
     @push('scripts')
         <script>
             $(document).ready(function() {
 
-                $(document).on('change', '.statusToggle', function() {
+                $(document).on('click', '.approveBtn', function() {
 
-                    let toggle = $(this);
-                    let status = toggle.is(':checked') ? 1 : 0;
-                    let id = toggle.data('id');
-                    let row = toggle.closest('tr');
+                    let btn = $(this);
+                    let id = btn.data('id');
 
-                    if (status === 1) {
-                        if (!confirm("Are you sure you want to approve this expert?")) {
-                            toggle.prop('checked', false);
-                            return;
-                        }
+                    // 🔒 Prevent multiple clicks
+                    if (btn.prop('disabled')) return;
+
+                    // 🔥 Confirm
+                    if (!confirm("Are you sure you want to approve this expert?")) {
+                        return;
                     }
 
+                    // 🔄 Loader state
+                    btn.prop('disabled', true).html(`
+            <span class="spinner-border spinner-border-sm"></span> Approving...
+        `);
+
                     $.ajax({
-                        url: '/admin/update-approve-status', // ✅ FIXED
+                        url: '/admin/update-approve-status',
                         type: 'POST',
                         data: {
                             id: id,
-                            approval_status: status,
+                            approval_status: 1,
                             _token: '{{ csrf_token() }}'
                         },
 
@@ -168,32 +180,34 @@
 
                             if (response.status) {
 
-                                // Approved UI
-                                toggle.closest('.align-items-center').html(`
-                        <button class="btn btn-primary btn-sm" disabled>
-                            ✔ Approved
+                                // ✅ Replace with same styled Approved button
+                                btn.replaceWith(`
+                        <button class="btn btn-primary btn-sm rounded-pill px-2 py-1 d-flex align-items-center gap-1" disabled>
+                            <i class="bi bi-check-circle"></i> Approved
                         </button>
                     `);
 
-                                row.find('.status-badge').html(`
-                        <span class="badge rounded-pill bg-label-primary">
-                            Approved
-                        </span>
-                    `);
-
-                                if (response.data && response.data.registration_code) {
-                                    row.find('.reg-td').text(response.data.registration_code);
-                                }
+                                // 🔔 Success Alert
+                                alert("✅ Expert Approved Successfully!");
 
                             } else {
                                 alert('Update failed');
-                                toggle.prop('checked', !status);
+
+                                // ❌ revert button
+                                btn.prop('disabled', false).html(`
+                        <i class="bi bi-lightning-charge"></i> Pending Approval
+                    `);
                             }
                         },
 
                         error: function() {
+
                             alert('Something went wrong');
-                            toggle.prop('checked', !status);
+
+                            // ❌ revert button
+                            btn.prop('disabled', false).html(`
+                    <i class="bi bi-lightning-charge"></i> Pending Approval
+                `);
                         }
                     });
 

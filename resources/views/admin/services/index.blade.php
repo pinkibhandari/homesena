@@ -30,17 +30,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                                    <div class="d-flex align-items-center gap-2">
-                                                                                        <span>Show</span>
-                                                                                        <select class="form-select form-select-sm" style="width:80px;">
-                                                                                            <option>7</option>
-                                                                                            <option>10</option>
-                                                                                            <option>25</option>
-                                                                                            <option>50</option>
-                                                                                        </select>
-                                                                                        <span>entries</span>
-                                                                                    </div>
-                                                                                </div> -->
+                                                                                        <div class="d-flex align-items-center gap-2">
+                                                                                            <span>Show</span>
+                                                                                            <select class="form-select form-select-sm" style="width:80px;">
+                                                                                                <option>7</option>
+                                                                                                <option>10</option>
+                                                                                                <option>25</option>
+                                                                                                <option>50</option>
+                                                                                            </select>
+                                                                                            <span>entries</span>
+                                                                                        </div>
+                                                                                    </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -65,12 +65,15 @@
                             </td>
                             <td>
                                 @if ($service->image)
-                                    <img src="{{ asset('storage/' . $service->image) }}" class="rounded"
-                                        style="width:80px; height:50px; object-fit:cover;">
+                                    <img src="{{ asset('storage/' . $service->image) }}"
+                                        class="rounded-circle border shadow-sm"
+                                        style="width:35px; height:35px; object-fit:cover;">
                                 @else
-                                    <img src="https://via.placeholder.com/80x50" class="rounded" style="object-fit:cover;">
+                                    <img src="https://via.placeholder.com/60" class="rounded-circle border shadow-sm"
+                                        style="width:35px; height:35px; object-fit:cover;">
                                 @endif
                             </td>
+                           
                             <td>
                                 <span class="fw-semibold">{{ $service->name }}</span>
                             </td>
@@ -107,7 +110,8 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.services.show', $service->id) }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.services.show', $service->id) }}">
                                                 <i class="ri-eye-line me-2"></i>
                                                 Details
                                             </a>

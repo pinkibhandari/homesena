@@ -11,6 +11,7 @@ class TimeSlot extends Model
 
     protected $fillable = [
         'start_time',
+        'status',
     ];
 
     /**

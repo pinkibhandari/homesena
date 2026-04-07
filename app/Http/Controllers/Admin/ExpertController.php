@@ -221,17 +221,17 @@ class ExpertController extends Controller
         ]);
     }
     public function show(User $expert)
-{
-   $expert->load([
-    'addresses',
-    'ratingStat',
-    'expertDetail.trainingCenter',
-    'expertDetail.emergencyContacts',
-    'expertSlots',
-    'devices',
-    'onlineLogs' // ✅ add this
-]);
+    {
+        $expert->load([
+            'addresses',
+            'ratingStat',
+            'expertDetail.trainingCenter',
+            'expertDetail.emergencyContacts',
+            'expertSlots',
+            'devices',
+            'onlineLogs' // ✅ add this
+        ]);
 
-    return view('admin.experts.show', compact('expert'));
-}
+        return view('admin.experts.show', compact('expert'));
+    }
 }

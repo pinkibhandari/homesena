@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\CmsPagesController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
 use App\Http\Controllers\FrontendController;
-
+use App\Http\Controllers\Admin\InstantBookingController;
 
 // Route::get('/', function () {
 //     return view('landing');
@@ -55,6 +55,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     // Route::get('expert/view/{id}', [ExpertController::class, 'view'])->name('view.expert');
     Route::resource('services', ServiceController::class);
     Route::resource('bookings', BookingController::class);
+    Route::resource('instant_bookings', InstantBookingController::class);
     Route::resource('training_centers', TrainingController::class);
     Route::resource('service_variants', ServiceVariantController::class);
     Route::resource('time_slots', TimeSlotController::class);

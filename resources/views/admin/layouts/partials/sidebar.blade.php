@@ -71,14 +71,41 @@
 
             </ul>
         </li>
+        {{-- Booking Management --}}
+        <li
+            class="menu-item 
+    {{ request()->routeIs('admin.bookings.*') || request()->routeIs('admin.instant_bookings.*') ? 'active open' : '' }}">
 
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon ri ri-calendar-check-line"></i>
+                <div>Booking Management</div>
+            </a>
+
+            <ul class="menu-sub">
+
+                {{-- Normal Bookings --}}
+                <li class="menu-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.bookings.index') }}" class="menu-link">
+                        <div>Bookings</div>
+                    </a>
+                </li>
+
+                {{-- Instant Bookings --}}
+                <li class="menu-item {{ request()->routeIs('admin.instant_bookings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.instant_bookings.index') }}" class="menu-link">
+                        <div>Instant Bookings</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
         {{-- Bookings --}}
-        <li class="menu-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
             <a href="{{ route('admin.bookings.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-calendar-check-line"></i>
                 <div>Bookings</div>
             </a>
-        </li>
+        </li> --}}
 
         {{-- Training Centers --}}
         <li class="menu-item {{ request()->routeIs('admin.training_centers.*') ? 'active' : '' }}">

@@ -13,7 +13,7 @@ class CmsPagesController extends Controller
     {
         $pages = CmsPage::query()
 
-            // 🔍 Search (FIXED - grouped)
+       
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('title', 'like', '%' . $request->search . '%')
@@ -21,7 +21,7 @@ class CmsPagesController extends Controller
                 });
             })
 
-            // 📂 Type filter
+        
             ->when($request->filled('type'), function ($q) use ($request) {
                 $q->where('type', $request->type);
             })
@@ -61,7 +61,7 @@ class CmsPagesController extends Controller
 
     public function update(Request $request, CmsPage $cms_page)
     {
-        // 🔥 AJAX STATUS TOGGLE
+        //  AJAX STATUS TOGGLE
         if ($request->has('status') && !$request->has('title')) {
 
             $cms_page->update([
@@ -74,7 +74,7 @@ class CmsPagesController extends Controller
             ]);
         }
 
-        // ✅ Normal form update
+        //  Normal form update
         $data = $this->validateData($request);
 
         if ($cms_page->title !== $data['title']) {

@@ -48,6 +48,8 @@ class TimeSlotController extends Controller
 
         $data['start_time'] = $this->formatTime($request->start_time);
 
+        
+
         // Duplicate check
         if ($this->isDuplicate($data['start_time'])) {
             return back()->withErrors([
@@ -61,9 +63,23 @@ class TimeSlotController extends Controller
             ->with('success', 'Time Slot created successfully.');
     }
 
-    // UPDATE
+    // UPDATE (Form + Toggle)
     public function update(Request $request, TimeSlot $time_slot)
     {
+        // ✅ AJAX Status Toggle
+        if ($request->has('status') && !$request->has('start_time')) {
+
+            $time_slot->update([
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated'
+            ]);
+        }
+
+        // ✅ Normal Update
         $data = $this->validateData($request);
 
         $data['start_time'] = $this->formatTime($request->start_time);
@@ -90,13 +106,12 @@ class TimeSlotController extends Controller
             ->with('success', 'Time Slot deleted successfully.');
     }
 
-    
-
     // VALIDATION
     private function validateData(Request $request)
     {
         return $request->validate([
             'start_time' => 'required',
+           'status'  => 'required|in:0,1',
         ]);
     }
 
