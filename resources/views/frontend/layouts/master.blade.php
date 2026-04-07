@@ -10,8 +10,6 @@
 
     <title>Homesena – Get Trained &amp; Verified House Help in 10 Mins</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('landing/img/favicon.png') }}">
-
-
     <link rel="stylesheet" href="{{ asset('landing/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('landing/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('landing/css/owl.carousel.css') }}">
@@ -19,20 +17,18 @@
     <link rel="stylesheet" href="{{ asset('landing/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('landing/css/style.css') }}">
 
-    <script src="{{ asset('landing/js/modernizr.custom.js') }}"></script>
-
- 
 </head>
 <body>
 
-    {{-- Header --}}
-    @include('frontend.partials.header')
+      {{-- Header (only when defined) --}}
+  
+    @include('frontend.layouts.partials.header')
 
     {{-- Page Content --}}
     @yield('content')
 
     {{-- Footer --}}
-    @include('frontend.partials.footer')
+    @include('frontend.layouts.partials.footer')
 
     <!-- JS -->
      <script src="{{ asset('landing/js/jquery-1.11.2.min.js') }}"></script>
@@ -43,6 +39,7 @@
     <!--<script src="js/jquery.ajaxchimp.min.js"></script>-->
     <script src="{{ asset('landing/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('landing/js/classie.js') }}"></script>
+    <script src="{{ asset('landing/js/modernizr.custom.js') }}"></script>
     <script src="{{ asset('landing/js/script.js') }}"></script>
     <script>
         new WOW().init();

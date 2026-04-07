@@ -14,15 +14,17 @@ use App\Http\Controllers\Admin\TimeSlotController;
 use App\Http\Controllers\Admin\CmsPagesController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
-use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Frontend\FrontendController;
 
 
-// Route::get('/', function () {
-//     return view('landing');
-// });
+/****************** Frontend Routes ******************/
 Route::get('/', function () {
-    return view('frontend.home');
+    return view('frontend.pages.home');
 });
+
+
+
+/*****        Admin Routes *************/
 Route::get('admin/login', function () {
     // If already logged in AND admin
     if (auth()->check() && auth()->user()->role === 'admin') {
@@ -118,4 +120,4 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     // ->name('admin.payments.edit_payment_methods');
 
 });
-Route::get('/{slug}', [FrontendController::class, 'page'])->name('page');
+Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
