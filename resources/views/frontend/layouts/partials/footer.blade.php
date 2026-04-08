@@ -19,6 +19,7 @@
                             {{ $page->title }}
                         </a>
                     @endforeach
+                  <!-- <a href="{{ route('delete.account') }}">Delete Account</a> -->
                 </div>
 
                 <!-- CENTER (EMPTY / OPTIONAL) -->
@@ -36,8 +37,10 @@
             </p>
 
             <div class="footer-center">
-                <a href="https://www.facebook.com/people/Thehomesena/61576438709604/"><i class="fa fa-facebook text-white"></i></a>
-                <a href="https://www.instagram.com/thehomesena?igsh=d3l0a2h3bG92dGJr"><i class="fa fa-instagram text-white"></i></a>
+                <a href="https://www.facebook.com/people/Thehomesena/61576438709604/"><i
+                        class="fa fa-facebook text-white"></i></a>
+                <a href="https://www.instagram.com/thehomesena?igsh=d3l0a2h3bG92dGJr"><i
+                        class="fa fa-instagram text-white"></i></a>
             </div>
 
             <p class="copyright-right">

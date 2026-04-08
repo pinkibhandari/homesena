@@ -48,8 +48,6 @@ class TimeSlotController extends Controller
 
         $data['start_time'] = $this->formatTime($request->start_time);
 
-        
-
         // Duplicate check
         if ($this->isDuplicate($data['start_time'])) {
             return back()->withErrors([
