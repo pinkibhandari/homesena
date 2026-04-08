@@ -53,6 +53,7 @@
                             @enderror
                         </div>
                     </div>
+                    
                     <!-- Email -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Email</label>

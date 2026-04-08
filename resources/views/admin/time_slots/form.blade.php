@@ -42,9 +42,39 @@
 
                         <input type="time" name="start_time"
                             class="form-control @error('start_time') is-invalid @enderror"
-                            value="{{ old('start_time', $slot->start_time) }}">
+                            value="{{ old('start_time', $slot->start_time ? \Carbon\Carbon::parse($slot->start_time)->format('H:i') : '') }}">
 
                         @error('start_time')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="col-lg-4 col-md-6 col-12">
+                    <label class="form-label">Status</label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ri-shield-check-line"></i>
+                        </span>
+
+                        <select name="status"
+                            class="form-select @error('status') is-invalid @enderror">
+
+                            <option value="1"
+                                {{ old('status', $slot->status ?? 1) == 1 ? 'selected' : '' }}>
+                                Active
+                            </option>
+
+                            <option value="0"
+                                {{ old('status', $slot->status ?? 1) == 0 ? 'selected' : '' }}>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                        @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
