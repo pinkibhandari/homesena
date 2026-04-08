@@ -21,10 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // View::composer('*', function ($view) {
-        //     $view->with('frontend_pages', FrontendPage::where('status', 1)->get());
-        // });
-
         View::composer('frontend.layouts.partials.footer', function ($view) {
             $pages = CmsPage::where('status', 1)
                 ->where('type', 'user')

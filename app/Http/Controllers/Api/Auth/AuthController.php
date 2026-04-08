@@ -104,7 +104,7 @@ class AuthController extends Controller
                 ['approval_status' => 'pending']
             );
         }
-        $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
+        $message = "Your Home Sena OTP for verification is: " . $otp ." OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
         $response = $this->sendSms($request->phone, $message);
         return response()->json([
             'code' => 200,
@@ -294,8 +294,8 @@ class AuthController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(5),
             'otp_last_sent_at' => Carbon::now(),
         ]);
-
-        $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
+        // $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
+        $message = "Your Home Sena OTP for verification is: " . $otp ." OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
         $response = $this->sendSms($request->phone, $message);
         return response()->json([
             'code' => 200,
@@ -329,6 +329,7 @@ class AuthController extends Controller
                 // 'message' => urlencode($message),
                 'sender' => env('SMS_SENDER_ID'),
                 'route' => env('SMS_ROUTE'),
+                'Template_ID' => env('SMS_TEMPLATE_ID'),
             ]
         );
         return json_decode($response->body(), true);

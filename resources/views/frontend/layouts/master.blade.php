@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('landing/css/owl.theme.css') }}">
     <link rel="stylesheet" href="{{ asset('landing/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('landing/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('landing/css/cms-page.css') }}">
 
 </head>
 <body>

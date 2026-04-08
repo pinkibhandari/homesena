@@ -1,0 +1,81 @@
+/* PAGE */
+.terms-page {
+    margin-top: 40px;
+    padding: 70px 20px;
+}
+
+/* CENTER CONTENT */
+.terms-page .container {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* TITLE */
+.terms-title {
+    text-align: center;
+    font-size: 44px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+/* BADGE */
+.updated-wrap {
+    text-align: center;
+}
+
+.last-updated {
+    display: inline-block;
+    margin: 20px 0 30px;
+    padding: 8px 18px;
+    font-size: 14px;
+    color: #555;
+    background: #f1f2f6;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* INTRO */
+.terms-text {
+    color: #444;
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
+
+/* HEADINGS */
+.terms-page h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: #7c3aed;
+}
+
+/* H2 */
+.terms-page h2 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #7c3aed;
+    text-align: center;
+    letter-spacing: -0.5px;
+}
+
+/* PARAGRAPH */
+.terms-page p {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .terms-title {
+        font-size: 32px;
+    }
+
+    .terms-page {
+        padding: 50px 15px;
+    }
+}
