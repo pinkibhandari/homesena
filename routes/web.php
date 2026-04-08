@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
 use App\Http\Controllers\Admin\InstantBookingController;
 use App\Http\Controllers\Frontend\FrontendController;
+use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
 
 /****************** Frontend Routes ******************/
@@ -23,6 +24,11 @@ Route::get('/', function () {
     return view('frontend.pages.home');
 });
 
+Route::get('/delete-account', function () {
+    return view('frontend.pages.delete-account');
+})->name('delete.account');
+
+// Route::get('/delete-account', [FrontendUserController::class, 'deleteAccount'])->name('delete.account');
 
 
 /*****        Admin Routes *************/
