@@ -49,14 +49,29 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->profile_completed = true;
+        $profilePath = public_path('uploads/users');
+        if (!file_exists($profilePath)) {
+            mkdir($profilePath, 0777, true);
+        }
+
         if ($request->hasFile('profile_image')) {
             // delete old image
-            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
-                Storage::disk('public')->delete($user->profile_image);
+            // if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+            //     Storage::disk('public')->delete($user->profile_image);
+            // }
+            // // store new image
+            // $imagePath = $request->file('profile_image')->store('profile', 'public');
+            // $user->profile_image = $imagePath;
+            // delete old image
+            if ($user->profile_image && file_exists(public_path($user->profile_image))) {
+                unlink(public_path($user->profile_image));
             }
-            // store new image
-            $imagePath = $request->file('profile_image')->store('profile', 'public');
-            $user->profile_image = $imagePath;
+            // store new image in public/profile
+            $file = $request->file('profile_image');
+            $filename = uniqid() . '-' . $file->getClientOriginalName(); // unique name
+            $file->move(public_path('uploads/users'), $filename); // move to public/profile
+            // save relative path to DB
+            $user->profile_image = 'uploads/users/' . $filename;
         }
         $user->save();
         return response()->json([

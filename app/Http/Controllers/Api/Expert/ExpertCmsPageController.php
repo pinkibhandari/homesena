@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Api\User;
+namespace App\Http\Controllers\Api\Expert;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CmsPage;
 
-class CmsPageController extends Controller
+class ExpertCmsPageController extends Controller
 {
-    public function getCmsPage($slug)
+       public function getCmsPage(Request $request, $slug)
     {
-         $role = 'user';
+        // $user = $request->user();
+
+         $role = 'expert';
         $page = CmsPage::where('slug', $slug)
             ->where('status', 1)
             ->where('type', $role)
@@ -26,7 +28,7 @@ class CmsPageController extends Controller
         return response()->json([
             'status' => true,
             'code'=>200,
-            'message' => 'CMS Page found',
+             'message' => 'CMS Page found',
             'data' => $page
         ]);
     }

@@ -20,7 +20,7 @@ class ServiceResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             // 'icon' => $this->icon ? asset('storage/'.$this->icon) : null,
-            'image' => $this->image ? asset('storage/'.$this->image) : null,
+            'image' => $this->image ? asset('public/'.$this->image) : null,
             'price'=>  $this->price,
             'discount_price'=> $this->discount_price,
 

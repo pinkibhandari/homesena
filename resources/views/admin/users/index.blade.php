@@ -60,7 +60,7 @@
                             <td>{{ $users->firstItem() + $loop->index }}</td>
 
                             <td>
-                                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                <img src="{{ $user->profile_image ? asset('public/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                                     width="35" height="35" class="rounded-circle">
                             </td>
 
