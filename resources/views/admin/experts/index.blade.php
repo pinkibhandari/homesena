@@ -49,7 +49,7 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <img src="{{ $expert->profile_image ? asset('storage/' . $expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                <img src="{{ $expert->profile_image ? asset('public/' . $expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                                     width="35" height="35" class="rounded-circle">
                             </td>
                             <td>

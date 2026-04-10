@@ -79,27 +79,5 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function create(Request $request)
-    { // for testing image
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('services', $imageName, 'public');
-        }
 
-        $service = Service::create([
-            'name' => 'office',
-            'image' => $imagePath
-        ]);
-        return response()->json([
-            'status' => true,
-            'message' => 'Service created successfully',
-            'data' => [
-                'id' => $service->id,
-                'name' => $service->name,
-                'image' => url('storage/' . $service->image)
-            ]
-        ]);
-    }
 }

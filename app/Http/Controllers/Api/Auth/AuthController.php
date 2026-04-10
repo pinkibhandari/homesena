@@ -104,8 +104,12 @@ class AuthController extends Controller
                 ['approval_status' => 'pending']
             );
         }
-        $message = "Your Home Sena OTP for verification is: " . $otp ." OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
-        $response = $this->sendSms($request->phone, $message);
+        $message = "Your Home Sena OTP for verification is: " . $otp . " OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
+        $response = null;
+        //  Do not send SMS for fixed phone
+        if ($request->phone != config('app.fixed_phone')) {
+            $response = $this->sendSms($request->phone, $message);
+        }
         return response()->json([
             'code' => 200,
             'status' => true,
@@ -203,7 +207,7 @@ class AuthController extends Controller
             ]
         );
         $user->profile_image = $user->profile_image
-            ? url('storage/' . $user->profile_image)
+            ? asset('public/' . $user->profile_image)
             : null;
         $data = collect($user)->merge([
             'token' => $token
@@ -294,8 +298,7 @@ class AuthController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(5),
             'otp_last_sent_at' => Carbon::now(),
         ]);
-        // $message = "Your OTP for " . config('app.name') . " is: " . $otp . "Do not share it with anyone. It will expire in 5 minute.";
-        $message = "Your Home Sena OTP for verification is: " . $otp ." OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
+        $message = "Your Home Sena OTP for verification is: " . $otp . " OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
         $response = $this->sendSms($request->phone, $message);
         return response()->json([
             'code' => 200,

@@ -123,14 +123,30 @@ class ExpertController extends Controller
         $expert->name = $request->name;
         $expert->email = $request->email;
         $expert->profile_completed = true;
+        // if ($request->hasFile('profile_image')) {
+        //     // delete old image
+        //     if ($expert->profile_image && Storage::disk('public')->exists($expert->profile_image)) {
+        //         Storage::disk('public')->delete($expert->profile_image);
+        //     }
+        //     // store new image
+        //     $imagePath = $request->file('profile_image')->store('profile', 'public');
+        //     $expert->profile_image = $imagePath;
+        // }
+        $profilePath = public_path('uploads/experts');
+        if (!file_exists($profilePath)) {
+            mkdir($profilePath, 0777, true);
+        }
+
         if ($request->hasFile('profile_image')) {
-            // delete old image
-            if ($expert->profile_image && Storage::disk('public')->exists($expert->profile_image)) {
-                Storage::disk('public')->delete($expert->profile_image);
+            if ($expert->profile_image && file_exists(public_path($expert->profile_image))) {
+                unlink(public_path($expert->profile_image));
             }
-            // store new image
-            $imagePath = $request->file('profile_image')->store('profile', 'public');
-            $expert->profile_image = $imagePath;
+            // store new image in public/profile
+            $file = $request->file('profile_image');
+            $filename = uniqid() . '-' . $file->getClientOriginalName(); // unique name
+            $file->move(public_path('uploads/experts'), $filename); // move to public/profile
+            // save relative path to DB
+            $expert->profile_image = 'uploads/experts/' . $filename;
         }
         $expert->save();
         $expertDetail = ExpertDetail::updateOrCreate(
@@ -139,7 +155,7 @@ class ExpertController extends Controller
                 );
         // $expertDetail->load('trainingCenter');
         $expert->load('expertDetail.trainingCenter');
-        $expert->profile_image = $expert->profile_image ? url('storage/' . $expert->profile_image) : null;
+        $expert->profile_image = $expert->profile_image ? asset('public/' . $expert->profile_image) : null;
         return response()->json([
             'code' => 200,
             'status' => true,

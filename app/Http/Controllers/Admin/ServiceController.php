@@ -56,24 +56,44 @@ class ServiceController extends Controller
         $data = $this->validateData($request);
 
         // 🔥 Slug Auto Generate (Unique)
-        $slug = \Illuminate\Support\Str::slug($request->name);
+        $slug = Str::slug($request->name);
         $originalSlug = $slug;
         $count = 1;
 
-        while (\App\Models\Service::where('slug', $slug)->exists()) {
+        while (Service::where('slug', $slug)->exists()) {
             $slug = $originalSlug . '-' . $count++;
         }
 
         $data['slug'] = $slug;
+   
+        //  CREATE FOLDERS IF NOT EXISTS
+        $servicePath = public_path('uploads/services');
+        $sliderPath  = public_path('uploads/services/slider');
+
+        if (!file_exists($servicePath)) {
+            mkdir($servicePath, 0777, true);
+        }
+
+        if (!file_exists($sliderPath)) {
+            mkdir($sliderPath, 0777, true);
+        }
 
         // Main Image Upload
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('services', 'public');
+            // $data['image'] = $request->file('image')->store('services', 'public');
+            $file = $request->file('image');
+            $filename = uniqid() . '_main.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services'), $filename);
+            $data['image'] = 'uploads/services/' . $filename;
         }
 
         // Slider Image Upload
         if ($request->hasFile('slider_image')) {
-            $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
+            // $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
+            $file = $request->file('slider_image');
+            $filename = uniqid() . '_slider.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services/slider'), $filename);
+            $data['slider_image'] = 'uploads/services/slider/' . $filename;
         }
 
         Service::create($data);
@@ -264,10 +284,10 @@ class ServiceController extends Controller
 
         while (
             Service::where('slug', $slug)
-            ->when($id, function ($query) use ($id) {
-                return $query->where('id', '!=', $id);
-            })
-            ->exists()
+                ->when($id, function ($query) use ($id) {
+                    return $query->where('id', '!=', $id);
+                })
+                ->exists()
         ) {
             $slug = $originalSlug . '-' . $count++;
         }

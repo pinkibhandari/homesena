@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\Expert\EmergencyContactController;
 use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController;
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
 use App\Http\Controllers\Api\Expert\ExpertSOSController;
-
+use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
 
 
 Route::post('login', [AuthController::class, 'sendOtp']);
@@ -30,8 +30,9 @@ Route::get('services', [ServiceController::class, 'getServices']);
 Route::get('services/{id}', [ServiceController::class, 'getServiceById']);
 Route::get('time-slots', [ServiceController::class, 'timeSlot']);
 Route::get('instant-booking-duration', [ServiceController::class, 'instantBookingSetting']);
+Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
+Route::get('/cms/expert/{slug}', [ExpertCmsPageController::class, 'getCmsPage']);
 
-// Route::post('service/create',[ServiceController::class, 'create']);
 // athenticated routes
 Route::middleware('auth:sanctum')->group(function () {
      Route::middleware('role:user,expert')->group(function () {
@@ -46,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('address-list', [AddressController::class, 'addressList']);
         Route::delete('delete-address/{id}', [AddressController::class, 'deleteAddress']);
         // cms page route
-        Route::get('/cms/{slug}', [CmsPageController::class, 'getCmsPage']);
 
      });
    
