@@ -124,13 +124,37 @@
         </li>
 
         {{-- Reviews --}}
-        <li class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
             <a href="{{ route('admin.reviews.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-star-line"></i>
                 <div>Reviews</div>
             </a>
-        </li>
+        </li> --}}
+        <li class="menu-item 
+    {{ request()->routeIs('admin.reviews.*') ? 'active open' : '' }}">
 
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon ri ri-star-line"></i>
+                <div>Review Management</div>
+            </a>
+
+            <ul class="menu-sub">
+
+                <li class="menu-item {{ request()->routeIs('admin.reviews.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reviews.index') }}" class="menu-link">
+                        <div>User Reviews</div>
+                    </a>
+                </li>
+
+                {{-- Optional future use --}}
+                <li class="menu-item {{ request()->routeIs('admin.expert_index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.expert_index') }}" class="menu-link">
+                        <div>Experts Reviews</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
         {{-- Home Promotion --}}
         <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
             <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
@@ -167,12 +191,12 @@
         </li>
 
         {{-- Expert Settings --}}
-        <li class="menu-item {{ request()->is('admin/expert-settings*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->is('admin/expert-settings*') ? 'active' : '' }}">
             <a href="#" class="menu-link">
                 <i class="menu-icon ri ri-settings-3-line"></i>
                 <div>Expert Settings</div>
             </a>
-        </li>
+        </li> --}}
         {{-- Payments --}}
         <!-- <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

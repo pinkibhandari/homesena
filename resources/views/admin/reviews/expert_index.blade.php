@@ -8,10 +8,10 @@
         </div>
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">User Reviews</h5>
+            <h5 class="card-title mb-0">Expert Reviews</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.reviews.expert_index') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
@@ -105,11 +105,11 @@
                                     </button>
 
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
+                                        {{-- <li>
                                             <a class="dropdown-item" href="{{ route('admin.reviews.edit', $review->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
-                                        </li>
+                                        </li> --}}
 
                                         <li>
                                             <form method="POST"

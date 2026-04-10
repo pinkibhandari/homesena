@@ -12,7 +12,7 @@ class ReviewController extends Controller
     public function index(Request $request)
     {
         $reviews = Review::with(['user', 'expert'])
-
+        ->where('type','user_to_expert')
             // 🔍 Search
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
@@ -92,4 +92,39 @@ class ReviewController extends Controller
             'would_recommend' => 'required|in:0,1',
         ]);
     }
+    // expert Controller
+    // index
+    public function expertIndex(Request $request)
+    {
+        $reviews = Review::with(['user', 'expert'])
+        ->where('type','expert_to_user')
+
+            // 🔍 Search
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->search;
+
+                $q->where(function ($query) use ($search) {
+                    $query->whereHas('user', fn($q1) =>
+                        $q1->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('expert', fn($q2) =>
+                        $q2->where('name', 'like', "%{$search}%"))
+                    ->orWhere('review', 'like', "%{$search}%");
+                });
+            })
+
+            //  Rating filter
+            ->when($request->filled('rating'), fn($q) =>
+                $q->where('rating', $request->rating))
+
+            //  Recommend filter
+            ->when($request->filled('recommend'), fn($q) =>
+                $q->where('would_recommend', $request->recommend))
+
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.reviews.expert_index', compact('reviews'));
+    }
+
 }
