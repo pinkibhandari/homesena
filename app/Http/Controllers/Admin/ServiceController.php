@@ -241,13 +241,21 @@ class ServiceController extends Controller
     public function destroy(Service $service)
     {
         //  Delete Images
-        if ($service->image && Storage::disk('public')->exists($service->image)) {
-            Storage::disk('public')->delete($service->image);
-        }
+        // if ($service->image && Storage::disk('public')->exists($service->image)) {
+        //     Storage::disk('public')->delete($service->image);
+        // }
 
-        if ($service->slider_image && Storage::disk('public')->exists($service->slider_image)) {
-            Storage::disk('public')->delete($service->slider_image);
-        }
+        // if ($service->slider_image && Storage::disk('public')->exists($service->slider_image)) {
+        //     Storage::disk('public')->delete($service->slider_image);
+        // }
+           //  Delete Images
+         if ($service->image && file_exists(public_path($service->image))) {
+                unlink(public_path($service->image));
+            }
+           // Delete old slider image
+            if ($service->slider_image && file_exists(public_path($service->slider_image))) {
+                unlink(public_path($service->slider_image));
+            }
 
         $service->delete();
 

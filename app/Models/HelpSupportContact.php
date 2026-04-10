@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Contact extends Model
+class HelpSupportContact extends Model
 {
     protected $fillable = [
         'user_id',
@@ -14,6 +14,8 @@ class Contact extends Model
         'subject',
         'message',
         'status',
-        'resolved_at'
+        'resolved_at',
+        'file',
+        'type'
     ];
 }

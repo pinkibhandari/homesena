@@ -174,7 +174,8 @@ class AuthController extends Controller
         // Clear OTP
         $user->update([
             'otp' => null,
-            'otp_expires_at' => null
+            'otp_expires_at' => null,
+            'otp_last_sent_at' => null,
         ]);
         // generate referral code for this user
         if (!$user->referral_code) {

@@ -32,9 +32,17 @@ class BookingController extends Controller
             ], 422);
         }
 
-         $address = Address::where('id', $request->addressId)
-                  ->where('user_id', auth()->id())
-                  ->first();
+        if ($request->date == Carbon::today()->toDateString()) {
+            if ($request->time < Carbon::now()->format('H:i')) {
+                return response()->json([
+                    'message' => 'Time cannot be in the past.'
+                ], 422);
+            }
+        }
+
+        $address = Address::where('id', $request->addressId)
+            ->where('user_id', auth()->id())
+            ->first();
         if (!$address || empty($address->address_lat) || empty($address->address_long)) {
             return response()->json([
                 'code' => 422,
@@ -73,15 +81,19 @@ class BookingController extends Controller
 
     private function validateBookingRequest(Request $request)
     {
-        return  Validator::make($request->all(), [
+        return Validator::make($request->all(), [
             // 'serviceId' => 'required_if:type,scheduled',
-            'serviceId' => 'nullable|exists:services,id',   
+            'serviceId' => 'nullable|exists:services,id',
             'addressId' => 'required|exists:addresses,id',
             'type' => 'required|in:instant,scheduled',
             'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
             'time' => 'required',
-            'date' => 'required_if:booking_subtype,single|date',
-            'start_date' => 'required_if:booking_subtype,recurring|date',
+            // 'date' => 'required_if:booking_subtype,single|date',
+            //  prevent past date for single booking
+            'date' => 'required_if:booking_subtype,single|date|after_or_equal:today',
+            // 'start_date' => 'required_if:booking_subtype,recurring|date',
+            //  prevent past start date
+            'start_date' => 'required_if:booking_subtype,recurring|date|after_or_equal:today',
             'end_date' => 'required_if:booking_subtype,recurring|date|after_or_equal:start_date',
             'recurring_type' => 'required_if:booking_subtype,recurring|in:daily,weekly,monthly',
             'days' => 'required_if:recurring_type,weekly|array',
@@ -94,7 +106,7 @@ class BookingController extends Controller
             'total_price' => 'required|numeric|min:0',
         ]);
 
-      
+
     }
 
     private function bookingExists(Request $request): bool
