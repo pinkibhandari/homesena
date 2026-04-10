@@ -9,16 +9,43 @@ use App\Models\UserSupport;
 class UserSupportController extends Controller
 {
     /**
-     *  Listing Page
+     * Listing Page (WITH SEARCH + FILTER + PAGINATION)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $totalTickets   = UserSupport::count();
+        $query = UserSupport::query();
+
+        // 🔍 SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%")
+                  ->orWhere('phone', 'like', "%$search%");
+            });
+        }
+
+        // 🎯 STATUS FILTER
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 📊 COUNTS (GLOBAL - NOT FILTERED)
+        $totalTickets = UserSupport::count();
         $pendingTickets = UserSupport::where('status', 'pending')->count();
         $resolvedTickets = UserSupport::where('status', 'resolved')->count();
 
-        $pendingSupports = UserSupport::where('status', 'pending')->latest()->get();
-        $resolvedSupports = UserSupport::where('status', 'resolved')->latest()->get();
+        // 📌 PAGINATION (SEPARATE QUERIES FOR TABS)
+        $pendingSupports = (clone $query)
+            ->where('status', 'pending')
+            ->latest()
+            ->paginate(10, ['*'], 'pending_page');
+
+        $resolvedSupports = (clone $query)
+            ->where('status', 'resolved')
+            ->latest()
+            ->paginate(10, ['*'], 'resolved_page');
 
         return view('admin.user_supports.index', compact(
             'totalTickets',
@@ -30,7 +57,7 @@ class UserSupportController extends Controller
     }
 
     /**
-     *  Show Details Page
+     * Show Details Page
      */
     public function show($id)
     {
@@ -40,7 +67,7 @@ class UserSupportController extends Controller
     }
 
     /**
-     *  Store (Frontend Ticket Submit)
+     * Store (Frontend Ticket Submit)
      */
     public function store(Request $request)
     {
@@ -72,7 +99,7 @@ class UserSupportController extends Controller
     }
 
     /**
-     *  Resolve Ticket (AJAX)
+     * Resolve Ticket (AJAX)
      */
     public function update(Request $request, $id)
     {
@@ -93,15 +120,12 @@ class UserSupportController extends Controller
                 ]);
             }
 
-            //  Update status
             $support->status = 'resolved';
             $support->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Ticket resolved successfully',
-
-                //  frontend ke liye data
                 'data' => [
                     'id' => $support->id,
                     'name' => $support->name,
@@ -115,7 +139,6 @@ class UserSupportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong'
@@ -123,9 +146,6 @@ class UserSupportController extends Controller
         }
     }
 
-    /**
-     *  (Optional)
-     */
     public function create() {}
     public function edit($id) {}
     public function destroy($id) {}
