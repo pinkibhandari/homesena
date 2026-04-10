@@ -45,10 +45,14 @@ class ServiceController extends Controller
     {
         return view('admin.services.form', compact('service'));
     }
+    
+    
 
     // ================= STORE =================
-    public function store(Request $request)
+   /* public function store(Request $request)
     {
+        
+        
         $data = $this->validateData($request);
 
         // 🔥 Slug Auto Generate (Unique)
@@ -70,6 +74,60 @@ class ServiceController extends Controller
         // Slider Image Upload
         if ($request->hasFile('slider_image')) {
             $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
+        }
+
+        Service::create($data);
+
+        return redirect()
+            ->route('admin.services.index')
+            ->with('success', 'Service created successfully');
+    }*/
+    
+    
+   // ================= STORE =================
+    public function store(Request $request)
+    {
+        $data = $this->validateData($request);
+
+        // 🔥 Slug Auto Generate (Unique)
+        $slug = Str::slug($request->name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (Service::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        $data['slug'] = $slug;
+   
+        //  CREATE FOLDERS IF NOT EXISTS
+        $servicePath = public_path('uploads/services');
+        $sliderPath  = public_path('uploads/services/slider');
+
+        if (!file_exists($servicePath)) {
+            mkdir($servicePath, 0777, true);
+        }
+
+        if (!file_exists($sliderPath)) {
+            mkdir($sliderPath, 0777, true);
+        }
+
+        // Main Image Upload
+        if ($request->hasFile('image')) {
+            // $data['image'] = $request->file('image')->store('services', 'public');
+            $file = $request->file('image');
+            $filename = uniqid() . '_main.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services'), $filename);
+            $data['image'] = 'uploads/services/' . $filename;
+        }
+
+        // Slider Image Upload
+        if ($request->hasFile('slider_image')) {
+            // $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
+            $file = $request->file('slider_image');
+            $filename = uniqid() . '_slider.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services/slider'), $filename);
+            $data['slider_image'] = 'uploads/services/slider/' . $filename;
         }
 
         Service::create($data);
@@ -99,38 +157,58 @@ class ServiceController extends Controller
         $data = $this->validateData($request);
 
         // 🔥 Slug Auto Update (Unique + Ignore Current ID)
-        $slug = \Illuminate\Support\Str::slug($request->name);
+        $slug = Str::slug($request->name);
         $originalSlug = $slug;
         $count = 1;
 
         while (
-            \App\Models\Service::where('slug', $slug)
-            ->where('id', '!=', $service->id)
-            ->exists()
+            Service::where('slug', $slug)
+                ->where('id', '!=', $service->id)
+                ->exists()
         ) {
             $slug = $originalSlug . '-' . $count++;
         }
 
         $data['slug'] = $slug;
 
+        //  CREATE FOLDERS IF NOT EXISTS
+        $servicePath = public_path('uploads/services');
+        $sliderPath  = public_path('uploads/services/slider');
+
+        if (!file_exists($servicePath)) {
+            mkdir($servicePath, 0777, true);
+        }
+
+        if (!file_exists($sliderPath)) {
+            mkdir($sliderPath, 0777, true);
+        }
+
         // 🔁 Replace Main Image
         if ($request->hasFile('image')) {
 
-            if ($service->image && Storage::disk('public')->exists($service->image)) {
-                Storage::disk('public')->delete($service->image);
+            // Delete old image
+            if ($service->image && file_exists(public_path($service->image))) {
+                unlink(public_path($service->image));
             }
-
-            $data['image'] = $request->file('image')->store('services', 'public');
+            // Upload new image
+            $file = $request->file('image');
+            $filename = uniqid() . '_main.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services'), $filename);
+            $data['image'] = 'uploads/services/' . $filename;
         }
 
         // 🔁 Replace Slider Image
         if ($request->hasFile('slider_image')) {
 
-            if ($service->slider_image && Storage::disk('public')->exists($service->slider_image)) {
-                Storage::disk('public')->delete($service->slider_image);
+            // Delete old slider image
+            if ($service->slider_image && file_exists(public_path($service->slider_image))) {
+                unlink(public_path($service->slider_image));
             }
-
-            $data['slider_image'] = $request->file('slider_image')->store('services/slider', 'public');
+            // Upload new slider image
+            $file = $request->file('slider_image');
+            $filename = uniqid() . '_slider.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/services/slider'), $filename);
+            $data['slider_image'] = 'uploads/services/slider/' . $filename;
         }
 
         $service->update($data);
@@ -164,9 +242,9 @@ class ServiceController extends Controller
         return $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240',
             'status' => 'required|in:0,1',
-            'slider_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
+            'slider_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240',
             'slider_title' => 'nullable|string|max:255',
             'slider_description' => 'nullable|string',
             'includes' => 'nullable|string',

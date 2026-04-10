@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendOtpMail;
 use Illuminate\Support\Facades\Storage;
+
 class AuthController extends Controller
 {
     // ================= LOGIN =================
@@ -49,42 +50,54 @@ class AuthController extends Controller
     }
 
     // ================= PROFILE UPDATE =================
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
+   public function updateProfile(Request $request)
+{
+    $user = Auth::user();
 
-        // Validation (2MB limit + custom message)
-        $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048'
-        ], [
-            'image.required' => 'Please select an image',
-            'image.image' => 'File must be an image',
-            'image.mimes' => 'Only JPG, JPEG, PNG allowed',
-            'image.max' => 'Image size should not exceed 2MB'
-        ]);
+    // ================= VALIDATION =================
+    $data = $request->validate([
+        'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240'
+    ], [
+        'image.image' => 'File must be an image',
+        'image.mimes' => 'Only jpg, png, jpeg, gif, webp allowed',
+        'image.max' => 'Image size should not exceed 10MB'
+    ]);
 
-        try {
-            if ($request->hasFile('image')) {
+    try {
 
-                // Delete old image
-                if (!empty($user->profile_image) && Storage::disk('public')->exists($user->profile_image)) {
-                    Storage::disk('public')->delete($user->profile_image);
-                }
+        // ================= IMAGE UPLOAD =================
+        if ($request->hasFile('image')) {
 
-                // Store new image (unique name auto)
-                $path = $request->file('image')->store('users', 'public');
-
-                // Save in DB
-                $user->profile_image = $path;
-                $user->save();
+            // 🔁 Delete old image (Storage based)
+            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                Storage::disk('public')->delete($user->profile_image);
             }
 
-            return back()->with('success', 'Profile image updated successfully');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Something went wrong while uploading image');
-        }
-    }
+            // 📁 Create folder if not exists (public/uploads/users)
+            $path = public_path('uploads/users');
 
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+
+            // 📤 Upload with unique name (like ServiceController)
+            $file = $request->file('image');
+            $filename = uniqid() . '_profile.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/users'), $filename);
+
+            // 💾 Save path in DB
+            $data['profile_image'] = 'uploads/users/' . $filename;
+        }
+
+        // ================= UPDATE USER =================
+        $user->update($data);
+
+        return back()->with('success', 'Profile updated successfully');
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Something went wrong while uploading image');
+    }
+}
     // ================= SHOW CHANGE PASSWORD FORM =================
     public function showChangePasswordForm()
     {

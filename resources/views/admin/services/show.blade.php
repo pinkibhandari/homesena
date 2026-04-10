@@ -56,7 +56,7 @@
             <!-- Service Image -->
             <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
                 <img src="{{ !empty($service->image)
-                    ? asset('storage/' . $service->image)
+                    ? asset($service->image)
                     : asset('assets/img/default-profile-image.jpg') }}"
                     alt="Service Image" width="80" height="80" class="rounded-circle border shadow-sm"
                     style="object-fit: cover;">
@@ -158,7 +158,7 @@
 
                                 @if (!empty($service->slider_image))
                                     <!-- Thumbnail -->
-                                    <img src="{{ asset('storage/' . $service->slider_image) }}" alt="Slider Image"
+                                    <img src="{{ asset( $service->slider_image) }}" alt="Slider Image"
                                         class="rounded border shadow-sm"
                                         style="width:150px; height:100px; object-fit:cover; cursor:pointer;"
                                         data-bs-toggle="modal" data-bs-target="#imageModal">
@@ -175,7 +175,7 @@
                                                 </div>
 
                                                 <div class="modal-body text-center">
-                                                    <img src="{{ asset('storage/' . $service->slider_image) }}"
+                                                    <img src="{{ asset($service->slider_image) }}"
                                                         class="rounded" style="max-width:250px; width:100%; height:auto;">
                                                 </div>
 

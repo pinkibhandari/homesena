@@ -34,7 +34,7 @@
 
                     @php
                         $imagePath = $user->profile_image
-                            ? asset('storage/' . $user->profile_image)
+                            ? asset($user->profile_image)
                             : asset('default-user.png');
                     @endphp
 

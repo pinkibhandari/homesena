@@ -65,7 +65,7 @@
                             </td>
                             <td>
                                 @if ($service->image)
-                                    <img src="{{ asset('storage/' . $service->image) }}"
+                                    <img src="{{ asset($service->image) }}"
                                         class="rounded-circle border shadow-sm"
                                         style="width:35px; height:35px; object-fit:cover;">
                                 @else

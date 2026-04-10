@@ -152,7 +152,7 @@
             <ul class="menu-sub">
 
                 <li class="menu-item {{ request()->is('admin/user-support*') ? 'active' : '' }}">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.user_supports.index') }}" class="menu-link">
                         <div>User Support</div>
                     </a>
                 </li>

@@ -66,7 +66,7 @@
                             <!-- IMAGE -->
                             <td>
                                 @if ($promotion->image)
-                                    <img src="{{ asset('storage/' . $promotion->image) }}" width="50" height="50"
+                                    <img src="{{ asset($promotion->image) }}" width="50" height="50"
                                         class="rounded">
                                 @else
                                     <span class="text-muted">No Image</span>

@@ -51,7 +51,7 @@
                             @enderror
                         </div>
                         @if ($home_promotion->image)
-                            <img src="{{ asset('storage/' . $home_promotion->image) }}" class="mt-2 rounded"
+                            <img src="{{ asset($home_promotion->image) }}" class="mt-2 rounded"
                                 style="width:80px; height:50px; object-fit:cover;">
                         @endif
                     </div>

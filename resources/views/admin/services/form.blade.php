@@ -52,7 +52,7 @@
                             @enderror
                         </div>
                         @if ($service->image)
-                            <img src="{{ asset('storage/' . $service->image) }}" class="mt-2 rounded"
+                            <img src="{{ asset($service->image) }}" class="mt-2 rounded"
                                 style="width:80px; height:50px; object-fit:cover;">
                         @endif
                     </div>
@@ -116,7 +116,7 @@
                             @enderror
                         </div>
                         @if ($service->slider_image)
-                            <img src="{{ asset('storage/' . $service->slider_image) }}" class="mt-2 rounded"
+                            <img src="{{ asset( $service->slider_image) }}" class="mt-2 rounded"
                                 style="width:80px; height:50px; object-fit:cover;">
                         @endif
                     </div>

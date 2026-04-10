@@ -38,7 +38,7 @@
                     <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
                         data-bs-toggle="dropdown">
                         <div class="avatar avatar-online">
-                            <img src="{{ auth()->user()->profile_image  ? asset('storage/' . auth()->user()->profile_image) : asset('assets/img/default-profile-image.jpg') }}" 
+                            <img src="{{ auth()->user()->profile_image  ? asset(auth()->user()->profile_image) : asset('assets/img/default-profile-image.jpg') }}" 
                              alt="alt" class="rounded-circle" />
                         </div>
                     </a>
@@ -48,7 +48,7 @@
                                 <div class="d-flex">
                                     <div class="flex-shrink-0 me-3">
                                         <div class="avatar avatar-online">
-                                            <img src="{{ auth()->user()->profile_image  ? asset('storage/' . auth()->user()->profile_image) : asset('assets/img/default-profile-image.jpg') }}"  alt="alt"
+                                            <img src="{{ auth()->user()->profile_image  ? asset(auth()->user()->profile_image) : asset('assets/img/default-profile-image.jpg') }}"  alt="alt"
                                                 class="w-px-40 h-auto rounded-circle" />
                                         </div>
                                     </div>

@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CmsPagesController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
 use App\Http\Controllers\Admin\InstantBookingController;
+use App\Http\Controllers\Admin\UserSupportController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
@@ -72,7 +73,6 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('cms_pages', CmsPagesController::class);
     Route::resource('reviews', ReviewController::class);
     Route::resource('home_promotion', HomePromotionController::class);
-
-
+    Route::resource('user_supports', UserSupportController::class);
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
