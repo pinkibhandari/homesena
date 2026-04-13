@@ -26,6 +26,7 @@ class AddressController extends Controller
 
         $validator = Validator::make($request->all(), [
             'address' => 'required|string|max:255',
+            'area_name' => 'nullable|string|max:255',
             'flat_no' => 'nullable|string|max:100',
             'landmark' => 'nullable|string|max:255',
             'save_as' => 'nullable|string',
@@ -64,6 +65,7 @@ class AddressController extends Controller
         $address = Address::create([
             'user_id' => $user->id,
             'address' => $addressText,
+            'area_name' => strtolower(trim($request->area_name)),
             'flat_no' => $flatNo,
             'landmark' => $request->landmark,
             'save_as' => $request->save_as,
@@ -100,6 +102,7 @@ class AddressController extends Controller
 
         $validator = Validator::make($request->all(), [
             'address' => 'required|string|max:255',
+            'area_name' => 'nullable|string|max:255',
             'flat_no' => 'nullable|string|max:100',
             'landmark' => 'nullable|string|max:255',
             'save_as' => 'nullable|string',
@@ -142,6 +145,7 @@ class AddressController extends Controller
 
         $address->update([
             'address' => $addressText,
+            'area_name' => strtolower(trim($request->area_name)),
             'flat_no' => $flatNo,
             'landmark' => $request->landmark,
             'save_as' => $request->save_as,

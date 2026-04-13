@@ -19,6 +19,7 @@ class Booking extends Model
         'status',
         'total_price',
         'payment_status',
+        'transaction_id',
         'address_id' 
     ];
  // booking code generator

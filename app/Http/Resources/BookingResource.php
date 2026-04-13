@@ -41,7 +41,12 @@ class BookingResource extends JsonResource
             //  Address Details
             'address' => [
                 'id' => $this->address?->id ?? null,
+                'flat_no' => $this->address?->flat_no ?? null,
                 'address' => $this->address?->address ?? null,
+                'area_name' => $this->address?->area_name ?? null,
+                'save_as' => $this->address?->save_as ?? null,
+                'pets' => $this->address?->pets ?? null,
+                'landmark' => $this->address?->landmark ?? null,
                 'lat' => $this->address?->address_lat ?? null,
                 'lng' => $this->address?->address_long ?? null,   
             ],
@@ -57,7 +62,7 @@ class BookingResource extends JsonResource
                     'duration' => $slot->duration,
                     'status' => $slot->status,
                     'amount'=>$slot->price,
-                    'payment_status'=>$slot->payment_status,
+                    // 'payment_status'=>$slot->payment_status,
 
                     //  Expert per slot
                     'expert' => $slot->expert ? [
