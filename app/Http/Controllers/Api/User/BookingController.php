@@ -87,7 +87,7 @@ class BookingController extends Controller
             'addressId' => 'required|exists:addresses,id',
             'type' => 'required|in:instant,scheduled',
             'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
-            'time' => 'required',
+            'time' => 'required_if:type,scheduled',
             // 'date' => 'required_if:booking_subtype,single|date',
             //  prevent past date for single booking
             'date' => 'required_if:booking_subtype,single|date|after_or_equal:today',
@@ -104,6 +104,7 @@ class BookingController extends Controller
             'duration' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'total_price' => 'required|numeric|min:0',
+            'transaction_id'=>'required|string',
         ]);
 
 
@@ -111,22 +112,31 @@ class BookingController extends Controller
 
     private function bookingExists(Request $request): bool
     {
+
         $query = Booking::where('user_id', auth()->id())
             ->where('type', $request->type)
-            ->where('time', $request->time)
+            // ->where('time', $request->time)
             ->where('address_id', $request->addressId)
             ->when($request->serviceId, function ($q) use ($request) {
                 $q->where('service_id', $request->serviceId);
             });
 
+        //  Handle time condition
+        if ($request->type === 'instant') {
+            $instantTime = now()->addMinutes(15)->format('H:i:s');
+            $query->where('time', $instantTime)
+                ->whereDate('start_date', now());
+        } else {
+            $query->where('time', $request->time);
+        }
+        // Booking subtype conditions
         if ($request->booking_subtype === 'single') {
-            $query->where('booking_subtype', 'single')->whereDate('start_date', $request->date);
+            $query->where('booking_subtype', 'single')
+                ->whereDate('start_date', $request->date);
         } elseif ($request->booking_subtype === 'recurring') {
             $query->where('booking_subtype', 'recurring')
                 ->whereDate('start_date', $request->start_date)
                 ->whereDate('end_date', $request->end_date);
-        } elseif ($request->type === 'instant') {
-            $query->whereDate('start_date', $request->start_date ?? now());
         }
 
         return $query->exists();
@@ -156,7 +166,10 @@ class BookingController extends Controller
             'booking_subtype' => $request->booking_subtype,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'time' => $request->time,
+            // 'time' => $request->time,
+            'time' => $request->type === 'instant' ? now()->addMinutes(15)->format('H:i:s') : $request->time,
+            'transaction_id'=>$request->transaction_id,
+            'payment_status' => $request->transaction_id ? 'done' : 'pending',
             'status' => 'pending',
             'address_id' => $request->addressId,
             'total_price' => $request->total_price,
@@ -234,9 +247,16 @@ class BookingController extends Controller
 
     private function generateBookingSlots(Booking $booking, array $dates, Request $request): array
     {
-        $startTime = Carbon::parse($request->time);
+        if ($request->type === 'instant') {
+            $startTime = now()->addMinutes(15);
+        } else {
+            $startTime = Carbon::parse($request->time);
+        }
         $endTime = $startTime->copy()->addMinutes($request->duration);
-
+        // force date to today for instant bookings
+        if ($request->type === 'instant') {
+            $dates = [now()];
+        }
         $slots = [];
         foreach (collect($dates)->unique()->values() as $date) {
             $slots[] = [
@@ -249,7 +269,6 @@ class BookingController extends Controller
                 'price' => $request->price,
             ];
         }
-
         return $slots;
     }
 
@@ -270,7 +289,6 @@ class BookingController extends Controller
             if ($experts->isEmpty()) {
                 continue;
             }
-
             $availableSlots++;
             $this->sendNotificationsToExperts($firebase, $experts, $booking, $slot, $address);
         }
@@ -399,6 +417,149 @@ class BookingController extends Controller
     }
 
 
+    public function cancelBooking($id)
+    {
+        $booking = Booking::findOrFail($id);
+        if ($booking->status === 'cancelled') {
+            $booking->load('slots');
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Booking already cancelled',
+                'data' => [
+                    'id' => $booking->id,
+                    'status' => $booking->status,
+                    'slots' => $booking->slots->pluck('status', 'id')
+                ]
+            ], 422);
+        }
 
+        //  2-Hour Restriction Check
+        $now = Carbon::now();
+
+        foreach ($booking->slots as $slot) {
+            $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+            // If ANY slot is within 2 hours → block
+            if ($now->diffInMinutes($slotDateTime, false) < 120) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => false,
+                    'message' => 'Booking cannot be cancelled. One or more slots are within 2 hours.',
+                    'data' => [
+                        'slot_id' => $slot->id,
+                        'slot_time' => $slot->start_time
+                    ]
+                ], 422);
+            }
+        }
+
+        try {
+            DB::transaction(function () use ($booking) {
+                // Cancel booking
+                $booking->update([
+                    'status' => 'cancelled'
+                ]);
+                // Cancel all slots
+                BookingSlot::where('booking_id', $booking->id)
+                    ->update([
+                        'status' => 'cancelled'
+                    ]);
+            });
+            $booking->refresh()->load('slots');
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'Booking cancelled successfully',
+                'data' => [
+                    'id' => $booking->id,
+                    'status' => $booking->status,
+                    'slots' => $booking->slots->pluck('status', 'id')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Something went wrong',
+                'data' => (object) []
+            ], 422);
+        }
+    }
+
+    // cancel single slot
+    public function cancelBookingSlot($slotId)
+    {
+        $slot = BookingSlot::with('booking')->findOrFail($slotId);
+
+        // Already cancelled check
+        if ($slot->status === 'cancelled') {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Slot already cancelled',
+                'data' => [
+                    'slot_id' => $slot->id,
+                    'status' => $slot->status
+                ]
+            ], 422);
+        }
+
+        //  2-Hour Restriction Logic
+        $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+        $now = Carbon::now();
+
+        if ($now->diffInMinutes($slotDateTime, false) < 120) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Slot can only be cancelled at least 2 hours before start time',
+                'data' => (object) []
+            ], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($slot) {
+
+                $slot->update([
+                    'status' => 'cancelled'
+                ]);
+
+                // Check remaining active slots
+                $remainingSlots = BookingSlot::where('booking_id', $slot->booking_id)
+                    ->where('status', '!=', 'cancelled')
+                    ->count();
+
+                // Cancel booking if no active slots
+                if ($remainingSlots === 0) {
+                    $slot->booking->update([
+                        'status' => 'cancelled'
+                    ]);
+                }
+            });
+
+            $slot->load('booking');
+
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'Slot cancelled successfully',
+                'data' => [
+                    'slot_id' => $slot->id,
+                    'status' => $slot->status,
+                    'booking_status' => $slot->booking->status
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Something went wrong',
+                'data' => (object) []
+            ], 422);
+        }
+    }
+
+    // end of controller
 }
 

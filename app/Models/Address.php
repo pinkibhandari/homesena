@@ -16,6 +16,7 @@ class Address extends Model
         'address_lat',
         'address_long',
         'accuracy',  
+        'area_name'
         
     ];
 
