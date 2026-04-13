@@ -22,11 +22,13 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt([
-            'email' => $request->email,
-            'password' => $request->password,
-            'role' => 'admin'
-        ])) {
+        if (
+            Auth::attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+                'role' => 'admin'
+            ])
+        ) {
             $request->session()->regenerate();
             return redirect()->route('admin.dashboard');
         }
@@ -50,54 +52,57 @@ class AuthController extends Controller
     }
 
     // ================= PROFILE UPDATE =================
-   public function updateProfile(Request $request)
-{
-    $user = Auth::user();
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
 
-    // ================= VALIDATION =================
-    $data = $request->validate([
-        'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240'
-    ], [
-        'image.image' => 'File must be an image',
-        'image.mimes' => 'Only jpg, png, jpeg, gif, webp allowed',
-        'image.max' => 'Image size should not exceed 10MB'
-    ]);
+        // ================= VALIDATION =================
+        $data = $request->validate([
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240'
+        ], [
+            'image.image' => 'File must be an image',
+            'image.mimes' => 'Only jpg, png, jpeg, gif, webp allowed',
+            'image.max' => 'Image size should not exceed 10MB'
+        ]);
 
-    try {
+        try {
 
-        // ================= IMAGE UPLOAD =================
-        if ($request->hasFile('image')) {
+            // ================= IMAGE UPLOAD =================
+            if ($request->hasFile('image')) {
 
-            // 🔁 Delete old image (Storage based)
-            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
-                Storage::disk('public')->delete($user->profile_image);
+                // 🔁 Delete old image (Storage based)
+                // if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                //     Storage::disk('public')->delete($user->profile_image);
+                // }
+
+                if ($user->profile_image && file_exists(public_path($user->profile_image))) {
+                    unlink(public_path($user->profile_image));
+                }
+                // 📁 Create folder if not exists (public/uploads/users)
+                $path = public_path('uploads/users');
+
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+
+                // 📤 Upload with unique name (like ServiceController)
+                $file = $request->file('image');
+                $filename = uniqid() . '_profile.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/users'), $filename);
+
+                // 💾 Save path in DB
+                $data['profile_image'] = 'uploads/users/' . $filename;
             }
 
-            // 📁 Create folder if not exists (public/uploads/users)
-            $path = public_path('uploads/users');
+            // ================= UPDATE USER =================
+            $user->update($data);
 
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
-            }
+            return back()->with('success', 'Profile updated successfully');
 
-            // 📤 Upload with unique name (like ServiceController)
-            $file = $request->file('image');
-            $filename = uniqid() . '_profile.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/users'), $filename);
-
-            // 💾 Save path in DB
-            $data['profile_image'] = 'uploads/users/' . $filename;
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong while uploading image');
         }
-
-        // ================= UPDATE USER =================
-        $user->update($data);
-
-        return back()->with('success', 'Profile updated successfully');
-
-    } catch (\Exception $e) {
-        return back()->with('error', 'Something went wrong while uploading image');
     }
-}
     // ================= SHOW CHANGE PASSWORD FORM =================
     public function showChangePasswordForm()
     {

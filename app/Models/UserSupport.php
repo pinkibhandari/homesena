@@ -6,14 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserSupport extends Model
 {
-    protected $table = 'user_supports';
+    // protected $table = 'user_supports';
 
-    protected $fillable = [
+   
+     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'phone',
-        'message',  
-        'file',      
+        'subject',
+        'message',
         'status',
+        'admin_reply',
+        'resolved_at',
+        'file',
+        'type'
     ];
 }

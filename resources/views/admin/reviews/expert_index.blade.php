@@ -11,7 +11,7 @@
             <h5 class="card-title mb-0">Expert Reviews</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.reviews.expert_index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.expert-to-user.reviews') }}" class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"

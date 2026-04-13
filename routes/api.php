@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\User\LocationController;
 use App\Http\Controllers\Api\User\ReviewController;
 use App\Http\Controllers\Api\User\PaymentController;
 use App\Http\Controllers\Api\Expert\ExpertController;
-use App\Http\Controllers\Api\User\ContactController;
+use App\Http\Controllers\Api\User\UserSupportController;
 use App\Http\Controllers\Api\User\UserHomeController;
 use App\Http\Controllers\Api\User\CmsPageController;
 use App\Http\Controllers\Api\User\AddressController;
@@ -73,7 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payment/pay',[PaymentController::class, 'initiatePayment']);
     Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
     // contact-us
-    Route::post('contact-us',[ContactController::class, 'store']);
+    Route::post('contact-us',[UserSupportController::class, 'store']);
      // CmsPage
     
 
