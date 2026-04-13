@@ -147,8 +147,8 @@
                 </li>
 
                 {{-- Optional future use --}}
-                <li class="menu-item {{ request()->routeIs('admin.expert_index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.expert_index') }}" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('admin.expert-to-user.reviews') ? 'active' : '' }}">
+                    <a href="{{ route('admin.expert-to-user.reviews') }}" class="menu-link">
                         <div>Experts Reviews</div>
                     </a>
                 </li>

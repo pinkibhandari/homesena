@@ -35,31 +35,6 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // //  Fixed user case
-        // if ($request->phone == config('app.fixed_phone')) {
-        //     $user = User::updateOrCreate(
-        //         ['mobile' => $request->phone],
-        //         [
-        //             'otp'  => Hash::make(config('app.fixed_otp')),
-        //             'otp_expires_at' => Carbon::now()->addMinutes(1),
-        //             'role' => $request->role,
-        //         ]
-        //     );
-        //     $message = "Your OTP for " . config('app.name') . " is: " . config('app.fixed_otp');
-        //     $response = $this->sendSms($request->phone, $message);
-        //     return response()->json([
-        //         'status' => true,
-        //         'code' => 200,
-        //         'message' => 'OTP sent successfully',
-        //         'is_fixed' => true,
-        //         'data' => [
-        //             'phone' => $request->phone,
-        //             'otp' => '123456',
-        //             'sms_response' => $response
-        //         ]
-        //     ]);
-        // }
-
         $existingUser = User::where('phone', $request->phone)->first();
 
         // Block if phone registered with different role
