@@ -124,12 +124,7 @@
         </li>
 
         {{-- Reviews --}}
-        {{-- <li class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.reviews.index') }}" class="menu-link">
-                <i class="menu-icon ri ri-star-line"></i>
-                <div>Reviews</div>
-            </a>
-        </li> --}}
+
         <li class="menu-item 
     {{ request()->routeIs('admin.reviews.*') ? 'active open' : '' }}">
 
@@ -140,15 +135,16 @@
 
             <ul class="menu-sub">
 
+                {{-- User Reviews --}}
                 <li class="menu-item {{ request()->routeIs('admin.reviews.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.reviews.index') }}" class="menu-link">
                         <div>User Reviews</div>
                     </a>
                 </li>
 
-                {{-- Optional future use --}}
-                <li class="menu-item {{ request()->routeIs('admin.expert_index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.expert_index') }}" class="menu-link">
+                {{-- Expert Reviews --}}
+                <li class="menu-item {{ request()->routeIs('admin.reviews.expert_index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reviews.expert_index') }}" class="menu-link">
                         <div>Experts Reviews</div>
                     </a>
                 </li>

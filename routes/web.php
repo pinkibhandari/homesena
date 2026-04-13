@@ -72,8 +72,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('payments', PaymentController::class);
     Route::resource('cms_pages', CmsPagesController::class);
     Route::resource('reviews', ReviewController::class);
-    Route::get('reviews-expert', [ReviewController::class, 'expertIndex'])
-        ->name('admin.expert_index');
+    Route::get('reviews-expert', [ReviewController::class, 'expertIndex'])->name('reviews.expert_index');
     Route::resource('home_promotion', HomePromotionController::class);
     Route::resource('user_supports', UserSupportController::class);
 });
