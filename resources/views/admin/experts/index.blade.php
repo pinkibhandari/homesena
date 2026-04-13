@@ -49,9 +49,11 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <img src="{{ $expert->profile_image ? asset('public/' . $expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                <img src="{{fileUrl( $expert->profile_image) ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                                     width="35" height="35" class="rounded-circle">
                             </td>
+                             
+
                             <td>
                                 <span class="fw-semibold">{{ $expert->name ?? ' ' }}</span>
                             </td>

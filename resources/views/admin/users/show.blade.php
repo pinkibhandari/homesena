@@ -23,7 +23,8 @@
         <!-- User Info -->
         <div class="row px-3 px-md-4 py-3 align-items-center">
             <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
-                <img src="{{ $user->profile_image ? asset('public/' . $user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                
+                <img src="{{ $user->profile_image ? fileUrl($user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                     width="80" height="80" class="rounded-circle">
             </div>
 
@@ -42,7 +43,7 @@
                         @endif
                     </div>
 
-                   
+
                     <div class="col-12 col-sm-6 col-md-4 mb-2">
                         <strong>Status:</strong>
 

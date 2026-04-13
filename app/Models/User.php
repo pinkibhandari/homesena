@@ -26,7 +26,11 @@ class User extends Authenticatable
         'otp_expires_at',
         'otp_last_sent_at',
         'status',
-        'profile_completed'
+        'profile_completed',
+        // ✅ Refer & Earn fields add karo
+        'referral_code',
+        'referred_by',
+        'referral_reward_given'
     ];
 
     /**
@@ -97,11 +101,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserDevice::class);
     }
-public function onlineLogs()
-{
-    return $this->hasMany(ExpertOnlineLog::class, 'user_id');
-}
+    public function onlineLogs()
+    {
+        return $this->hasMany(ExpertOnlineLog::class, 'user_id');
+    }
 
     // scope for available experts
-    
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
 }

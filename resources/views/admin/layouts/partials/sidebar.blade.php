@@ -68,6 +68,11 @@
                         <div>Service Durations</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('admin.service_locations.*') ? 'active' : '' }}">
+                    <a href="#" class="menu-link">
+                        <div>Service Location</div>
+                    </a>
+                </li>
 
             </ul>
         </li>
@@ -99,13 +104,6 @@
 
             </ul>
         </li>
-        {{-- Bookings --}}
-        {{-- <li class="menu-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.bookings.index') }}" class="menu-link">
-                <i class="menu-icon ri ri-calendar-check-line"></i>
-                <div>Bookings</div>
-            </a>
-        </li> --}}
 
         {{-- Training Centers --}}
         <li class="menu-item {{ request()->routeIs('admin.training_centers.*') ? 'active' : '' }}">
@@ -158,7 +156,13 @@
                 <div>Home Promotion</div>
             </a>
         </li>
-
+        {{-- Refer & Earn --}}
+        <li class="menu-item {{ request()->routeIs('admin.refer_earn.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.refer_earn.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-gift-line"></i>
+                <div>Refer & Earn</div>
+            </a>
+        </li>
         {{-- Support --}}
         <li
             class="menu-item 
