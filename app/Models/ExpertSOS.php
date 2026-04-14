@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExpertSOS extends Model
 {
+    protected $table = 'expert_sos';
     protected $fillable = [
         'expert_id',
         'booking_slot_id',

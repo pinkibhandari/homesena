@@ -69,7 +69,7 @@
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.service_locations.*') ? 'active' : '' }}">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.service_locations.index') }}" class="menu-link">
                         <div>Service Location</div>
                     </a>
                 </li>
@@ -99,6 +99,12 @@
                 <li class="menu-item {{ request()->routeIs('admin.instant_bookings.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.instant_bookings.index') }}" class="menu-link">
                         <div>Instant Bookings</div>
+                    </a>
+                </li>
+                {{-- Booking Cancel Reasons --}}
+                <li class="menu-item {{ request()->routeIs('admin.booking_cancel_reasons.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.booking_cancel_reasons.index') }}" class="menu-link">
+                        <div>Booking Cancel Reasons</div>
                     </a>
                 </li>
 
@@ -190,13 +196,13 @@
             </ul>
         </li>
 
-        {{-- Expert Settings --}}
-        {{-- <li class="menu-item {{ request()->is('admin/expert-settings*') ? 'active' : '' }}">
-            <a href="#" class="menu-link">
-                <i class="menu-icon ri ri-settings-3-line"></i>
-                <div>Expert Settings</div>
+        {{-- Expert SOS --}}
+        <li class="menu-item {{ request()->routeIs('admin.expert_sos.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.expert_sos.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-alarm-warning-line"></i>
+                <div>Expert SOS</div>
             </a>
-        </li> --}}
+        </li>
         {{-- Payments --}}
         <!-- <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

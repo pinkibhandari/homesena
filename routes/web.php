@@ -17,6 +17,9 @@ use App\Http\Controllers\Admin\HomePromotionController;
 use App\Http\Controllers\Admin\InstantBookingController;
 use App\Http\Controllers\Admin\UserSupportController;
 use App\Http\Controllers\Admin\ReferEarnController;
+use App\Http\Controllers\Admin\ServiceLocationController;
+use App\Http\Controllers\Admin\ExpertSosController;
+use App\Http\Controllers\Admin\BookingCancelReasonController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
@@ -77,5 +80,8 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('home_promotion', HomePromotionController::class);
     Route::resource('user_supports', UserSupportController::class);
     Route::resource('refer_earn', ReferEarnController::class);
+    Route::resource('service_locations', ServiceLocationController::class);
+    Route::resource('expert_sos', ExpertSosController::class);
+    Route::resource('booking_cancel_reasons', BookingCancelReasonController::class);
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
