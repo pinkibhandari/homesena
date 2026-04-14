@@ -56,10 +56,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
     Route::get('/bookings', [BookingController::class, 'getUserBookings']);
     Route::get('/booking/{id}', [BookingController::class, 'getBookingById']);
-    Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
+    // Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
     // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
     Route::put('/slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
     Route::post('/slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
+    Route::put('/slot/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
+    Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
+    Route::get('/booking-cancel-reasons', [BookingController::class, 'bookingCancelReason']);
     //location route
     Route::get('/location/available-services', [LocationController::class, 'nearbyServices']);  
     Route::post('/location/update', [LocationController::class, 'updateLocation']); // user update location

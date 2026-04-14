@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Address;
 use App\Models\BookingSlot;
+use App\Models\BookingCancelReason;
 
 class BookingController extends Controller
 {
@@ -104,7 +105,7 @@ class BookingController extends Controller
             'duration' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'total_price' => 'required|numeric|min:0',
-            'transaction_id'=>'required|string',
+            'transaction_id' => 'required|string',
         ]);
 
 
@@ -168,7 +169,7 @@ class BookingController extends Controller
             'end_date' => $endDate,
             // 'time' => $request->time,
             'time' => $request->type === 'instant' ? now()->addMinutes(15)->format('H:i:s') : $request->time,
-            'transaction_id'=>$request->transaction_id,
+            'transaction_id' => $request->transaction_id,
             'payment_status' => $request->transaction_id ? 'done' : 'pending',
             'status' => 'pending',
             'address_id' => $request->addressId,
@@ -417,8 +418,20 @@ class BookingController extends Controller
     }
 
 
-    public function cancelBooking($id)
+    public function cancelBooking(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'cancel_reason' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
+            ]);
+        }
         $booking = Booking::findOrFail($id);
         if ($booking->status === 'cancelled') {
             $booking->load('slots');
@@ -454,15 +467,19 @@ class BookingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($booking) {
+            DB::transaction(function () use ($booking, $request) {
                 // Cancel booking
                 $booking->update([
-                    'status' => 'cancelled'
+                    'status' => 'cancelled',
+                    'cancel_reason' => $request->cancel_reason,
+                    'cancelled_at' => now(),
                 ]);
                 // Cancel all slots
                 BookingSlot::where('booking_id', $booking->id)
                     ->update([
-                        'status' => 'cancelled'
+                        'status' => 'cancelled',
+                        'cancel_reason' => $request->cancel_reason,
+                        'cancelled_at' => now(),
                     ]);
             });
             $booking->refresh()->load('slots');
@@ -487,8 +504,20 @@ class BookingController extends Controller
     }
 
     // cancel single slot
-    public function cancelBookingSlot($slotId)
+    public function cancelBookingSlot(Request $request, $slotId)
     {
+        $validator = Validator::make($request->all(), [
+            'cancel_reason' => 'required|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
+            ]);
+        }
         $slot = BookingSlot::with('booking')->findOrFail($slotId);
 
         // Already cancelled check
@@ -518,10 +547,11 @@ class BookingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($slot) {
-
+            DB::transaction(function () use ($slot, $request) {
                 $slot->update([
-                    'status' => 'cancelled'
+                    'status' => 'cancelled',
+                    'cancel_reason' => $request->cancel_reason,
+                    'cancelled_at' => now(),
                 ]);
 
                 // Check remaining active slots
@@ -532,7 +562,9 @@ class BookingController extends Controller
                 // Cancel booking if no active slots
                 if ($remainingSlots === 0) {
                     $slot->booking->update([
-                        'status' => 'cancelled'
+                        'status' => 'cancelled',
+                        'cancel_reason' => $request->cancel_reason,
+                        'cancelled_at' => now(),
                     ]);
                 }
             });
@@ -560,6 +592,20 @@ class BookingController extends Controller
         }
     }
 
+    public function bookingCancelReason()
+    {
+        $reasons = BookingCancelReason::select('id', 'title')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Cancel reasons fetched successfully',
+            'data' => $reasons
+        ]);
+
+    }
     // end of controller
 }
 

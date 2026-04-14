@@ -20,7 +20,9 @@ class Booking extends Model
         'total_price',
         'payment_status',
         'transaction_id',
-        'address_id' 
+        'address_id',
+        'cancel_reason',
+        'cancelled_at'
     ];
  // booking code generator
     // protected static function booted()

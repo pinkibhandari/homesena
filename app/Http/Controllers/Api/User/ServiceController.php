@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Http\Resources\ServiceResource;
 use App\Models\TimeSlot;
 use App\Models\InstantBookingSetting;
+use App\Models\ServiceLocation;
 
 class ServiceController extends Controller
 {
@@ -79,5 +80,34 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function serviceAvailable(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+        $radiusKm = 1;
+        $exists = ServiceLocation::select('*')
+            ->selectRaw("
+            (6371 * acos(
+                cos(radians(?)) *
+                cos(radians(latitude)) *
+                cos(radians(longitude) - radians(?)) +
+                sin(radians(?)) *
+                sin(radians(latitude))
+            )) AS distance", [
+                $request->latitude,
+                $request->longitude,
+                $request->latitude
+            ])
+            ->having('distance', '<=', $radiusKm)
+            ->exists();
 
+        return response()->json([
+            'status' => true,
+            'code'=> 200,
+            'data' => $exists,
+            'message' => $exists ? 'Service available in this area': 'Service not available in this area'
+        ]);
+    }
 }
