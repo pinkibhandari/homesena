@@ -10,3 +10,4 @@ class BookingCancelReason extends Model
         'title'
     ];
 }
+

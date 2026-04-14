@@ -19,7 +19,9 @@ class BookingSlot extends Model
         'status',
         'price',
         'payment_status',
-        'check_in_time'
+        'check_in_time',
+        'cancel_reason',
+        'cancelled_at'
     ];
 
     // relationship with others tables  
