@@ -9,6 +9,7 @@ use App\Http\Resources\ServiceResource;
 use App\Models\TimeSlot;
 use App\Models\InstantBookingSetting;
 use App\Models\ServiceLocation;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
 {
@@ -96,10 +97,19 @@ class ServiceController extends Controller
 
     public function serviceAvailable(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => (object) []
+            ], 422);
+        }
         $radiusKm = 1;
         $exists = ServiceLocation::select('*')
             ->selectRaw("

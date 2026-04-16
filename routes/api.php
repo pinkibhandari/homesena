@@ -53,32 +53,35 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user-home', [UserHomeController::class, 'userHome']);
     // boonking route
     Route::post('booking/create', [BookingController::class, 'storeBooking']);
-    Route::post('/slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
-    Route::get('/bookings', [BookingController::class, 'getUserBookings']);
-    Route::get('/booking/{id}', [BookingController::class, 'getBookingById']);
+    Route::post('booking/payment', [BookingController::class, 'handlePayment']);
+    Route::post('slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
+    Route::get('bookings', [BookingController::class, 'getUserBookings']);
+    Route::get('booking/{id}', [BookingController::class, 'getBookingById']);
     // Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
     // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
-    Route::put('/slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
-    Route::post('/slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
-    Route::put('/slot/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
-    Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
-    Route::get('/booking-cancel-reasons', [BookingController::class, 'bookingCancelReason']);
+    Route::put('slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
+    Route::post('slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
+    Route::put('slot/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
+    Route::put('booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
+    Route::get('booking-cancel-reasons', [BookingController::class, 'bookingCancelReason']);
+    Route::post('booking/payment', [BookingController::class, 'handlePayment']);
+    
     //location route
-    Route::get('/location/available-services', [LocationController::class, 'nearbyServices']);  
-    Route::post('/location/update', [LocationController::class, 'updateLocation']); // user update location
-    Route::post('/location/expert-update', [LocationController::class, 'expertUpdateLocation']); // expert update location
-    Route::get('/location/expert-tracking/{slotId}', [LocationController::class, 'expertTracking']);
+    Route::get('location/available-services', [LocationController::class, 'nearbyServices']);  
+    Route::post('location/update', [LocationController::class, 'updateLocation']); // user update location
+    Route::post('location/expert-update', [LocationController::class, 'expertUpdateLocation']); // expert update location
+    Route::get('location/expert-tracking/{slotId}', [LocationController::class, 'expertTracking']);
     // rating and review
-    Route::post('/rating/slot/{id}', [ReviewController::class, 'submitReview']);
-    Route::get('/rating/user', [ReviewController::class, 'getUserGivenReviews']);  
+    Route::post('rating/slot/{id}', [ReviewController::class, 'submitReview']);
+    Route::get('rating/user', [ReviewController::class, 'getUserGivenReviews']);  
     //payment route
-    Route::get('/payment/methods',[PaymentController::class, 'paymentMethods']);
-    Route::post('/payment/pay',[PaymentController::class, 'initiatePayment']);
-    Route::post('/payment/verify',[PaymentController::class, 'initiatePayment']);
+    Route::get('payment/methods',[PaymentController::class, 'paymentMethods']);
+    Route::post('payment/pay',[PaymentController::class, 'initiatePayment']);
+    Route::post('payment/verify',[PaymentController::class, 'initiatePayment']);
     // contact-us
     Route::post('contact-us',[UserSupportController::class, 'store']);
-     // CmsPage
-    
+    // service Available
+    Route::post('service-available',[ServiceController::class, 'serviceAvailable']);
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){

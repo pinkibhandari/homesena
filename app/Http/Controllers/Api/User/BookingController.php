@@ -29,25 +29,27 @@ class BookingController extends Controller
                 'status' => false,
                 'code' => 422,
                 'message' => $validator->errors()->first(),
-                'data' => [],
+                'data' => (object) [],
             ], 422);
         }
-
         if ($request->date == Carbon::today()->toDateString()) {
-            if ($request->time < Carbon::now()->format('H:i')) {
+            $selectedDateTime = Carbon::parse($request->date . ' ' . $request->time);
+            if ($selectedDateTime->lt(Carbon::now())) {
                 return response()->json([
-                    'message' => 'Time cannot be in the past.'
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Time cannot be in the past.',
+                    'data' => (object) [],
                 ], 422);
             }
         }
-
         $address = Address::where('id', $request->addressId)
             ->where('user_id', auth()->id())
             ->first();
         if (!$address || empty($address->address_lat) || empty($address->address_long)) {
             return response()->json([
                 'code' => 422,
-                'data' => [],
+                'data' => (object) [],
                 'success' => false,
                 'message' => 'Invalid address or missing location.'
             ], 422);
@@ -56,28 +58,40 @@ class BookingController extends Controller
         if ($this->bookingExists($request)) {
             return response()->json([
                 'code' => 422,
-                'data' => [],
+                'data' => (object) [],
                 'status' => false,
                 'message' => 'Booking already exists for this slot and user'
             ]);
         }
 
-        $booking = $this->createBooking($request);
-        $dates = $this->generateBookingDates($request);
-        $slots = $this->generateBookingSlots($booking, $dates, $request);
-
-        BookingSlot::insertOrIgnore($slots);
-
-        $result = $this->processBookingNotifications($booking, $slots, $address);
-
-        return response()->json([
-            'status' => true,
-            'code' => 200,
-            'message' => $result['message'],
-            'data' => [
-                'booking' => new BookingResource($booking),
-            ]
-        ]);
+        try {
+            // TRANSACTION START
+            $booking = DB::transaction(function () use ($request) {
+                $booking = $this->createBooking($request);
+                $dates = $this->generateBookingDates($request);
+                $slots = $this->generateBookingSlots($booking, $dates, $request);
+                BookingSlot::insertOrIgnore($slots);
+                // $result = $this->processBookingNotifications($booking, $slots, $address);
+                return $booking;
+            });
+            //  SUCCESS RESPONSE
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Booking created',
+                'data' => [
+                    'booking' => new BookingResource($booking),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Something went wrong',
+                'data' => (object) []
+            ], 422);
+        }
     }
 
     private function validateBookingRequest(Request $request)
@@ -88,6 +102,7 @@ class BookingController extends Controller
             'addressId' => 'required|exists:addresses,id',
             'type' => 'required|in:instant,scheduled',
             'booking_subtype' => 'required_if:type,scheduled|in:single,recurring',
+            // 'time' => 'required',
             'time' => 'required_if:type,scheduled',
             // 'date' => 'required_if:booking_subtype,single|date',
             //  prevent past date for single booking
@@ -105,7 +120,7 @@ class BookingController extends Controller
             'duration' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'total_price' => 'required|numeric|min:0',
-            'transaction_id' => 'required|string',
+            // 'transaction_id' => 'required|string',
         ]);
 
 
@@ -113,31 +128,28 @@ class BookingController extends Controller
 
     private function bookingExists(Request $request): bool
     {
-
         $query = Booking::where('user_id', auth()->id())
             ->where('type', $request->type)
-            // ->where('time', $request->time)
+            ->where('time', $request->time)
             ->where('address_id', $request->addressId)
             ->when($request->serviceId, function ($q) use ($request) {
                 $q->where('service_id', $request->serviceId);
             });
 
-        //  Handle time condition
+        //  Handle date logic properly
         if ($request->type === 'instant') {
-            $instantTime = now()->addMinutes(15)->format('H:i:s');
-            $query->where('time', $instantTime)
-                ->whereDate('start_date', now());
+            $query->whereDate('start_date', now());
         } else {
-            $query->where('time', $request->time);
-        }
-        // Booking subtype conditions
-        if ($request->booking_subtype === 'single') {
-            $query->where('booking_subtype', 'single')
-                ->whereDate('start_date', $request->date);
-        } elseif ($request->booking_subtype === 'recurring') {
-            $query->where('booking_subtype', 'recurring')
-                ->whereDate('start_date', $request->start_date)
-                ->whereDate('end_date', $request->end_date);
+            // Scheduled bookings
+            if ($request->booking_subtype === 'single') {
+                $query->where('booking_subtype', 'single')
+                    ->whereDate('start_date', $request->date);
+            }
+            if ($request->booking_subtype === 'recurring') {
+                $query->where('booking_subtype', 'recurring')
+                    ->whereDate('start_date', $request->start_date)
+                    ->whereDate('end_date', $request->end_date);
+            }
         }
 
         return $query->exists();
@@ -169,8 +181,8 @@ class BookingController extends Controller
             'end_date' => $endDate,
             // 'time' => $request->time,
             'time' => $request->type === 'instant' ? now()->addMinutes(15)->format('H:i:s') : $request->time,
-            'transaction_id' => $request->transaction_id,
-            'payment_status' => $request->transaction_id ? 'done' : 'pending',
+            // 'transaction_id' => $request->transaction_id,
+            // 'payment_status' => $request->transaction_id ? 'done' : 'pending',
             'status' => 'pending',
             'address_id' => $request->addressId,
             'total_price' => $request->total_price,
@@ -253,6 +265,7 @@ class BookingController extends Controller
         } else {
             $startTime = Carbon::parse($request->time);
         }
+        // $startTime = Carbon::parse($request->time);
         $endTime = $startTime->copy()->addMinutes($request->duration);
         // force date to today for instant bookings
         if ($request->type === 'instant') {
@@ -302,36 +315,77 @@ class BookingController extends Controller
 
         return ['message' => $message];
     }
-
     private function sendNotificationsToExperts(FirebaseService $firebase, $experts, Booking $booking, array $slot, Address $address): void
     {
+        $tokens = [];
+        // Collect all FCM tokens
         foreach ($experts as $expert) {
+            if (!$expert->devices || $expert->devices->isEmpty()) {
+                continue;
+            }
             foreach ($expert->devices as $device) {
-                if (empty($device->fcm_token)) {
-                    continue;
+                if (!empty($device->fcm_token)) {
+                    $tokens[] = $device->fcm_token;
                 }
-
-                $firebase->sendNotification(
-                    $device->fcm_token,
-                    'New Booking Request',
-                    "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond to accept or reject.",
-                    [
-                        'booking_id' => (string) $booking->id,
-                        'booking_code' => $booking->booking_code,
-                        'date' => $slot['date'],
-                        'time' => $slot['start_time'],
-                        'duration' => $slot['duration'],
-                        'location' => $address->address,
-                        'earning' => $slot['price'] ?? 0,
-                        'actions' => json_encode([
-                            ['id' => 'ACCEPT', 'title' => 'Accept'],
-                            ['id' => 'REJECT', 'title' => 'Reject']
-                        ])
-                    ],
-                );
             }
         }
+        // Remove duplicates
+        $tokens = array_unique($tokens);
+        if (empty($tokens)) {
+            return;
+        }
+        // Send ONE request to Firebase
+        $firebase->sendNotification(
+            $tokens,
+            'New Booking Request',
+            "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond.",
+            [
+                'booking_id' => (string) $booking->id,
+                'booking_code' => $booking->booking_code,
+                'date' => $slot['date'],
+                'time' => $slot['start_time'],
+                'duration' => $slot['duration'],
+                'location' => $address->address ?? '',
+                'earning' => $slot['price'] ?? 0,
+                'type' => 'BOOKING_REQUEST',
+                'actions' => [
+                    ['id' => 'ACCEPT', 'title' => 'Accept'],
+                    ['id' => 'REJECT', 'title' => 'Reject']
+                ]
+            ]
+        );
     }
+    // private function sendNotificationsToExperts(FirebaseService $firebase, $experts, Booking $booking, array $slot, Address $address): void
+    // {
+    //       $tokens = [];
+
+    //     foreach ($experts as $expert) {
+    //         foreach ($expert->devices as $device) {
+    //             if (empty($device->fcm_token)) {
+    //                 continue;
+    //             }
+
+    //             $firebase->sendNotification(
+    //                 $device->fcm_token,
+    //                 'New Booking Request',
+    //                 "Booking on {$slot['date']} at {$slot['start_time']} is available for you. Please respond to accept or reject.",
+    //                 [
+    //                     'booking_id' => (string) $booking->id,
+    //                     'booking_code' => $booking->booking_code,
+    //                     'date' => $slot['date'],
+    //                     'time' => $slot['start_time'],
+    //                     'duration' => $slot['duration'],
+    //                     'location' => $address->address,
+    //                     'earning' => $slot['price'] ?? 0,
+    //                     'actions' => json_encode([
+    //                         ['id' => 'ACCEPT', 'title' => 'Accept'],
+    //                         ['id' => 'REJECT', 'title' => 'Reject']
+    //                     ])
+    //                 ],
+    //             );
+    //         }
+    //     }
+    // }
 
     //  Get nearby + free experts
     private function getExperts($date, $startTime, $endTime, $lat, $lng)
@@ -397,9 +451,30 @@ class BookingController extends Controller
             'address',
             'slots.expert'
         ])->where('user_id', auth()->id());
+        //  FILTER BY STATUS 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            switch ($request->status) {
+                case 'ongoing':
+                    $query->where('status', 'confirmed')
+                        ->whereDate('date', '<=', now());
+                    break;
+                case 'upcoming':
+                    $query->where('status', 'confirmed')
+                        ->whereDate('date', '>', now());
+                    break;
+                case 'cancelled':
+                    $query->where('status', 'cancelled');
+                    break;
+                case 'completed':
+                    $query->where('status', 'completed');
+                    break;
+                default:
+                    // pending / confirmed
+                    $query->where('status', $request->status);
+                    break;
+            }
         }
+
         $bookings = $query->latest()->get();
         return response()->json([
             'code' => 200,
@@ -449,15 +524,18 @@ class BookingController extends Controller
 
         //  2-Hour Restriction Check
         $now = Carbon::now();
-
+        //  Dynamic cancel rule
+        $minutesBefore = $booking->type === 'instant' ? 10 : 120;
         foreach ($booking->slots as $slot) {
             $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
             // If ANY slot is within 2 hours → block
-            if ($now->diffInMinutes($slotDateTime, false) < 120) {
+            if ($now->diffInMinutes($slotDateTime, false) < $minutesBefore) {
                 return response()->json([
                     'code' => 422,
                     'status' => false,
-                    'message' => 'Booking cannot be cancelled. One or more slots are within 2 hours.',
+                    'message' => $booking->type === 'instant'
+                        ? 'Instant booking can only be cancelled at least 10 minutes before start time'
+                        : 'Booking cannot be cancelled. One or more slots are within 2 hours.',
                     'data' => [
                         'slot_id' => $slot->id,
                         'slot_time' => $slot->start_time
@@ -519,7 +597,6 @@ class BookingController extends Controller
             ]);
         }
         $slot = BookingSlot::with('booking')->findOrFail($slotId);
-
         // Already cancelled check
         if ($slot->status === 'cancelled') {
             return response()->json([
@@ -532,20 +609,21 @@ class BookingController extends Controller
                 ]
             ], 422);
         }
-
         //  2-Hour Restriction Logic
         $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
         $now = Carbon::now();
-
-        if ($now->diffInMinutes($slotDateTime, false) < 120) {
+        // Dynamic cancel rule
+        $minutesBefore = $slot->booking->type === 'instant' ? 10 : 120;
+        if ($now->diffInMinutes($slotDateTime, false) < $minutesBefore) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'Slot can only be cancelled at least 2 hours before start time',
+                'message' => $slot->booking->type === 'instant'
+                    ? 'Instant booking can only be cancelled at least 10 minutes before start time'
+                    : 'Slot can only be cancelled at least 2 hours before start time',
                 'data' => (object) []
             ], 422);
         }
-
         try {
             DB::transaction(function () use ($slot, $request) {
                 $slot->update([
@@ -605,6 +683,83 @@ class BookingController extends Controller
             'data' => $reasons
         ]);
 
+    }
+
+
+    //  Handle Payment Success / Failure
+    public function handlePayment(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+            'payment_id' => 'nullable|string',
+        ]);
+        DB::beginTransaction();
+        try {
+            $booking = Booking::with('slots')->find($request->booking_id);
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Booking not found',
+                    'data' => (object) []
+                ]);
+            }
+            //  PAYMENT SUCCESS
+            if ($request->filled('payment_id')) {
+                if ($booking->status !== 'pending') {
+                    return response()->json([
+                        'status' => false,
+                        'code' => 422,
+                        'message' => 'Already processed',
+                        'data' => (object) []
+                    ]);
+                }
+                //  update booking
+                $booking->update([
+                    'status' => 'confirmed',
+                    'payment_id' => $request->payment_id,
+                    'payment_status' => 'paid',
+                    'payment_time' => now()
+                ]);
+                //  update all slots
+                $booking->slots()->update([
+                    'status' => 'confirmed'
+                ]);
+                DB::commit();
+                //  reload fresh data
+                $booking->load('slots');
+                return response()->json([
+                    'status' => true,
+                    'code' => 200,
+                    'message' => 'Booking confirmed successfully',
+                    'data' => [
+                        'booking' => new BookingResource($booking),
+                    ]
+                ]);
+            }
+            //  PAYMENT FAILED
+            if ($booking->status === 'pending') {
+                $booking->slots()->delete();
+                $booking->delete();
+            }
+            DB::commit();
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Booking deleted due to failed payment',
+                'data' => (object) []
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Something went wrong. Please try again later.',
+                'data' => (object) []
+
+            ]);
+        }
     }
     // end of controller
 }
