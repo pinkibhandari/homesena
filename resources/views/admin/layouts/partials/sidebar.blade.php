@@ -79,7 +79,7 @@
         {{-- Booking Management --}}
         <li
             class="menu-item 
-    {{ request()->routeIs('admin.bookings.*') || request()->routeIs('admin.instant_bookings.*') ? 'active open' : '' }}">
+            {{ request()->routeIs('admin.bookings.*') || request()->routeIs('admin.instant_bookings.*') ? 'active open' : '' }}">
 
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-calendar-check-line"></i>
@@ -130,7 +130,7 @@
         {{-- Reviews --}}
 
         <li class="menu-item 
-    {{ request()->routeIs('admin.reviews.*') ? 'active open' : '' }}">
+            {{ request()->routeIs('admin.reviews.*') ? 'active open' : '' }}">
 
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-star-line"></i>
@@ -204,30 +204,12 @@
             </a>
         </li>
         {{-- Payments --}}
-        <!-- <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ri ri-secure-payment-line"></i>
-                    <div data-i18n="Payments">Payments</div>
-                </a> -->
-
-        <!-- <ul class="menu-sub"> -->
-
-        <!-- Payment -->
-        <!-- <li class="menu-item">
-                        <a href="{{ route('admin.payments.index') }}" class="menu-link">
-                            <div data-i18n="Payment">Payment</div>
-                        </a>
-                    </li> -->
-
-        <!-- Payment Method -->
-        <!-- <li class="menu-item">
-                        <a href="" class="menu-link">
-                            <div data-i18n="Payment Method">Payment Method</div>
-                        </a>
-                    </li> -->
-
-        <!-- </ul> -->
-        <!-- </li> -->
+        <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+            <a href="#" class="menu-link">
+                <i class="menu-icon ri ri-wallet-3-line"></i>
+                <div>Payments</div>
+            </a>
+        </li>
 
     </ul>
 </aside>

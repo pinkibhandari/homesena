@@ -45,11 +45,11 @@ class ServiceController extends Controller
     {
         return view('admin.services.form', compact('service'));
     }
-    
-    
+
+
 
     // ================= STORE =================
-   /* public function store(Request $request)
+    /* public function store(Request $request)
     {
         
         
@@ -102,9 +102,9 @@ class ServiceController extends Controller
             ->route('admin.services.index')
             ->with('success', 'Service created successfully');
     }*/
-    
-    
-   // ================= STORE =================
+
+
+    // ================= STORE =================
     public function store(Request $request)
     {
         $data = $this->validateData($request);
@@ -119,7 +119,7 @@ class ServiceController extends Controller
         }
 
         $data['slug'] = $slug;
-   
+
         //  CREATE FOLDERS IF NOT EXISTS
         $servicePath = public_path('uploads/services');
         $sliderPath  = public_path('uploads/services/slider');
@@ -174,8 +174,8 @@ class ServiceController extends Controller
         }
 
         //  Normal Update
-        $data = $this->validateData($request);
-
+        // $data = $this->validateData($request);
+        $data = $this->validateData($request, $service->id);
         // 🔥 Slug Auto Update (Unique + Ignore Current ID)
         $slug = Str::slug($request->name);
         $originalSlug = $slug;
@@ -183,8 +183,8 @@ class ServiceController extends Controller
 
         while (
             Service::where('slug', $slug)
-                ->where('id', '!=', $service->id)
-                ->exists()
+            ->where('id', '!=', $service->id)
+            ->exists()
         ) {
             $slug = $originalSlug . '-' . $count++;
         }
@@ -248,14 +248,14 @@ class ServiceController extends Controller
         // if ($service->slider_image && Storage::disk('public')->exists($service->slider_image)) {
         //     Storage::disk('public')->delete($service->slider_image);
         // }
-           //  Delete Images
-         if ($service->image && file_exists(public_path($service->image))) {
-                unlink(public_path($service->image));
-            }
-           // Delete old slider image
-            if ($service->slider_image && file_exists(public_path($service->slider_image))) {
-                unlink(public_path($service->slider_image));
-            }
+        //  Delete Images
+        if ($service->image && file_exists(public_path($service->image))) {
+            unlink(public_path($service->image));
+        }
+        // Delete old slider image
+        if ($service->slider_image && file_exists(public_path($service->slider_image))) {
+            unlink(public_path($service->slider_image));
+        }
 
         $service->delete();
 
@@ -265,17 +265,25 @@ class ServiceController extends Controller
     }
 
     // ================= VALIDATION =================
-    private function validateData(Request $request)
+    private function validateData(Request $request, $id = null)
     {
         return $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:services,name,' . $id,
+
             'description' => 'nullable|string',
+
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240',
+
             'status' => 'required|in:0,1',
+
             'slider_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:10240',
+
             'slider_title' => 'nullable|string|max:255',
+
             'slider_description' => 'nullable|string',
+
             'includes' => 'nullable|string',
+
             'does_not_include' => 'nullable|string',
         ]);
     }
@@ -292,10 +300,10 @@ class ServiceController extends Controller
 
         while (
             Service::where('slug', $slug)
-                ->when($id, function ($query) use ($id) {
-                    return $query->where('id', '!=', $id);
-                })
-                ->exists()
+            ->when($id, function ($query) use ($id) {
+                return $query->where('id', '!=', $id);
+            })
+            ->exists()
         ) {
             $slug = $originalSlug . '-' . $count++;
         }

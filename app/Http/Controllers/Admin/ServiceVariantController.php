@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ServiceVariant;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
 
 class ServiceVariantController extends Controller
 {
@@ -21,8 +23,8 @@ class ServiceVariantController extends Controller
                     $query->whereHas('service', function ($sub) use ($request) {
                         $sub->where('name', 'like', '%' . $request->search . '%');
                     })
-                    ->orWhere('duration_minutes', 'like', '%' . $request->search . '%')
-                    ->orWhere('price', 'like', '%' . $request->search . '%');
+                        ->orWhere('duration_minutes', 'like', '%' . $request->search . '%')
+                        ->orWhere('price', 'like', '%' . $request->search . '%');
                     // ->orWhere('tax_percentage', 'like', '%' . $request->search . '%');
                 });
             })
@@ -81,8 +83,8 @@ class ServiceVariantController extends Controller
         }
 
         //  Normal Update
-        $data = $this->validateData($request);
-
+        // $data = $this->validateData($request);
+        $data = $this->validateData($request, $service_variant->id);
         $service_variant->update($data);
 
         return redirect()
@@ -101,15 +103,31 @@ class ServiceVariantController extends Controller
     }
 
     // ================= VALIDATION =================
-    private function validateData(Request $request)
+    private function validateData(Request $request, $id = null)
     {
         return $request->validate([
-            'service_id'        => 'required|exists:services,id',
-            'duration_minutes'  => 'required|numeric|min:1',
-            'price'        => 'required|numeric|min:0',
-            'discount_price'    => 'nullable|numeric',
-            'tax_percentage'    => 'nullable|numeric|min:0|max:100',
-            'is_active'         => 'required|in:0,1',
+            'service_id' => 'required|exists:services,id',
+
+            'duration_minutes' => [
+                'required',
+                'numeric',
+                'min:1',
+                Rule::unique('service_variants')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('service_id', $request->service_id);
+                    })
+                    ->ignore($id),
+            ],
+
+            'price' => 'required|numeric|min:0',
+
+            'discount_price' => 'nullable|numeric',
+
+            'tax_percentage' => 'nullable|numeric|min:0|max:100',
+
+            'is_active' => 'required|in:0,1',
+        ], [
+            'duration_minutes.unique' => 'This duration already exists for selected service.'
         ]);
     }
 }

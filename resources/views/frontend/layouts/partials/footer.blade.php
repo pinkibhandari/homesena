@@ -33,7 +33,7 @@
         <div class="copyright">
 
             <p class="copyright-left">
-                Made with <i class="fa fa-heart text-danger"></i> by Applofy
+                Made with <i class="fa fa-heart text-danger"></i> by Homesena
             </p>
 
             <div class="footer-center">

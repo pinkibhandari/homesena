@@ -40,12 +40,30 @@
                             <i class="ri-time-line"></i>
                         </span>
 
-                        <input type="time" name="start_time"
-                            class="form-control @error('start_time') is-invalid @enderror"
+                        <!-- Visible Time (12hr) -->
+                        <input type="text" id="display_time"
+                            class="form-control"
+                            placeholder="HH:MM"
+                            value="{{ old('start_time', $slot->start_time ? \Carbon\Carbon::parse($slot->start_time)->format('h:i') : '') }}">
+
+                        <!-- AM / PM -->
+                        <select id="time_period" class="form-select" style="max-width: 90px;">
+                            <option value="AM"
+                                {{ old('start_time', $slot->start_time ? \Carbon\Carbon::parse($slot->start_time)->format('A') : '') == 'AM' ? 'selected' : '' }}>
+                                AM
+                            </option>
+                            <option value="PM"
+                                {{ old('start_time', $slot->start_time ? \Carbon\Carbon::parse($slot->start_time)->format('A') : '') == 'PM' ? 'selected' : '' }}>
+                                PM
+                            </option>
+                        </select>
+
+                        <!-- Hidden Actual Input -->
+                        <input type="hidden" name="start_time" id="start_time"
                             value="{{ old('start_time', $slot->start_time ? \Carbon\Carbon::parse($slot->start_time)->format('H:i') : '') }}">
 
                         @error('start_time')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -94,5 +112,34 @@
     </div>
 
 </div>
+
+<!--  JS for Time Conversion -->
+<script>
+    function convertTo24Hour(time, period) {
+        if (!time.includes(':')) return '';
+
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+
+        if (period === 'PM' && hours < 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+
+        return String(hours).padStart(2, '0') + ':' + minutes;
+    }
+
+    function updateHiddenTime() {
+        let time = document.getElementById('display_time').value;
+        let period = document.getElementById('time_period').value;
+
+        let converted = convertTo24Hour(time, period);
+
+        if (converted) {
+            document.getElementById('start_time').value = converted;
+        }
+    }
+
+    document.getElementById('display_time').addEventListener('keyup', updateHiddenTime);
+    document.getElementById('time_period').addEventListener('change', updateHiddenTime);
+</script>
 
 @endsection

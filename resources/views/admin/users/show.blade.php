@@ -78,8 +78,9 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Flat No</th>
+                                        <th>House/Flat/Floor</th>
                                         <th>Address</th>
+                                        <th>Area/Locality</th>
                                         <th>Landmark</th>
                                         <th>Save As</th>
                                         <th>Pets</th>
@@ -94,6 +95,7 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $address->flat_no }}</td>
                                             <td>{{ $address->address }}</td>
+                                            <td>{{ $address->area_name }}</td>
                                             <td>{{ $address->landmark }}</td>
                                             <td>{{ ucfirst($address->save_as) }}</td>
                                             <td>{{ $address->pets ?? '-' }}</td>
