@@ -10,7 +10,18 @@ class ServiceLocation extends Model
         'address',
         'latitude',
         'longitude',
-        'status'
-        
+        'status',
     ];
+
+    // 🔥 Active Scope
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    // 🔥 Get Status Text (Accessor)
+    public function getStatusTextAttribute()
+    {
+        return $this->status == 1 ? 'Active' : 'Inactive';
+    }
 }
