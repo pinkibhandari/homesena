@@ -46,6 +46,15 @@ class AuthController extends Controller
                 'data' => (object) []
             ], 422);
         }
+        //  If user exists but NOT active → BLOCK
+        if ($existingUser && $existingUser->status != 1) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Your account is inactive. Please wait for approval.',
+                'data' => (object)[]
+            ], 422);
+        }
 
         // Prevent OTP spam (allow resend after 60 seconds)    
         if ($existingUser && $existingUser->otp_last_sent_at && $existingUser->otp_last_sent_at->addMinutes(1)->isFuture()) {
