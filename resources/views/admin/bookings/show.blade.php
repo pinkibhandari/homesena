@@ -40,7 +40,11 @@
                     </div>
                     <!--  -->
                     <div class="col-md-4 mb-2">
-                        <strong>Address:</strong> {{ $booking->address?->address }}
+                        <strong>Address:</strong>
+                        {{ $booking->address?->flat_no }},
+                        {{ $booking->address?->area_name }},
+                        {{ $booking->address?->landmark }},
+                        {{ $booking->address?->address }}
                     </div>
                     <div class="col-md-4 mb-2">
                         <strong>Address Latitude:</strong> {{ $booking->address?->address_lat }}

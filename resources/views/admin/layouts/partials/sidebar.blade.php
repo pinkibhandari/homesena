@@ -163,11 +163,29 @@
             </a>
         </li>
         {{-- Refer & Earn --}}
-        <li class="menu-item {{ request()->routeIs('admin.refer_earn.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.refer_earn.index') }}" class="menu-link">
+        <li class="menu-item 
+    {{ request()->routeIs('admin.refer_earn.*') ? 'active open' : '' }}">
+
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-gift-line"></i>
                 <div>Refer & Earn</div>
             </a>
+
+            <ul class="menu-sub">
+
+                <li class="menu-item {{ request()->routeIs('admin.refer_earn.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.refer_earn.index') }}" class="menu-link">
+                        <div>Refer & Earn List</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ request()->routeIs('admin.refer_earn_settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.refer_earn_settings.index') }}" class="menu-link">
+                        <div>Refer & Earn Settings</div>
+                    </a>
+                </li>
+
+            </ul>
         </li>
         {{-- Support --}}
         <li
