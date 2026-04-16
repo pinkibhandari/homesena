@@ -52,9 +52,24 @@ class ServiceController extends Controller
         ]);
     }
 
+    // public function timeSlot()
+    // {
+    //     $allTimeSlots = TimeSlot::select('id', 'start_time')->get();
+
+    //     return response()->json([
+    //         'code' => 200,
+    //         'status' => true,
+    //         'message' => 'Time Slots retrieved successfully',
+    //         'data' => $allTimeSlots
+    //     ]);
+    // }
+
     public function timeSlot()
     {
-        $allTimeSlots = TimeSlot::select('id', 'start_time')->get();
+        $allTimeSlots = TimeSlot::select('id', 'start_time')
+            ->where('status', 1) // ONLY ACTIVE SLOTS
+            ->orderBy('start_time', 'asc')
+            ->get();
 
         return response()->json([
             'code' => 200,
@@ -63,7 +78,6 @@ class ServiceController extends Controller
             'data' => $allTimeSlots
         ]);
     }
-
     public function instantBookingSetting()
     {
         $allduration = InstantBookingSetting::select(
@@ -115,9 +129,9 @@ class ServiceController extends Controller
 
         return response()->json([
             'status' => true,
-            'code'=> 200,
+            'code' => 200,
             'data' => $exists,
-            'message' => $exists ? 'Service available in this area': 'Service not available in this area'
+            'message' => $exists ? 'Service available in this area' : 'Service not available in this area'
         ]);
     }
 }
