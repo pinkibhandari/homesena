@@ -2,7 +2,7 @@
 @section('title', 'Show Booking')
 @section('content')
     <div class="card">
-          @php
+        @php
             function statusColor($status)
             {
                 return match ($status) {
@@ -13,7 +13,7 @@
                     'completed' => 'success',
                     'cancelled' => 'danger',
                     'partial' => 'secondary',
-                    default => 'light'
+                    default => 'light',
                 };
             }
         @endphp
@@ -38,107 +38,118 @@
                     <div class="col-md-4 mb-2">
                         <strong>Service:</strong> {{ $booking->service?->name }}
                     </div>
-<!--  -->
-                      <div class="col-md-4 mb-2">
+                    <!--  -->
+                    <div class="col-md-4 mb-2">
                         <strong>Address:</strong> {{ $booking->address?->address }}
                     </div>
                     <div class="col-md-4 mb-2">
                         <strong>Address Latitude:</strong> {{ $booking->address?->address_lat }}
                     </div>
-                      <div class="col-md-4 mb-2">
+                    <div class="col-md-4 mb-2">
                         <strong>Address Longitude:</strong> {{ $booking->address?->address_long }}
                     </div>
                     <div class="col-md-4 mb-2">
                         <strong>Booking Type:</strong> {{ $booking->type }}
                     </div>
-                      <div class="col-md-4 mb-2">
-                        <strong>Booking Sub Type:</strong> {{ $booking->booking_subtype??'N/A' }}
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Sub Type:</strong> {{ $booking->booking_subtype ?? 'N/A' }}
                     </div>
                     <div class="col-md-4 mb-2">
-                        <strong>Booking Start Date:</strong> {{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y')}} 
-                    </div>
-                      <div class="col-md-4 mb-2">
-                        <strong>Booking End Date:</strong> {{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y')}}
+                        <strong>Booking Start Date:</strong>
+                        {{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y') }}
                     </div>
                     <div class="col-md-4 mb-2">
-                        <strong>Booking Time:</strong> {{ \Carbon\Carbon::parse($booking->time)->format('h:i A') }}
+                        <strong>Booking End Date:</strong> {{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y') }}
                     </div>
-                     
-                      <div class="col-md-4 mb-2">
+                    <div class="col-md-4 mb-2">
+                        <strong>Booking Start Time:</strong> {{ \Carbon\Carbon::parse($booking->time)->format('h:i A') }}
+                    </div>
+
+                    <div class="col-md-4 mb-2">
                         <strong>Total Amount:</strong> {{ $booking->total_price }}
                     </div>
-                   
-                      <div class="col-md-4 mb-2">
+
+                    <div class="col-md-4 mb-2">
                         <strong>Payment Status:</strong> {{ $booking->payment_status }}
                     </div>
-                    
+                    @if (!empty($booking->cancel_reason))
+                        <div class="col-md-4 mb-2">
+                            <strong>Cancel Reason:</strong> {{ $booking->cancel_reason }}
+                        </div>
+                    @endif
+                    @if (!empty($booking->cancelled_at))
+                        <div class="col-md-4 mb-2">
+                            <strong>Cancel At:</strong> {{ $booking->cancelled_at }}
+                        </div>
+                    @endif
                     <div class="col-md-4 mb-2">
                         <strong>Status:</strong>
-                         
-                                <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">
-                                    {{ ucfirst(str_replace('_', ' ', $booking->status)) }}
-                                </span>
+
+                        <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">
+                            {{ ucfirst(str_replace('_', ' ', $booking->status)) }}
+                        </span>
                     </div>
                     <div class=" mb-2">
-                        <strong>Booking Created Date/Time:</strong> {{ \Carbon\Carbon::parse($booking->created_at )->format('d M Y h:i A')}}
+                        <strong>Booking Created Date/Time:</strong>
+                        {{ \Carbon\Carbon::parse($booking->created_at)->format('d M Y h:i A') }}
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="my-0">
-      
-        <!-- Address Table -->
-        <div class="card-header">
-            <h6 class="mb-0">Booking Slots</h6>
-        </div>
-        <div class="table-responsive px-4 pb-3">
-            <table class="table table-hover align-middle table-bordered">
-                <thead class="bg-label-secondary">
-                    <tr>
-                        <th width="60">ID</th>
-                        <th>Expert Name</th>
-                        <th>Date</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
-                        <th>Duration</th>
-                        <th>Otp</th>
-                        <th>Amount</th>
-                        <th>Check In Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($slots as $slot)
-                        <tr>
-                            <td>{{ $slots->firstItem() + $loop->index }}</td>
-                            <td>
-                                <span class="fw-semibold">{{ $slot->expert?->name}}</span>
-                            </td>
-                            <td>{{ \Carbon\Carbon::parse($slot->date)->format('d M Y')}}</td>
-                            <td> {{ \Carbon\Carbon::parse($slot->start_date)->format('d M Y')}} </td>
-                            <td> {{ \Carbon\Carbon::parse($slot->end_time)->format('d M Y')}} </td>
-                            <td>{{ $slot->duration }}</td>
-                            <td>{{ $slot->otp_code}}</td>
-                            <td>{{ $slot->price }}</td>
-                            <td>{{ \Carbon\Carbon::parse($slot->check_in_time )->format('d M Y h:i A')}}</td>
-                            <td>
-                                <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
-                                    {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center">No booking slot found</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            <hr class="my-0">
 
-        <!-- Pagination (Dynamic) -->
-        <div class="row px-4 pb-3 align-items-center">
-            {{ $slots->links('pagination::bootstrap-5') }}
+            <!-- Address Table -->
+            <div class="card-header">
+                <h6 class="mb-0">Booking Slots</h6>
+            </div>
+            <div class="table-responsive px-4 pb-3">
+                <table class="table table-hover align-middle table-bordered">
+                    <thead class="bg-label-secondary">
+                        <tr>
+                            <th width="60">ID</th>
+                            <th>Expert Name</th>
+                            <th>Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>Otp</th>
+                            <th>Amount</th>
+                            <th>Check In Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($slots as $slot)
+                            <tr>
+                                <td>{{ $slots->firstItem() + $loop->index }}</td>
+                                <td>
+                                    <span class="fw-semibold">{{ $slot->expert?->name ?? 'N/A' }}</span>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($slot->date)->format('d M Y') }}</td>
+                                <td> {{ \Carbon\Carbon::parse($slot->start_time)->format(' h:i A') }} </td>
+                                <td> {{ \Carbon\Carbon::parse($slot->end_time)->format(' h:i A') }} </td>
+                                <td>{{ $slot->duration }}</td>
+                                <td>{{ $slot->otp_code }}</td>
+                                <td>{{ $slot->price }}</td>
+                                <td>{{ \Carbon\Carbon::parse($slot->check_in_time)->format('d M Y h:i A') }}</td>
+                                <td>
+                                    <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
+                                        {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">No booking slot found</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination (Dynamic) -->
+            <div class="row px-4 pb-3 align-items-center">
+                {{ $slots->links('pagination::bootstrap-5') }}
+            </div>
+            <!-- end booking slot -->
         </div>
-        <!-- end booking slot -->
-    </div>
-@endsection
+    @endsection
