@@ -51,7 +51,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'code' => 422,
-                'message' => 'Your account is inactive. Please wait for approval.',
+                'message' => 'Your account is inactive',
                 'data' => (object)[]
             ], 422);
         }
