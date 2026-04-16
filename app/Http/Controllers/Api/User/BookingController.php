@@ -281,6 +281,7 @@ class BookingController extends Controller
                 'duration' => $request->duration,
                 'status' => 'pending',
                 'price' => $request->price,
+                'otp_code'=> rand(100000, 999999)
             ];
         }
         return $slots;
