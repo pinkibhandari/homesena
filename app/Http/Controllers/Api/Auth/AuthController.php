@@ -37,7 +37,7 @@ class AuthController extends Controller
 
         $existingUser = User::where('phone', $request->phone)->first();
 
-        // Block if phone registered with different role
+        //  Role mismatch
         if ($existingUser && $existingUser->role !== $request->role) {
             return response()->json([
                 'code' => 422,
@@ -47,10 +47,19 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Prevent OTP spam (allow resend after 60 seconds)    
-        if ($existingUser && $existingUser->otp_last_sent_at && $existingUser->otp_last_sent_at->addMinutes(1)->isFuture()) {
-            $secondsLeft = now()->diffInSeconds($existingUser->otp_last_sent_at->addMinutes(1));
-            $secondsLeft = floor($secondsLeft);
+        //  Inactive user
+        if ($existingUser && $existingUser->status != 1) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Your account is inactive. Please wait for approval.',
+                'data' => (object) []
+            ], 422);
+        }
+
+        //  OTP cooldown (60 sec)
+        if ($existingUser && $existingUser->otp_last_sent_at && $existingUser->otp_last_sent_at->addSeconds(60)->isFuture()) {
+            $secondsLeft = now()->diffInSeconds($existingUser->otp_last_sent_at->addSeconds(60));
 
             return response()->json([
                 'code' => 422,
@@ -59,43 +68,63 @@ class AuthController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        $otp = $request->phone == config('app.fixed_phone') ? config('app.fixed_otp') : rand(100000, 999999);
-        // $otp = rand(100000, 999999);
-        $status = $request->role === 'expert' ? 0 : 1;
-        $user = User::updateOrCreate(
-            ['phone' => $request->phone],
-            [
-                'otp' => Hash::make($otp),
-                'otp_expires_at' => Carbon::now()->addMinutes(5),
-                'otp_last_sent_at' => Carbon::now(),
+
+        //  Generate OTP
+        $otp = $request->phone == config('app.fixed_phone') ? config('app.fixed_otp') : random_int(100000, 999999);
+
+        // REGISTER (if not exists)
+        if (!$existingUser) {
+            $status = $request->role === 'expert' ? 0 : 1;
+            $user = User::create([
+                'phone' => $request->phone,
                 'role' => $request->role,
-                'status' => $status
-            ]
-        );
-        // Expert first time registration
-        if ($user->role === 'expert' && $user->wasRecentlyCreated) {
-            $user->expertDetail()->firstOrCreate(
-                ['user_id' => $user->id],
-                ['approval_status' => 'pending']
-            );
+                'status' => $status,
+                'otp' => Hash::make($otp),
+                'otp_expires_at' => now()->addMinutes(5),
+                'otp_last_sent_at' => now()
+            ]);
+
+            // Expert first-time setup
+            if ($request->role === 'expert') {
+                $user->expertDetail()->create([
+                    'approval_status' => 'pending'
+                ]);
+            }
+
+            $type = 'register';
+
+        } else {
+            //  LOGIN (existing active user)
+
+            $existingUser->update([
+                'otp' => Hash::make($otp),
+                'otp_expires_at' => now()->addMinutes(5),
+                'otp_last_sent_at' => now()
+            ]);
+
+            $user = $existingUser;
+            $type = 'login';
         }
+        //  Send SMS
         $message = "Your Home Sena OTP for verification is: " . $otp . " OTP is confidential, refrain from sharing it with anyone. By Home Sena Services HSSCIT";
+
         $response = null;
-        //  Do not send SMS for fixed phone
+
         if ($request->phone != config('app.fixed_phone')) {
             $response = $this->sendSms($request->phone, $message);
         }
+
         return response()->json([
             'code' => 200,
             'status' => true,
             'message' => 'OTP sent successfully',
             'data' => array_merge($user->toArray(), [
                 'otp' => $otp,
-                'sms_response' => $response
+                'sms_response' => $response,
+                'type' => $type
             ])
         ], 200);
     }
-
 
     // Verify OTP
     public function verifyOtp(Request $request)
@@ -126,6 +155,16 @@ class AuthController extends Controller
                 'code' => 422,
                 'message' => 'Invalid user',
                 'data' => (object) []
+            ], 422);
+        }
+
+         //  Block inactive user
+        if ($user->status != 1) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Your account is inactive',
+                'data' => (object)[]
             ], 422);
         }
         // Check OTP expiry
@@ -159,11 +198,12 @@ class AuthController extends Controller
         // convert referral code to user id
         if ($user->referred_by) {
             $referrer = User::where('referral_code', $user->referred_by)->first();
-            if ($referrer) {
-                $user->referred_by = $referrer->id;
-            } else {
-                $user->referred_by = null;
-            }
+            $user->referred_by = $referrer ? $referrer->id : null;
+            // if ($referrer) {
+            //     $user->referred_by = $referrer->id;
+            // } else {
+            //     $user->referred_by = null;
+            // }
         }
         $user->save();
 
