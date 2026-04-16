@@ -29,6 +29,8 @@ class BookingResource extends JsonResource
             'time'=>$this->time,
             'payment_status'=>$this->payment_status,
             'created_at'=>$this->created_at,
+            'payment_id'=>$this->payment_id,
+            'payment_time'=>$this->payment_time,
             // 'latitude' => $this->latitude,
             // 'longitude' => $this->longitude,
             // 'address' => $this->address,

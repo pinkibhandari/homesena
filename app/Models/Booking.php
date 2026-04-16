@@ -19,7 +19,8 @@ class Booking extends Model
         'status',
         'total_price',
         'payment_status',
-        'transaction_id',
+        'payment_id',
+        'payment_time',
         'address_id',
         'cancel_reason',
         'cancelled_at'
