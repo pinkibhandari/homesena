@@ -135,7 +135,7 @@ class AuthController extends Controller
             'role' => 'required|in:user,expert,admin',
             'deviceId' => 'required|string',
             'deviceType' => 'required|in:android,ios,web',
-            'fcm_token'=> 'required'
+            // 'fcm_token'=> 'required'
         ]);
 
         if ($validator->fails()) {
@@ -160,7 +160,7 @@ class AuthController extends Controller
         }
 
          //  Block inactive user
-        if ($user->status != 1) {
+        if ($user->status != 1 && $user->role !='expert') {
             return response()->json([
                 'status' => false,
                 'code' => 422,
