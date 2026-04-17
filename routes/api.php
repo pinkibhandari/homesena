@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
 use App\Http\Controllers\Api\Expert\ExpertSOSController;
 use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
+// use App\Http\Controllers\Api\User\RescheduleBookingController;
 
 
 Route::post('login', [AuthController::class, 'sendOtp']);
@@ -65,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
     Route::get('booking-cancel-reasons', [BookingController::class, 'bookingCancelReason']);
     Route::post('booking/payment', [BookingController::class, 'handlePayment']);
+    Route::post('reschedule-booking', [BookingController::class, 'rescheduleBooking']);
     
     //location route
     Route::get('location/available-services', [LocationController::class, 'nearbyServices']);  

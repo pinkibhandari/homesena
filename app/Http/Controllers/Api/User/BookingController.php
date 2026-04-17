@@ -170,7 +170,27 @@ class BookingController extends Controller
             $startDate = $request->start_date;
             $endDate = $request->end_date;
         }
-
+        // add logic for recurringData 26-4-2026
+        $recurringData = null;
+        if ($request->booking_subtype === 'recurring') {
+            if ($request->recurring_type) {
+                if ($request->recurring_type === 'monthly') {
+                    $recurringData = [
+                        'type' => 'monthly',
+                        'date' => (int) $request->monthly_date,
+                    ];
+                } elseif ($request->recurring_type === 'weekly') {
+                    $recurringData = [
+                        'type' => 'weekly',
+                        'days' => $request->days,
+                    ];
+                } elseif ($request->recurring_type === 'daily') {
+                    $recurringData = [
+                        'type' => 'daily',
+                    ];
+                }
+            }
+        }
         return Booking::create([
             'booking_code' => 'HS-' . now()->format('md') . strtoupper(Str::random(4)),
             'user_id' => auth()->id(),
@@ -183,6 +203,7 @@ class BookingController extends Controller
             'time' => $request->type === 'instant' ? now()->addMinutes(15)->format('H:i:s') : $request->time,
             // 'transaction_id' => $request->transaction_id,
             // 'payment_status' => $request->transaction_id ? 'done' : 'pending',
+            // 'recurring_data' => 
             'status' => 'pending',
             'address_id' => $request->addressId,
             'total_price' => $request->total_price,
@@ -281,7 +302,7 @@ class BookingController extends Controller
                 'duration' => $request->duration,
                 'status' => 'pending',
                 'price' => $request->price,
-                'otp_code'=> rand(100000, 999999)
+                'otp_code' => rand(100000, 999999)
             ];
         }
         return $slots;
@@ -759,6 +780,165 @@ class BookingController extends Controller
                 'message' => 'Something went wrong. Please try again later.',
                 'data' => (object) []
 
+            ]);
+        }
+    }
+
+    public function rescheduleBooking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_id' => 'required|exists:bookings,id',
+            'time' => 'required',
+            'start_date' => 'nullable|date|after_or_equal:today',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'recurring_type' => 'nullable|in:daily,weekly,monthly',
+            'days' => 'nullable|array',
+            'days.*' => 'in:mon,tue,wed,thu,fri,sat,sun',
+            'monthly_date' => 'nullable|integer|min:1|max:31',
+            'week' => 'nullable|integer|min:1|max:5',
+            'day' => 'nullable|string',
+            'duration' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $validator->errors()->first(),
+                'data' => (object) [],
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $booking = Booking::find($request->booking_id);
+            if (!$booking) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Booking not found',
+                    'data' => (object) [],
+                ], 422);
+            }
+            // Delete OLD slots ONLY
+            BookingSlot::where('booking_id', $booking->id)->delete();
+            // Update booking fields
+            $booking->time = $request->time ?? $booking->start_date;
+            $booking->start_date = $request->start_date ?? $booking->start_date;
+            $booking->end_date = $request->end_date ?? $booking->end_date;
+            $booking->duration = $request->duration ?? $booking->end_date;
+            if ($booking->booking_subtype === 'recurring') {
+                $recurringData = null;
+                if ($request->recurring_type) {
+                    if ($request->recurring_type === 'monthly') {
+                        $recurringData = [
+                            'type' => 'monthly',
+                            'date' => (int) $request->monthly_date,
+                        ];
+                    } elseif ($request->recurring_type === 'weekly') {
+                        $recurringData = [
+                            'type' => 'weekly',
+                            'days' => $request->days,
+                        ];
+                    } elseif ($request->recurring_type === 'daily') {
+                        $recurringData = [
+                            'type' => 'daily',
+                        ];
+                    }
+                }
+                $booking->recurring_data = $recurringData;
+            }
+            $booking->is_rescheduled = 1;
+            $booking->save();
+            //   Generate NEW dates (reuse your function)
+            $dates = $this->generateBookingDates($request);
+            //  override request values if not sent
+            $request->merge([
+                'start_date' => $booking->start_date,
+                'end_date' => $booking->end_date,
+                'recurring_type' => $booking->recurring_type,
+            ]);
+            //   Generate NEW slots
+            $slots = $this->generateBookingSlots($booking, $dates, $request);
+            // Insert slots
+            BookingSlot::insert($slots);
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Booking rescheduled successfully',
+                'data' => new BookingResource($booking)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // log error
+            \Log::error('Reschedule Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'something went wrong',
+                'data' => (object) []
+            ]);
+        }
+    }
+
+    public function rescheduleBookingSlot(Request $request)
+    {
+        $request->validate([
+            'booking_slot_id' => 'required|exists:booking_slots,id',
+            'date' => 'required|date|after_or_equal:today',
+            'time' => 'required',
+            'duration' => 'required|integer|min:1',
+        ]);
+        DB::beginTransaction();
+        try {
+            $slot = BookingSlot::find($request->booking_slot_id);
+               if (!$slot) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Booking Slot not found',
+                    'data' => (object) [],
+                ], 422);
+            }
+            //  prevent past time
+            if ($request->date == now()->toDateString()) {
+                $selected = Carbon::parse($request->date . ' ' . $request->time);
+                if ($selected->lt(now())) {
+                     return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Time cannot be in the past.',
+                    'data' => (object) [],
+                ], 422);
+                }
+            }
+            //  update slot
+            $startTime = Carbon::parse($request->time);
+            $endTime = $startTime->copy()->addMinutes($request->duration);
+            $slot->update([
+                'date' => $request->date,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'duration' => $request->duration,
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'code'=> 200,
+                'message' => 'Slot reschedule updated successfully',
+                'data'=> $slot
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Reschedule Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'something went wrong',
+                'data' => (object) []
             ]);
         }
     }

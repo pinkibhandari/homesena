@@ -13,6 +13,7 @@ class Booking extends Model
         'user_id',
         'type',
         'booking_subtype',
+        'recurring_data',
         'start_date',
         'end_date',
         'time',
@@ -23,8 +24,13 @@ class Booking extends Model
         'payment_time',
         'address_id',
         'cancel_reason',
-        'cancelled_at'
+        'cancelled_at',
+        'is_rescheduled'
     ];
+
+    protected $casts = [
+      'recurring_data' => 'array',
+        ];
  // booking code generator
     // protected static function booted()
     // {

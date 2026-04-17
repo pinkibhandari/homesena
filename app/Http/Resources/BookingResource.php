@@ -65,6 +65,7 @@ class BookingResource extends JsonResource
                     'duration' => $slot->duration,
                     'status' => $slot->status,
                     'amount'=>$slot->price,
+                    'otp_code'=>$slot->otp_code,
                     // 'payment_status'=>$slot->payment_status,
 
                     //  Expert per slot

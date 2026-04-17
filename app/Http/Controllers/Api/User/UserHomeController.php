@@ -34,7 +34,7 @@ class UserHomeController extends Controller
         $experts = $this->getExperts($lat, $lng);
         $services = Service::with('activeVariants')->where('status', 1)->get();
         $allServices = ServiceResource::collection($services);
-        $superSavePack = HomePromotion::where('status', 1)->where('promotion_datetime','>=',now())->get();
+        $superSavePack = HomePromotion::where('status', 1)->where('promotion_datetime','>=',now())->first();
         $referral_reward = 100;
         return response()->json([
                 'status' => true,

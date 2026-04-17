@@ -134,7 +134,8 @@ class AuthController extends Controller
             'otp' => 'required|digits:6',
             'role' => 'required|in:user,expert,admin',
             'deviceId' => 'required|string',
-            'deviceType' => 'required|in:android,ios,web'
+            'deviceType' => 'required|in:android,ios,web',
+            'fcm_token'=> 'required'
         ]);
 
         if ($validator->fails()) {
@@ -219,7 +220,8 @@ class AuthController extends Controller
             ],
             [
                 'device_type' => $request->deviceType,
-                'token_id' => $tokenResult->accessToken->id
+                'token_id' => $tokenResult->accessToken->id,
+                'fcm_token'=> $request->fcm_token
             ]
         );
         $user->profile_image = $user->profile_image
