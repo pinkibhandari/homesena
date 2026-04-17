@@ -7,22 +7,54 @@
             @include('admin.layouts.partials.alerts')
         </div>
         <!-- Header -->
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+
             <h5 class="card-title mb-0">Experts</h5>
-            <div class="d-flex align-items-center gap-3">
+
+            <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center gap-2 flex-wrap">
+
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.experts.index') }}" class="d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="me-2">Search:</span>
-                        <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search experts..." value="{{ request('search') }}" style="width:200px;">
-                    </div>
-                </form>
-                <!-- Add Button -->
+                <input name="search" type="search" class="form-control form-control-sm" placeholder="Search experts..."
+                    value="{{ request('search') }}" style="width:180px;">
+
+                <!--  Online -->
+                <select name="is_online" class="form-select form-select-sm" style="width:120px;">
+                    <option value="">Online</option>
+                    <option value="1" {{ request('is_online') == '1' ? 'selected' : '' }}>Online</option>
+                    <option value="0" {{ request('is_online') == '0' ? 'selected' : '' }}>Offline</option>
+                </select>
+                <!--  Approval -->
+                <select name="approval_status" class="form-select form-select-sm" style="width:120px;">
+                    <option value="">Approval</option>
+                    <option value="pending" {{ request('approval_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="approved" {{ request('approval_status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                </select>
+
+
+                <!-- Status -->
+                 <select name="status" class="form-select form-select-sm" style="width:120px;">
+                    <option value="">Status</option>
+                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                </select>
+                <!--  Search Button -->
+                <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Search">
+                    <i class="ri-search-line"></i>
+                </button>
+
+                <!--  Reset -->
+                <a href="{{ route('admin.experts.index') }}" class="btn btn-outline-secondary btn-sm"
+                    data-bs-toggle="tooltip" title="Reset Filters">
+                    <i class="ri-refresh-line"></i>
+                </a>
+
+                <!--  Add -->
                 <a href="{{ route('admin.experts.create') }}" class="btn btn-primary btn-sm">
                     <i class="ri-add-line me-1"></i> Add
                 </a>
-            </div>
+
+            </form>
+
         </div>
         <hr class="my-0">
         <!-- Show Entries -->
@@ -49,10 +81,10 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <img src="{{fileUrl( $expert->profile_image) ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                <img src="{{ fileUrl($expert->profile_image) ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                                     width="35" height="35" class="rounded-circle">
                             </td>
-                             
+
 
                             <td>
                                 <span class="fw-semibold">{{ $expert->name ?? ' ' }}</span>

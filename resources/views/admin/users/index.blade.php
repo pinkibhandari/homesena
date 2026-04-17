@@ -8,25 +8,48 @@
             @include('admin.layouts.partials.alerts')
         </div>
         <!-- Header -->
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+
             <h5 class="card-title mb-0">Users</h5>
-            <div class="d-flex align-items-center gap-3">
-                <!-- Search -->
-                <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="me-2">Search:</span>
-                        <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search User's..." value="{{ request('search') }}" style="width:200px;">
-                    </div>
 
-                </form>
+            <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex align-items-center gap-2 flex-wrap">
 
-            </div>
+                <!--  Search -->
+                <input name="search" type="search" class="form-control form-control-sm" placeholder="Search..."
+                    value="{{ request('search') }}" style="width:180px;">
+
+                <!--  Status -->
+                <select name="status" class="form-select form-select-sm" style="width:120px;">
+                    <option value="">Status</option>
+                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                </select>
+
+                <!--  Profile -->
+                <select name="profile_completed" class="form-select form-select-sm" style="width:140px;">
+                    <option value="">Profile</option>
+                    <option value="1" {{ request('profile_completed') == '1' ? 'selected' : '' }}>Completed</option>
+                    <option value="0" {{ request('profile_completed') == '0' ? 'selected' : '' }}>Incomplete</option>
+                </select>
+
+                <!--  Buttons -->
+                <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Search">
+                    <i class="ri-search-line"></i>
+                </button>
+
+                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Reset Filters">
+
+                    <i class="ri-refresh-line"></i>
+                </a>
+
+            </form>
+
         </div>
         <hr class="my-0">
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
-            <!-- <div class="col-md-6">
+            {{-- <div class="col-md-6">
                                                                                                     <div class="d-flex align-items-center gap-2">
                                                                                                         <span>Show</span>
                                                                                                         <select class="form-select form-select-sm" style="width:80px;">
@@ -37,7 +60,7 @@
                                                                                                         </select>
                                                                                                         <span>entries</span>
                                                                                                     </div>
-                                                                                                </div> -->
+                                                                                                </div> --}}
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -159,13 +182,13 @@
 
                                 if (!data.status) {
                                     alert('Update failed');
-                                    checkbox.checked = !value; 
+                                    checkbox.checked = !value;
                                 }
 
                             })
                             .catch(() => {
                                 alert('Something went wrong');
-                                checkbox.checked = !value; 
+                                checkbox.checked = !value;
                             });
 
                     });
