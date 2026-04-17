@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
 use App\Http\Controllers\Api\Expert\ExpertSOSController;
 use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
-// use App\Http\Controllers\Api\User\RescheduleBookingController;
+
 
 
 Route::post('login', [AuthController::class, 'sendOtp']);
