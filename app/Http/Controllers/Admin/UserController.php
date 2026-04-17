@@ -15,19 +15,55 @@ use Illuminate\Support\Facades\DB;
 class UserController extends Controller
 {
     // INDEX
+    // public function index(Request $request)
+    // {
+    //     $users = User::where('role', 'user')
+    //         ->when($request->filled('search'), function ($q) use ($request) {
+    //             $search = $request->search;
+    //             $q->where(function ($query) use ($search) {
+    //                 $query->where('name', 'like', "%{$search}%")
+    //                       ->orWhere('phone', 'like', "%{$search}%");
+    //             });
+    //         })
+    //         ->latest()
+    //         ->paginate(10)
+    //         ->withQueryString();
+
+    //     return view('admin.users.index', compact('users'));
+    // }
     public function index(Request $request)
     {
         $users = User::where('role', 'user')
+
+            // 🔍 SEARCH (name + phone + email)
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
+
                 $q->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
-                          ->orWhere('phone', 'like', "%{$search}%");
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
+
+            // ✅ STATUS FILTER
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+
+            // ✅ PROFILE COMPLETED FILTER
+            ->when($request->filled('profile_completed'), function ($q) use ($request) {
+                $q->where('profile_completed', $request->profile_completed);
+            })
+
             ->latest()
             ->paginate(10)
             ->withQueryString();
+
+        // ✅ AJAX REQUEST (important for no reload)
+       if ($request->ajax()) {
+    return view('admin.users.index', compact('users'))->render();
+}
 
         return view('admin.users.index', compact('users'));
     }
@@ -74,7 +110,6 @@ class UserController extends Controller
 
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully');
-
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -84,32 +119,32 @@ class UserController extends Controller
 
     // UPDATE ( FIXED)
     public function update(Request $request, User $user)
-{
-    //  AJAX STATUS UPDATE
-    if ($request->wantsJson() && $request->has('status')) {
+    {
+        //  AJAX STATUS UPDATE
+        if ($request->wantsJson() && $request->has('status')) {
 
-        $user->status = $request->status;
-        $user->save();
+            $user->status = $request->status;
+            $user->save();
 
-        return response()->json([
-            'status' => true
-        ]);
+            return response()->json([
+                'status' => true
+            ]);
+        }
+
+        // NORMAL UPDATE
+        $data = $this->validateData($request, $user->id);
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'User updated successfully');
     }
-
-    // NORMAL UPDATE
-    $data = $this->validateData($request, $user->id);
-
-    if ($request->filled('password')) {
-        $data['password'] = Hash::make($request->password);
-    } else {
-        unset($data['password']);
-    }
-
-    $user->update($data);
-
-    return redirect()->route('admin.users.index')
-        ->with('success', 'User updated successfully');
-}
 
     // DELETE
     public function destroy(User $user)
@@ -161,7 +196,6 @@ class UserController extends Controller
             });
 
             return back()->with('success', 'Device logged out successfully');
-
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

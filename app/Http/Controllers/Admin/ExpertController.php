@@ -21,20 +21,48 @@ class ExpertController extends Controller
     {
         $experts = User::with('expertDetail')
             ->where('role', 'expert')
+
+            //  SEARCH (name, phone, registration_code)
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
+
                 $q->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhereHas('expertDetail', function ($q1) use ($search) {
                             $q1->where('registration_code', 'like', "%{$search}%");
-                            // ->orWhere('onboarding_agent_code', 'like', "%{$search}%");
                         });
                 });
             })
+
+            //  STATUS FILTER
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+
+            //  APPROVAL FILTER
+            ->when($request->filled('approval_status'), function ($q) use ($request) {
+                $q->whereHas('expertDetail', function ($q1) use ($request) {
+                    $q1->where('approval_status', $request->approval_status);
+                });
+            })
+
+            //  ONLINE FILTER
+            ->when($request->filled('is_online'), function ($q) use ($request) {
+                $q->whereHas('expertDetail', function ($q1) use ($request) {
+                    $q1->where('is_online', $request->is_online);
+                });
+            })
+
             ->latest()
             ->paginate(10)
             ->withQueryString();
+
+        // ✅ AJAX SUPPORT (no reload)
+        if ($request->ajax()) {
+            return view('admin.experts.index', compact('experts'))->render();
+        }
+
         return view('admin.experts.index', compact('experts'));
     }
 
