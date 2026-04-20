@@ -1,7 +1,183 @@
-@extends('frontend.layouts.master')
 
-@section('content')
+ <style>
+    .delete-account-hero {
+        padding: 130px 0 70px;
+        background: linear-gradient(135deg, #f5f3ff, #ffffff);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
 
+    .delete-account-hero h1 {
+        font-size: 68px;
+        font-weight: 700;
+        color: #333;
+        line-height: 1.2;
+        margin-bottom: 25px;
+    }
+
+    .delete-account-hero h1 span {
+        color: #7c3aed;
+    }
+
+    .delete-account-hero .subtitle {
+        font-size: 20px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .delete-account-hero .description {
+        font-size: 16px;
+        color: #777;
+        max-width: 600px;
+        margin: 0 auto 30px;
+        line-height: 1.6;
+    }
+
+    .delete-account-hero .divider {
+        width: 80px;
+        height: 4px;
+        background-color: #7c3aed;
+        margin: 0 auto;
+        border-radius: 2px;
+    }
+
+    .delete-account-info {
+        padding: 60px 0 80px;
+        background-color: #f9f9f9;
+        text-align: center;
+    }
+
+    .delete-account-info h2 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .delete-account-info p {
+        font-size: 16px;
+        color: #666;
+        line-height: 1.8;
+        max-width: 700px;
+        margin: 0 auto 15px;
+    }
+
+    .delete-account-info p strong {
+        color: #333;
+    }
+
+    /* FORM SECTION */
+    .deletion-request-section {
+        padding: 80px 0;
+        background: #ffffff;
+    }
+
+    .deletion-form-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .deletion-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    /* IMAGE SIDE */
+    .deletion-img-col {
+        flex: 1 1 45%;
+        background: linear-gradient(135deg, #f5f3ff, #ffffff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .deletion-img-col img {
+        max-width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* FORM SIDE */
+    .deletion-form-col {
+        flex: 1 1 55%;
+        padding: 50px 60px;
+    }
+
+    .deletion-form-col h3 {
+        font-size: 30px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .border-input {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #ddd;
+        padding: 12px 0;
+        margin-bottom: 25px;
+        font-size: 15px;
+        background: transparent;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .border-input::placeholder {
+        color: #888;
+    }
+
+    .border-input:focus {
+        border-bottom: 2px solid #7c3aed;
+    }
+
+    .submit-btn-red {
+        background-color: #e63946;
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .submit-btn-red:hover {
+        background-color: #d62828;
+        transform: translateY(-2px);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 991px) {
+        .delete-account-hero h1 {
+            font-size: 44px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .deletion-row {
+            flex-direction: column;
+        }
+
+        .deletion-img-col {
+            display: none;
+        }
+
+        .deletion-form-col {
+            padding: 40px 25px;
+        }
+    }
+</style>
+    
  <section class="delete-account-hero">
         <div class="container">
             <h1 class="wow fadeInUp" data-wow-delay="0.1s">Its Sad<br><span>To See You</span></h1>
@@ -31,25 +207,46 @@
         </div>
     </section>
 
-    <section id="deletionForm" class="deletion-request-section">
-        <div class="container">
-            <div class="deletion-form-card wow fadeInUp" data-wow-delay="0.2s">
-                <div class="deletion-img-col"></div>
-                
-                <div class="deletion-form-col">
-                    <h3>Request Account Deletion</h3>
-                    
-                    <form action="#" method="POST">
-                        <input type="text" class="border-input" placeholder="Full Name *" required>
-                        <input type="email" class="border-input" placeholder="Your Email *" required>
-                        <textarea class="border-input" rows="3" placeholder="Reason for deleting account (Optional)"></textarea>
-                        
-                        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" style="margin-bottom: 25px;"></div>
-                        
-                        <button type="submit" class="submit-btn-red">Submit</button>
-                    </form>
+   <section id="deletionForm" class="deletion-request-section">
+    <div class="container">
+
+        <div class="deletion-form-card wow fadeInUp">
+
+            <div class="deletion-row">
+
+                <!-- IMAGE SIDE -->
+                <div class="deletion-img-col">
+                    <img src="{{ asset('img/delete.png') }}" alt="Delete">
                 </div>
+
+                <!-- FORM SIDE -->
+                <div class="deletion-form-col">
+
+                    <h3>Request Account Deletion</h3>
+
+                    <form action="#" method="POST">
+
+                        <input type="text" class="border-input" placeholder="Full Name *" required>
+
+                        <input type="email" class="border-input" placeholder="Your Email *" required>
+
+                        <textarea class="border-input" rows="3"
+                            placeholder="Reason for deleting account (Optional)"></textarea>
+
+                        <div class="g-recaptcha mb-3"
+                            data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+
+                        <button type="submit" class="submit-btn-red">
+                            Submit Request
+                        </button>
+
+                    </form>
+
+                </div>
+
             </div>
+
         </div>
-    </section>
-@endsection
+
+    </div>
+</section>

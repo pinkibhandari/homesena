@@ -44,7 +44,13 @@
                 <div>Time Slots</div>
             </a>
         </li>
-
+        {{-- Payments --}}
+        <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.payments.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-wallet-3-line"></i>
+                <div>Payments</div>
+            </a>
+        </li>
         {{-- Service Management --}}
         <li
             class="menu-item 
@@ -110,23 +116,6 @@
 
             </ul>
         </li>
-
-        {{-- Training Centers --}}
-        <li class="menu-item {{ request()->routeIs('admin.training_centers.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
-                <i class="menu-icon ri ri-building-line"></i>
-                <div>Training Centers</div>
-            </a>
-        </li>
-
-        {{-- CMS Pages --}}
-        <li class="menu-item {{ request()->routeIs('admin.cms_pages.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
-                <i class="menu-icon ri ri-file-text-line"></i>
-                <div>CMS Pages</div>
-            </a>
-        </li>
-
         {{-- Reviews --}}
 
         <li class="menu-item 
@@ -155,16 +144,9 @@
 
             </ul>
         </li>
-        {{-- Home Promotion --}}
-        <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
-                <i class="menu-icon ri ri-megaphone-line"></i>
-                <div>Home Promotion</div>
-            </a>
-        </li>
         {{-- Refer & Earn --}}
         <li class="menu-item 
-    {{ request()->routeIs('admin.refer_earn.*') ? 'active open' : '' }}">
+            {{ request()->routeIs('admin.refer_earn.*') ? 'active open' : '' }}">
 
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-gift-line"></i>
@@ -190,7 +172,7 @@
         {{-- Support --}}
         <li
             class="menu-item 
-            {{ request()->is('admin/user-support*') || request()->is('admin/expert-support*') ? 'active open' : '' }}">
+             {{ request()->routeIs('admin.user_supports.*') || request()->routeIs('admin.expert_supports.*') ? 'active open' : '' }}">
 
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon ri ri-customer-service-line"></i>
@@ -199,20 +181,46 @@
 
             <ul class="menu-sub">
 
-                <li class="menu-item {{ request()->is('admin/user-support*') ? 'active' : '' }}">
+                <li class="menu-item {{ request()->routeIs('admin.user_supports.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.user_supports.index') }}" class="menu-link">
                         <div>User Support</div>
                     </a>
                 </li>
 
-                <li class="menu-item {{ request()->is('admin/expert-support*') ? 'active' : '' }}">
-                    <a href="#" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('admin.expert_supports.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.expert_supports.index') }}" class="menu-link">
                         <div>Expert Support</div>
                     </a>
                 </li>
 
             </ul>
         </li>
+        {{-- Training Centers --}}
+        <li class="menu-item {{ request()->routeIs('admin.training_centers.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.training_centers.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-building-line"></i>
+                <div>Training Centers</div>
+            </a>
+        </li>
+
+        {{-- CMS Pages --}}
+        <li class="menu-item {{ request()->routeIs('admin.cms_pages.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.cms_pages.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-file-text-line"></i>
+                <div>CMS Pages</div>
+            </a>
+        </li>
+
+
+        {{-- Home Promotion --}}
+        <li class="menu-item {{ request()->routeIs('admin.home_promotion.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.home_promotion.index') }}" class="menu-link">
+                <i class="menu-icon ri ri-megaphone-line"></i>
+                <div>Home Promotion</div>
+            </a>
+        </li>
+
+
 
         {{-- Expert SOS --}}
         <li class="menu-item {{ request()->routeIs('admin.expert_sos.*') ? 'active' : '' }}">
@@ -221,13 +229,7 @@
                 <div>Expert SOS</div>
             </a>
         </li>
-        {{-- Payments --}}
-        <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
-            <a href="#" class="menu-link">
-                <i class="menu-icon ri ri-wallet-3-line"></i>
-                <div>Payments</div>
-            </a>
-        </li>
+
 
     </ul>
 </aside>
