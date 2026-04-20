@@ -99,7 +99,7 @@ class BookingController extends Controller
     }
 
     //  ACCEPT BOOKING
-    public function accept(Request $request, FirebaseService $firebase)
+    public function acceptSlot(Request $request, FirebaseService $firebase)
     {
         
         $validator = Validator::make($request->all(), [
@@ -159,7 +159,7 @@ class BookingController extends Controller
      
     //  REJECT BOOKING
 
-    public function reject(Request $request, FirebaseService $firebase)
+    public function rejectSlot(Request $request, FirebaseService $firebase)
     {
         $request->validate([
             'booking_slot_id' => 'required|exists:booking_slots,id',
@@ -169,14 +169,18 @@ class BookingController extends Controller
         $slot = BookingSlot::find($request->booking_slot_id);
         if ($slot->expert_id != $expert->id) {
             return response()->json([
+                'code' => 422,
                 'status' => false,
-                'message' => 'Unauthorized'
-            ], 403);
+                'message' => 'Unauthorized',
+                'data' => (object) []
+            ], 422);
         }
         if ($slot->status != 'confirmed') {
             return response()->json([
+                'code' => 422,
                 'status' => false,
-                'message' => 'Already processed'
+                'message' => 'Already processed',
+                'data' => (object) []
             ], 422);
         }
         //  Reject
@@ -195,8 +199,10 @@ class BookingController extends Controller
             );
         }
         return response()->json([
+            'code'=> 200,
             'status' => true,
-            'message' => 'Booking rejected successfully'
+            'message' => 'Booking rejected successfully',
+            'data' =>  $slot
         ]);
     }
   
