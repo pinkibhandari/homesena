@@ -126,7 +126,7 @@ class BookingController extends Controller
         }
 
         //  Already processed
-        if ($slot->status != 'pending') {
+        if ($slot->status != 'confirmed') {
             return response()->json([
                 'code' => 422,
                 'status' => false,
@@ -173,15 +173,15 @@ class BookingController extends Controller
                 'message' => 'Unauthorized'
             ], 403);
         }
-        if ($slot->status != 'pending') {
+        if ($slot->status != 'confirmed') {
             return response()->json([
                 'status' => false,
                 'message' => 'Already processed'
             ], 422);
         }
         //  Reject
-        $slot->status = 'rejected';
-        $slot->reject_reason = $request->reason;
+        // $slot->status = 'rejected';
+        // $slot->reject_reason = $request->reason;
         $slot->save();
         //  Notify user
         $booking = Booking::find($slot->booking_id);
@@ -211,7 +211,7 @@ class BookingController extends Controller
             ->toArray();
 
         foreach ($tokens as $token) {
-            $firebase->send($token, $title, $body, $data);
+            $firebase->sendNotification($token, $title, $body, $data);
         }
     }
 }

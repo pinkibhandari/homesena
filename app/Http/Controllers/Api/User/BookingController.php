@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Models\Address;
 use App\Models\BookingSlot;
 use App\Models\BookingCancelReason;
+use App\Http\Resources\BookingSlotResource;
 
 class BookingController extends Controller
 {
@@ -66,10 +67,11 @@ class BookingController extends Controller
 
         try {
             // TRANSACTION START
+
             $booking = DB::transaction(function () use ($request) {
                 $booking = $this->createBooking($request);
                 $dates = $this->generateBookingDates($request);
-                $slots = $this->generateBookingSlots($booking, $dates, $request);
+                $slots = $this->generateBookingSlots($booking, $dates, $request, false);
                 BookingSlot::insertOrIgnore($slots);
                 // $result = $this->processBookingNotifications($booking, $slots, $address);
                 return $booking;
@@ -279,7 +281,7 @@ class BookingController extends Controller
         return $dates;
     }
 
-    private function generateBookingSlots(Booking $booking, array $dates, Request $request): array
+    private function generateBookingSlots(Booking $booking, array $dates, Request $request, $isReschedule = false): array
     {
         if ($request->type === 'instant') {
             $startTime = now()->addMinutes(15);
@@ -302,7 +304,8 @@ class BookingController extends Controller
                 'duration' => $request->duration,
                 'status' => 'pending',
                 'price' => $request->price,
-                'otp_code' => rand(100000, 999999)
+                'otp_code' => rand(100000, 999999),
+                'is_rescheduled' => $isReschedule ? 1 : 0,
             ];
         }
         return $slots;
@@ -821,13 +824,23 @@ class BookingController extends Controller
                     'data' => (object) [],
                 ], 422);
             }
+            //  BLOCK if already rescheduled
+            if ($booking->is_rescheduled == 1) {
+                return response()->json([
+                    'status' => false,
+                    'code' => 422,
+                    'message' => 'Booking already rescheduled once',
+                    'data' => (object) []
+                ], 422);
+            }
             // Delete OLD slots ONLY
             BookingSlot::where('booking_id', $booking->id)->delete();
             // Update booking fields
             $booking->time = $request->time ?? $booking->start_date;
             $booking->start_date = $request->start_date ?? $booking->start_date;
             $booking->end_date = $request->end_date ?? $booking->end_date;
-            $booking->duration = $request->duration ?? $booking->end_date;
+            $booking->status = 'pending';
+            // $booking->duration = $request->duration ?? $booking->end_date;
             if ($booking->booking_subtype === 'recurring') {
                 $recurringData = null;
                 if ($request->recurring_type) {
@@ -858,9 +871,15 @@ class BookingController extends Controller
                 'start_date' => $booking->start_date,
                 'end_date' => $booking->end_date,
                 'recurring_type' => $booking->recurring_type,
+                'status' => 'pending'
             ]);
             //   Generate NEW slots
-            $slots = $this->generateBookingSlots($booking, $dates, $request);
+            $slots = $this->generateBookingSlots($booking, $dates, $request, true);
+            // make sure new slots also marked
+            // foreach ($slots as &$slot) {
+            //     $slot['is_rescheduled'] = 1;
+            // }
+
             // Insert slots
             BookingSlot::insert($slots);
             DB::commit();
@@ -891,11 +910,12 @@ class BookingController extends Controller
             'date' => 'required|date|after_or_equal:today',
             'time' => 'required',
             'duration' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
         ]);
         DB::beginTransaction();
         try {
             $slot = BookingSlot::find($request->booking_slot_id);
-               if (!$slot) {
+            if (!$slot) {
                 return response()->json([
                     'status' => false,
                     'code' => 422,
@@ -907,13 +927,22 @@ class BookingController extends Controller
             if ($request->date == now()->toDateString()) {
                 $selected = Carbon::parse($request->date . ' ' . $request->time);
                 if ($selected->lt(now())) {
-                     return response()->json([
+                    return response()->json([
+                        'status' => false,
+                        'code' => 422,
+                        'message' => 'Time cannot be in the past.',
+                        'data' => (object) [],
+                    ], 422);
+                }
+            }
+            //  BLOCK if already rescheduled
+            if ($slot->is_rescheduled == 1) {
+                return response()->json([
                     'status' => false,
                     'code' => 422,
-                    'message' => 'Time cannot be in the past.',
-                    'data' => (object) [],
+                    'message' => 'Booking slot already rescheduled once',
+                    'data' => (object) []
                 ], 422);
-                }
             }
             //  update slot
             $startTime = Carbon::parse($request->time);
@@ -923,13 +952,16 @@ class BookingController extends Controller
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'duration' => $request->duration,
+                'status' => 'pending',
+                'price' => $request->price,
+                'is_rescheduled' => 1
             ]);
             DB::commit();
             return response()->json([
                 'status' => true,
-                'code'=> 200,
+                'code' => 200,
                 'message' => 'Slot reschedule updated successfully',
-                'data'=> $slot
+                'data' => new BookingSlotResource($slot->refresh())
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
