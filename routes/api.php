@@ -60,13 +60,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('booking/{id}', [BookingController::class, 'getBookingById']);
     // Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
     // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
-    Route::put('slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
-    Route::post('slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
+    // Route::put('slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
+    // Route::post('slots/{id}/confirmOTP', [BookingController::class, 'confirmOtp']);
     Route::put('slot/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
     Route::put('booking/{id}/cancel', [BookingController::class, 'cancelBooking']);
     Route::get('booking-cancel-reasons', [BookingController::class, 'bookingCancelReason']);
-    Route::post('booking/payment', [BookingController::class, 'handlePayment']);
+    // Route::post('booking/payment', [BookingController::class, 'handlePayment']);
     Route::post('reschedule-booking', [BookingController::class, 'rescheduleBooking']);
+    Route::post('reschedule-booking-slot', [BookingController::class, 'rescheduleBookingSlot']);
+    
     
     //location route
     Route::get('location/available-services', [LocationController::class, 'nearbyServices']);  

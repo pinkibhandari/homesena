@@ -130,7 +130,8 @@ class ServiceController extends Controller
         return response()->json([
             'status' => true,
             'code' => 200,
-            'data' => (object) [],
+            // 'data' => $exists,
+            'data' => true,
             'message' => $exists ? 'Service available in this area' : 'Service not available in this area'
         ]);
     }

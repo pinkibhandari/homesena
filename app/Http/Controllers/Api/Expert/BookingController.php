@@ -126,7 +126,7 @@ class BookingController extends Controller
         }
 
         //  Already processed
-        if ($slot->status != 'pending') {
+        if ($slot->status != 'confirmed') {
             return response()->json([
                 'code' => 422,
                 'status' => false,
@@ -211,7 +211,7 @@ class BookingController extends Controller
             ->toArray();
 
         foreach ($tokens as $token) {
-            $firebase->send($token, $title, $body, $data);
+            $firebase->sendNotification($token, $title, $body, $data);
         }
     }
 }
