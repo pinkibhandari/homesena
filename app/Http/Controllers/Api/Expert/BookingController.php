@@ -12,7 +12,8 @@ use App\Models\UserDevice;
 use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\BookingSlotLog;
+use App\Http\Resources\BookingSlotResource;
 class BookingController extends Controller
 {
     public function bookingList(Request $request)
@@ -101,20 +102,97 @@ class BookingController extends Controller
     //  ACCEPT BOOKING
     public function acceptSlot(Request $request, FirebaseService $firebase)
     {
-        
         $validator = Validator::make($request->all(), [
-           'booking_slot_id' => 'required|exists:booking_slots,id',
+            'booking_slot_id' => 'required|exists:booking_slots,id',
         ]);
+
         if ($validator->fails()) {
             return response()->json([
-                'code' => 422,
                 'status' => false,
+                'code' => 422,
                 'message' => $validator->errors()->first(),
                 'data' => (object) []
             ], 422);
         }
+        try {
+            $slot = BookingSlot::findOrFail($request->booking_slot_id);
+            DB::transaction(function () use ($slot, $request) {
+                //  Check if already accepted
+                $alreadyAccepted = BookingSlot::where('booking_id', $slot->booking_id)
+                    ->where('status', 'accepted')
+                    ->lockForUpdate()
+                    ->exists();
+                if ($alreadyAccepted) {
+                    throw new \Exception('Booking already accepted by another expert');
+                }
+                //  Security check
+                $expert = auth()->user();
+                if ($slot->expert_id != $expert->id) {
+                    throw new \Exception('Unauthorized');
+                }
+                //  Slot already processed
+                if ($slot->status !== 'confirmed') {
+                    throw new \Exception('Slot already processed');
+                }
+                //  Accept slot
+                $slot->status = 'accepted';
+                $slot->save();
+                // Add Booking Log
+                BookingSlotLog::create([
+                    'booking_slot_id' => $request->booking_slot_id,
+                    'expert_id' => $expert->id,
+                    'action' => 'accepted',
+                ]);
+            });
+            // Load relation instead of extra query
+            $slot->load('booking');
+            //  Notify user
+            if (!empty($slot->booking?->user_id)) {
+                $this->sendToUserDevices(
+                    $slot->booking->user_id,
+                    "Booking Accepted",
+                    "Your booking has been accepted by expert",
+                    ['type' => 'booking_accept'],
+                    $firebase
+                );
+            }
+
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Booking accepted successfully',
+                'data' => new BookingSlotResource($slot)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => $e->getMessage(),
+                'data' => (object) []
+            ], 422);
+        }
+    }
+
+
+    //  REJECT BOOKING
+
+    public function rejectSlot(Request $request)
+    {
+        $request->validate([
+            'booking_slot_id' => 'required|exists:booking_slots,id',
+            'reason' => 'nullable|string'
+        ]);
         $expert = auth()->user();
         $slot = BookingSlot::find($request->booking_slot_id);
+        if (!$slot) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Booking slot not found',
+                'data' => (object) []
+            ]);
+        }
         //  Security check
         if ($slot->expert_id != $expert->id) {
             return response()->json([
@@ -124,90 +202,44 @@ class BookingController extends Controller
                 'data' => (object) []
             ], 422);
         }
-
-        //  Already processed
-        if ($slot->status != 'confirmed') {
-            return response()->json([
+        //  Get latest action for this expert + slot
+        $latestAction = BookingSlotLog::where('booking_slot_id', $slot->id)
+            ->where('expert_id', $expert->id)
+            ->latest()
+            ->value('action');
+        if ($latestAction === 'accepted') {
+             return response()->json([
                 'code' => 422,
                 'status' => false,
-                'message' => 'Already processed',
+                'message' => 'You have already accepted this booking',
                 'data' => (object) []
             ], 422);
         }
-        //  Accept
-        $slot->status = 'accepted';
-        $slot->save();
-        //  Notify user
-        $booking = Booking::find($slot->booking_id);
-        if ($booking && $booking->user_id) {
-            $this->sendToUserDevices(
-                $booking->user_id,
-                "Booking Accepted",
-                "Your booking has been accepted by expert",
-                ['type' => 'booking_accept'],
-                $firebase
-            );
+        if ($latestAction === 'rejected') {
+             return response()->json([
+                'code' => 422,
+                'status' => false,
+                'message' => 'Already rejected',
+                'data' => (object) []
+            ], 422);
         }
-        return response()->json([
-            'code'=> 200,
-            'status' => true,
-            'message' => 'Booking accepted successfully',
-            'data'=>  $slot
+        BookingSlotLog::create([
+            'booking_slot_id' => $slot->id,
+            'expert_id' => $expert->id,
+            'action' => 'rejected',
+            'reason' => $request->reason,
         ]);
-    }
-
-     
-    //  REJECT BOOKING
-
-    public function rejectSlot(Request $request, FirebaseService $firebase)
-    {
-        $request->validate([
-            'booking_slot_id' => 'required|exists:booking_slots,id',
-            'reason' => 'nullable|string'
-        ]);
-        $expert = auth()->user();
-        $slot = BookingSlot::find($request->booking_slot_id);
-        if ($slot->expert_id != $expert->id) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Unauthorized',
-                'data' => (object) []
-            ], 422);
-        }
-        if ($slot->status != 'confirmed') {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Already processed',
-                'data' => (object) []
-            ], 422);
-        }
-        //  Reject
-        // $slot->status = 'rejected';
-        // $slot->reject_reason = $request->reason;
-        $slot->save();
-        //  Notify user
-        $booking = Booking::find($slot->booking_id);
-        if ($booking && $booking->user_id) {
-            $this->sendToUserDevices(
-                $booking->user_id,
-                "Booking Rejected",
-                "Your booking has been rejected by expert",
-                ['type' => 'booking_reject'],
-                $firebase
-            );
-        }
+        // Load relation
+        $slot->load('booking');
         return response()->json([
-            'code'=> 200,
+            'code' => 200,
             'status' => true,
             'message' => 'Booking rejected successfully',
-            'data' =>  $slot
+            'data' => (object) []
         ]);
     }
-  
+
     // SEND NOTIFICATION
-  
     private function sendToUserDevices($userId, $title, $body, $data = [], $firebase)
     {
         $tokens = UserDevice::where('user_id', $userId)
