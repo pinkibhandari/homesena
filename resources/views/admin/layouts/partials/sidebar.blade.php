@@ -113,7 +113,12 @@
                         <div>Booking Cancel Reasons</div>
                     </a>
                 </li>
-
+                {{-- Booking Reject Reasons --}}
+                <li class="menu-item {{ request()->routeIs('admin.booking_reject_reasons.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.booking_reject_reasons.index') }}" class="menu-link">
+                        <div>Booking Reject Reasons</div>
+                    </a>
+                </li>
             </ul>
         </li>
         {{-- Reviews --}}

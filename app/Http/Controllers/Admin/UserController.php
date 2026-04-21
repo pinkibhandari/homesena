@@ -61,9 +61,9 @@ class UserController extends Controller
             ->withQueryString();
 
         // ✅ AJAX REQUEST (important for no reload)
-       if ($request->ajax()) {
-    return view('admin.users.index', compact('users'))->render();
-}
+        if ($request->ajax()) {
+            return view('admin.users.index', compact('users'))->render();
+        }
 
         return view('admin.users.index', compact('users'));
     }
