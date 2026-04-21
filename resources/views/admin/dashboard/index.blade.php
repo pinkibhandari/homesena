@@ -686,7 +686,7 @@
 
                                     @php
                                         $statusClass = $user->status == 1 ? 'success' : 'secondary';
-                                        $statusText = ucfirst($user->status);
+                                        $statusText = $user->status == 1 ? 'Active' : 'Inactive';
                                     @endphp
 
                                     <td>
@@ -705,16 +705,16 @@
     </div>
     <!-- / Content -->
     <script>
-    const banner = document.querySelector('.card.mb-3');
+        const banner = document.querySelector('.card.mb-3');
 
-    banner.addEventListener('mouseenter', () => {
-        banner.style.transform = 'translateY(-3px)';
-        banner.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
-    });
+        banner.addEventListener('mouseenter', () => {
+            banner.style.transform = 'translateY(-3px)';
+            banner.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
+        });
 
-    banner.addEventListener('mouseleave', () => {
-        banner.style.transform = 'translateY(0)';
-        banner.style.boxShadow = 'none';
-    });
-</script>
+        banner.addEventListener('mouseleave', () => {
+            banner.style.transform = 'translateY(0)';
+            banner.style.boxShadow = 'none';
+        });
+    </script>
 @endsection

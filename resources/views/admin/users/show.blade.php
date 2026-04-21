@@ -4,14 +4,14 @@
 @section('content')
     <div class="card">
 
-        <!-- ALERT MESSAGE -->
+        <!-- ALERT -->
         <div class="p-3">
             @include('admin.layouts.partials.alerts')
         </div>
 
-        <!-- Header -->
-        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
-            <h5 class="card-title mb-2 mb-md-0">User Details</h5>
+        <!-- HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+            <h5 class="mb-0">User Details</h5>
 
             <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-secondary">
                 <i class="ri-arrow-left-line me-1"></i> Back
@@ -20,19 +20,18 @@
 
         <hr class="my-0">
 
-        <!-- User Info -->
-        <div class="row px-3 px-md-4 py-3 align-items-center">
-            <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
-                
+        <!-- USER INFO -->
+        <div class="row px-4 py-3 align-items-center">
+            <div class="col-md-2 text-center mb-3 mb-md-0">
                 <img src="{{ $user->profile_image ? fileUrl($user->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
                     width="80" height="80" class="rounded-circle">
             </div>
 
-            <div class="col-12 col-md-10">
+            <div class="col-md-10">
                 <div class="row">
-                    <div class="col-12 col-sm-6 col-md-4 mb-2"><strong>Name:</strong> {{ $user->name }}</div>
-                    <div class="col-12 col-sm-6 col-md-4 mb-2"><strong>Email:</strong> {{ $user->email }}</div>
-                    <div class="col-12 col-sm-6 col-md-4 mb-2"><strong>Phone:</strong> {{ $user->phone ?? 'N/A' }}</div>
+                    <div class="col-md-4 mb-2"><strong>Name:</strong> {{ $user->name }}</div>
+                    <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $user->email }}</div>
+                    <div class="col-md-4 mb-2"><strong>Phone:</strong> {{ $user->phone ?? 'N/A' }}</div>
 
                     <div class="col-12 col-sm-6 col-md-4 mb-2">
                         <strong>Profile Completed:</strong>
@@ -43,16 +42,11 @@
                         @endif
                     </div>
 
-
-                    <div class="col-12 col-sm-6 col-md-4 mb-2">
+                    <div class="col-md-4 mb-2">
                         <strong>Status:</strong>
-
-                        @if ($user->status == 1)
-                            <span class="badge bg-label-success rounded-pill">Active</span>
-                        @else
-                            <span class="badge bg-label-danger rounded-pill">Inactive</span>
-                        @endif
-
+                        {!! $user->status
+                            ? '<span class="badge bg-label-success rounded-pill">Active</span>'
+                            : '<span class="badge bg-label-danger rounded-pill">Inactive</span>' !!}
                     </div>
                 </div>
             </div>
@@ -60,23 +54,45 @@
 
         <hr class="my-0">
 
-        <!-- ACCORDION -->
-        <div class="accordion px-2 px-md-4 pb-3" id="userAccordion">
+        <!-- 🔥 NAV TABS -->
+        <div class="px-4 pb-3">
 
-            <!-- Addresses -->
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#addresses">
-                        User Addresses
+            <ul class="nav nav-pills mb-3" id="userTabs">
+
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#addresses">
+                        <i class="ri-map-pin-line me-1"></i>User Addresses
                     </button>
-                </h2>
-                <div id="addresses" class="accordion-collapse collapse" data-bs-parent="#userAccordion">
-                    <div class="accordion-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bookings">
+                        <i class="ri-calendar-check-line me-1"></i>User Bookings
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#slots">
+                        <i class="ri-time-line me-1"></i>Booking Slots
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#devices">
+                        <i class="ri-smartphone-line me-1"></i>User Devices
+                    </button>
+                </li>
+
+            </ul>
+
+            <div class="tab-content">
+
+                <!-- ADDRESSES -->
+                <div class="tab-pane fade show active" id="addresses">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-label-secondary">
+                                 <tr>
                                         <th>#</th>
                                         <th>House/Flat/Floor</th>
                                         <th>Address</th>
@@ -88,8 +104,8 @@
                                         <th>Long</th>
                                         <th>Updated</th>
                                     </tr>
-                                </thead>
-                                <tbody>
+                            </thead>
+                            <tbody>
                                     @forelse($addresses as $key => $address)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
@@ -109,26 +125,16 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-                            </table>
-                        </div>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            <!-- Bookings -->
-            <div class="accordion-item mt-2">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#bookings">
-                        User Bookings
-                    </button>
-                </h2>
-                <div id="bookings" class="accordion-collapse collapse" data-bs-parent="#userAccordion">
-                    <div class="accordion-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
+                <!-- BOOKINGS -->
+                <div class="tab-pane fade" id="bookings">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-label-secondary">
+                                <tr>
                                         <th>#</th>
                                         <th>Booking Code</th>
                                         <th>Service</th>
@@ -142,8 +148,8 @@
                                         <th>Payment Status</th>
                                         <th>Created At</th>
                                     </tr>
-                                </thead>
-                                <tbody>
+                            </thead>
+                            <tbody>
                                     @forelse($bookings as $key => $booking)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
@@ -201,26 +207,16 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-                            </table>
-                        </div>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            <!-- Slots -->
-            <div class="accordion-item mt-2">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#slots">
-                        Booking Slots
-                    </button>
-                </h2>
-                <div id="slots" class="accordion-collapse collapse" data-bs-parent="#userAccordion">
-                    <div class="accordion-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
+                <!-- Booking Slots -->
+                <div class="tab-pane fade" id="slots">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-label-secondary">
+                                 <tr>
                                         <th>#</th>
                                         <th>Booking ID</th>
                                         <th>Expert</th>
@@ -236,8 +232,8 @@
                                         <th>Payment</th>
                                         <th>Check In</th>
                                     </tr>
-                                </thead>
-                                <tbody>
+                            </thead>
+                            <tbody>
                                     @forelse($slots as $key => $slot)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
@@ -298,26 +294,16 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-                            </table>
-                        </div>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            <!-- Devices -->
-            <div class="accordion-item mt-2">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#devices">
-                        User Devices
-                    </button>
-                </h2>
-                <div id="devices" class="accordion-collapse collapse" data-bs-parent="#userAccordion">
-                    <div class="accordion-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
+                <!-- DEVICES -->
+                <div class="tab-pane fade" id="devices">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-label-secondary">
+                                <tr>
                                         <th>#</th>
                                         <th>User ID</th>
                                         <th>Token ID</th>
@@ -326,8 +312,8 @@
                                         <th>FCM Token</th>
                                         <th>Updated At</th>
                                     </tr>
-                                </thead>
-                                <tbody>
+                            </thead>
+                             <tbody>
                                     @forelse($devices as $key => $device)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
@@ -358,12 +344,11 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-                            </table>
-                        </div>
+                        </table>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
 
     </div>

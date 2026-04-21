@@ -1,190 +1,159 @@
 @extends('admin.layouts.master')
-
-@section('title', 'Payments Dashboard')
+@section('title', 'Payments')
 
 @section('content')
 
 <div class="card">
 
-    <!-- Header -->
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <!-- ALERT -->
+    <div class="p-3">
+        @include('admin.layouts.partials.alerts')
+    </div>
 
-        <h5 class="card-title mb-0">Payments List</h5>
+    <!-- HEADER + FILTER -->
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-        <div class="d-flex align-items-center gap-3">
+        <h5 class="card-title mb-0">Payments</h5>
 
-            <!-- Search -->
-            <div class="d-flex align-items-center">
-                <span class="me-2">Search:</span>
-                <input type="search"
-                       class="form-control form-control-sm"
-                       placeholder="Search payments..."
-                       style="width:200px;">
-            </div>
+        <form method="GET" action="{{ route('admin.payments.index') }}" 
+              class="d-flex align-items-center gap-2 flex-wrap">
 
-            <!-- Add Button -->
-            <a href="{{ route('admin.payments.create') }}" class="btn btn-primary btn-sm">
-                <i class="ri-add-line me-1"></i> Add Payment
+            <!-- SEARCH -->
+            <input name="search" type="search" 
+                   class="form-control form-control-sm"
+                   placeholder="Payment / Order ID"
+                   value="{{ request('search') }}" style="width:180px;">
+
+            <!-- STATUS -->
+            <select name="status" class="form-select form-select-sm" style="width:140px;">
+                <option value="">Status</option>
+                <option value="success" {{ request('status') == 'success' ? 'selected' : '' }}>Success</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+            </select>
+
+            <!-- BUTTONS -->
+            <button class="btn btn-primary btn-sm" title="Search">
+                <i class="ri-search-line"></i>
+            </button>
+
+            <a href="{{ route('admin.payments.index') }}" 
+               class="btn btn-outline-secondary btn-sm" title="Reset">
+                <i class="ri-refresh-line"></i>
             </a>
 
-        </div>
+        </form>
 
     </div>
 
     <hr class="my-0">
 
-    <!-- Show Entries -->
-    <div class="row px-4 py-3 align-items-center">
-
-        <div class="col-md-6">
-            <div class="d-flex align-items-center gap-2">
-                <span>Show</span>
-
-                <select class="form-select form-select-sm" style="width:80px;">
-                    <option>7</option>
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                </select>
-
-                <span>entries</span>
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- Table -->
+    <!-- TABLE -->
     <div class="table-responsive px-4 pb-3">
-
         <table class="table table-hover align-middle table-bordered">
 
             <thead class="bg-label-secondary">
-
                 <tr>
-                    <th width="60">ID</th>
-                    <th>Booking ID</th>
-                    <th>Payment Method</th>
-                    <th>Gateway Order ID</th>
+                    <th width="60">#</th>
+                    <th>Booking</th>
+                    <th>Payment ID</th>
+                    <th>Order ID</th>
                     <th>Amount</th>
-                    <th>Currency</th>
                     <th>Status</th>
                     <th>Paid At</th>
                     <th width="120">Actions</th>
                 </tr>
-
             </thead>
 
             <tbody>
+                @forelse($payments as $key => $payment)
+                    <tr>
+                        <td>{{ $payments->firstItem() + $key }}</td>
 
-                <tr>
+                        <td>{{ $payment->booking_id }}</td>
 
-                    <td>1</td>
+                        <td>{{ $payment->gateway_payment_id ?? '-' }}</td>
 
-                    <td>101</td>
+                        <td>{{ $payment->gateway_order_id ?? '-' }}</td>
 
-                    <td>Razorpay</td>
+                        <td>₹{{ number_format($payment->amount, 2) }}</td>
 
-                    <td>ORD123456</td>
+                        <!-- STATUS -->
+                        <td>
+                            @php
+                                $statusClass = match($payment->status) {
+                                    'success' => 'success',
+                                    'pending' => 'warning',
+                                    'failed' => 'danger',
+                                    default => 'secondary'
+                                };
+                            @endphp
 
-                    <td>1500.00</td>
+                            <span class="badge bg-label-{{ $statusClass }} rounded-pill">
+                                {{ ucfirst($payment->status) }}
+                            </span>
+                        </td>
 
-                    <td>INR</td>
+                        <td>
+                            {{ $payment->paid_at 
+                                ? \Carbon\Carbon::parse($payment->paid_at)->format('d M Y h:i A') 
+                                : '-' }}
+                        </td>
 
-                    <td>
-                        <span class="badge rounded-pill bg-label-warning">
-                            PENDING
-                        </span>
-                    </td>
+                        <!-- ACTION -->
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
+                                        data-bs-toggle="dropdown">
+                                    <i class="ri-more-2-line"></i>
+                                </button>
 
-                    <td>2026-03-18</td>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="#">
+                                            <i class="ri-eye-line me-2"></i> Details
+                                        </a>
+                                    </li>
 
-                    <td>
+                                    {{-- <li>
+                                        <a class="dropdown-item"
+                                           href="{{ route('admin.payments.edit', $payment->id) }}">
+                                            <i class="ri-edit-line me-2"></i> Edit
+                                        </a>
+                                    </li> --}}
 
-                        <div class="dropdown">
+                                    <li>
+                                        <form action="{{ route('admin.payments.destroy', $payment->id) }}"
+                                              method="POST">
+                                            @csrf
+                                            @method('DELETE')
 
-                            <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
-                                    data-bs-toggle="dropdown">
+                                            <button class="dropdown-item text-danger"
+                                                onclick="return confirm('Delete this payment?')">
+                                                <i class="ri-delete-bin-line me-2"></i> Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
 
-                                <i class="ri-more-2-line"></i>
+                    </tr>
 
-                            </button>
-
-                            <ul class="dropdown-menu dropdown-menu-end">
-
-                                <li>
-                                    <a class="dropdown-item"
-                                       href="{{ route('admin.payments.edit') }}">
-                                        <i class="ri-pencil-line me-2"></i>
-                                        Edit
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item text-danger" href="#">
-                                        <i class="ri-delete-bin-6-line me-2"></i>
-                                        Delete
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
+                @empty
+                    <tr>
+                        <td colspan="8" class="text-center">No payments found</td>
+                    </tr>
+                @endforelse
             </tbody>
 
         </table>
-
     </div>
 
-
-    <!-- Pagination -->
-    <div class="row px-4 pb-3 align-items-center">
-
-        <div class="col-md-6">
-
-            <small class="text-muted">
-                Showing 1 to 7 of 10 entries
-            </small>
-
-        </div>
-
-        <div class="col-md-6 text-end">
-
-            <nav>
-
-                <ul class="pagination pagination-sm justify-content-end mb-0">
-
-                    <li class="page-item disabled">
-                        <a class="page-link">
-                            <i class="ri-arrow-left-s-line"></i>
-                        </a>
-                    </li>
-
-                    <li class="page-item active">
-                        <a class="page-link">1</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="page-link">2</a>
-                    </li>
-
-                    <li class="page-item">
-                        <a class="page-link">
-                            <i class="ri-arrow-right-s-line"></i>
-                        </a>
-                    </li>
-
-                </ul>
-
-            </nav>
-
-        </div>
-
+    <!-- PAGINATION -->
+    <div class="row px-4 pb-3">
+        {{ $payments->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 
 </div>

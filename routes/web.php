@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\HomePromotionController;
 use App\Http\Controllers\Admin\InstantBookingController;
 use App\Http\Controllers\Admin\UserSupportController;
+use App\Http\Controllers\Admin\ExpertSupportController;
 use App\Http\Controllers\Admin\ReferEarnController;
 use App\Http\Controllers\Admin\ReferEarnSettingController;
 use App\Http\Controllers\Admin\ServiceLocationController;
@@ -80,6 +81,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('reviews-expert', [ReviewController::class, 'expertIndex'])->name('reviews.expert_index');
     Route::resource('home_promotion', HomePromotionController::class);
     Route::resource('user_supports', UserSupportController::class);
+    Route::resource('expert_supports', ExpertSupportController::class);
     Route::resource('refer_earn', ReferEarnController::class);
     Route::resource('refer_earn_settings', ReferEarnSettingController::class);
     Route::resource('service_locations', ServiceLocationController::class);
