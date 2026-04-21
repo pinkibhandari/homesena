@@ -168,6 +168,7 @@ class AuthController extends Controller
                 'data' => (object)[]
             ], 422);
         }
+        
         // Check OTP expiry
         if (!$user->otp_expires_at || $user->otp_expires_at->isPast()) {
             return response()->json([

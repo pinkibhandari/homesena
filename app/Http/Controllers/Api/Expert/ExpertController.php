@@ -10,6 +10,7 @@ use App\Http\Resources\ExpertDetailResource;
 use App\Models\ExpertOnlineLog;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ExpertProfileResource;
+use App\Models\BookingSlot;
 class ExpertController extends Controller
 {
     // public function storeDetails(Request $request)
@@ -103,7 +104,7 @@ class ExpertController extends Controller
     }
 
     // profile update
-     public function profile(Request $request)
+    public function profile(Request $request)
     {
         $expert = $request->user();
         $validator = Validator::make($request->all(), [
@@ -150,9 +151,9 @@ class ExpertController extends Controller
         }
         $expert->save();
         $expertDetail = ExpertDetail::updateOrCreate(
-                    ['user_id' => $expert->id],
-                    ['training_center_id' => $request->training_center_id]
-                );
+            ['user_id' => $expert->id],
+            ['training_center_id' => $request->training_center_id]
+        );
         // $expertDetail->load('trainingCenter');
         $expert->load('expertDetail.trainingCenter');
         $expert->profile_image = $expert->profile_image ? asset('public/' . $expert->profile_image) : null;
@@ -161,6 +162,45 @@ class ExpertController extends Controller
             'status' => true,
             'message' => 'Profile updated successfully',
             'data' => new ExpertProfileResource($expert)
+        ]);
+    }
+
+    public function earningHistory()
+    {
+        $expertId = auth()->id();
+
+        $slots = BookingSlot::where('expert_id', $expertId)
+            ->where('status', 'completed')
+            ->latest()
+            ->get();
+
+        //  Calculate total expert earning (50%)
+        $totalEarning = $slots->sum(function ($slot) {
+            return $slot->price * 0.5;
+        });
+
+        //  Format slots with 50% earning
+        $formattedSlots = $slots->map(function ($slot) {
+            $expertAmount = $slot->price * 0.5;
+
+            return [
+                'slot_id' => $slot->id,
+                'booking_id' => $slot->booking_id,
+                'expert_earning' => (float) $expertAmount,   //  50% share
+                'date' => optional($slot->date)->format('Y-m-d'),
+                'check_in_date' => optional($slot->check_in_time)->format('Y-m-d'),
+                'check_in_time' => optional($slot->check_in_time)->format('h:i A'),
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Earning history fetched',
+            'data' => [
+                'total_earning' => $totalEarning, // total of 50%
+                'slots' => $formattedSlots
+            ]
         ]);
     }
 
