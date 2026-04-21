@@ -208,7 +208,7 @@ class BookingController extends Controller
             ->latest()
             ->value('action');
         if ($latestAction === 'accepted') {
-             return response()->json([
+            return response()->json([
                 'code' => 422,
                 'status' => false,
                 'message' => 'You have already accepted this booking',
@@ -216,7 +216,7 @@ class BookingController extends Controller
             ], 422);
         }
         if ($latestAction === 'rejected') {
-             return response()->json([
+            return response()->json([
                 'code' => 422,
                 'status' => false,
                 'message' => 'Already rejected',
@@ -251,5 +251,79 @@ class BookingController extends Controller
         foreach ($tokens as $token) {
             $firebase->sendNotification($token, $title, $body, $data);
         }
+    }
+
+    public function verifyOtp(Request $request, $slotId)
+    {
+        $request->validate([
+            'otp_code' => 'required|digits:6'
+        ]);
+        $slot = BookingSlot::with('booking:id')->find($slotId);
+        if ($slot->expert_id !== auth()->id()) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Unauthorized',
+                'data' => (object) []
+            ], 422);
+        }
+
+        //  Already verified
+        if ($slot->otp_verified) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'OTP already verified',
+                'data' => (object) []
+            ], 422);
+        }
+
+        //  Max attempts
+        if ($slot->otp_attempts >= 5) {
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => 'Maximum OTP attempts exceeded',
+                'data' => (object) []
+            ], 422);
+        }
+        //  Wrong OTP
+        if ($slot->otp_code !== $request->otp_code) {
+            $slot->increment('otp_attempts');
+            $attemptsLeft = max(0, 5 - $slot->otp_attempts);
+            return response()->json([
+                'status' => false,
+                'code' => 422,
+                'message' => "Invalid OTP. Attempts left: {$attemptsLeft}",
+                'data' => (object) []
+            ], 422);
+        }
+        $startTime = now();
+        $duration = $slot->duration ?? 30;
+        $endTime = $startTime->copy()->addMinutes($duration);
+        //  Success
+        $slot->update([
+            'otp_verified' => true,
+            'otp_attempts' => 0,
+            'status' => 'ongoing',
+            'check_in_time' => now(),
+            'otp_code' => null,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'OTP verified successfully',
+            'data' => [
+                'booking_id' => $slot->booking->id,
+                'slot_id' => $slot->id,
+                'status' => $slot->status,
+                'check_in_time' => $slot->check_in_time?->format('Y-m-d H:i:s'),
+                'start_time' => $slot->start_time?->format('H:i:s'),
+                'end_time' => $slot->end_time?->format('H:i:s')
+            ]
+        ]);
     }
 }

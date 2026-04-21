@@ -25,6 +25,10 @@ class BookingSlot extends Model
         'is_rescheduled'
     ];
 
+    protected $casts = [
+        'date' => 'date',
+      'check_in_time' => 'datetime',
+    ];
     // relationship with others tables  
     public function booking()
     {

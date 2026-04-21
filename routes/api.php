@@ -91,6 +91,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::middleware('role:expert')->prefix('expert')->group(function(){
         
         Route::post('profile',[ExpertController::class,'profile']);
+        Route::post('is-online-status-update', [ExpertController::class, 'isOnlineStatusUpdate']);
+        Route::get('earning-history', [ExpertController::class, 'earningHistory']);
         // Route::post('details',[ExpertController::class,'storeDetails']);
         Route::post('save-emergency-contacts',[EmergencyContactController::class,'storeEmergencyContacts']);
         Route::get('emergency-contact-list',[EmergencyContactController::class,'getEmergencyContacts']);
@@ -102,10 +104,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('booking-slot/accept', [ExpertBookingController::class, 'acceptSlot']);
         Route::post('booking-slot/reject', [ExpertBookingController::class, 'rejectSlot']);
         Route::get('upcoming-booking', [ExpertBookingController::class, 'upcomingBooking']); 
-        Route::post('is-online-status-update', [ExpertController::class, 'isOnlineStatusUpdate']);
+      
         Route::get('training-centers', [TrainingCenterController::class, 'trainingCenterList']);
         // expert sos
         Route::post('sos', [ExpertSOSController::class, 'sendSOS']);
+        Route::post('slots/{id}/verify-otp', [ExpertBookingController::class, 'verifyOtp']);
+        
+        
         
      
 
