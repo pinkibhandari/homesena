@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\BookingSlotLog;
 use App\Http\Resources\BookingSlotResource;
+use App\Models\ExpertBookingRejectReason;
 class BookingController extends Controller
 {
     public function bookingList(Request $request)
@@ -324,6 +325,19 @@ class BookingController extends Controller
                 'start_time' => $slot->start_time?->format('H:i:s'),
                 'end_time' => $slot->end_time?->format('H:i:s')
             ]
+        ]);
+    }
+
+    public function bookingRejectReason()
+    {
+        $rejectReasonList = ExpertBookingRejectReason::select('id', 'title', 'status')
+                ->where('status', 1)
+               ->get();
+        return response()->json([
+            'code'=>200,
+            'status' => true,
+            'message' => 'Reject reasons fetched successfully',
+            'data' => $rejectReasonList
         ]);
     }
 }

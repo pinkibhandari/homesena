@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExpertBookingRejectReason extends Model
 {
-    //
+      protected $fillable = [
+        'title',
+        'status',
+    ];
 }
