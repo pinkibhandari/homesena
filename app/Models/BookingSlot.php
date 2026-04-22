@@ -22,12 +22,13 @@ class BookingSlot extends Model
         'check_in_time',
         'cancel_reason',
         'cancelled_at',
-        'is_rescheduled'
+        'is_rescheduled',
+        'notified'
     ];
 
     protected $casts = [
         'date' => 'date',
-      'check_in_time' => 'datetime',
+        'check_in_time' => 'datetime',
     ];
     // relationship with others tables  
     public function booking()

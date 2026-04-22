@@ -109,6 +109,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // expert sos
         Route::post('sos', [ExpertSOSController::class, 'sendSOS']);
         Route::post('slots/{id}/verify-otp', [ExpertBookingController::class, 'verifyOtp']);
+        Route::get('booking-reject-reason', [ExpertBookingController::class, 'bookingRejectReason']);
+        
         
         
         
