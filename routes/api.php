@@ -110,14 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('sos', [ExpertSOSController::class, 'sendSOS']);
         Route::post('slots/{id}/verify-otp', [ExpertBookingController::class, 'verifyOtp']);
         Route::get('booking-reject-reason', [ExpertBookingController::class, 'bookingRejectReason']);
+        Route::put('slot/{id}/complete', [ExpertBookingController::class, 'completeBookingSlot']);
         
-        
-        
-        
-     
-
-        
-
     });
    
     
