@@ -15,12 +15,12 @@ class BookingRejectReasonController extends Controller
     {
         $reasons = BookingRejectReason::query()
 
-            // 🔍 SEARCH
+            //  SEARCH
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%');
             })
 
-            // ✅ STATUS FILTER
+            //  STATUS FILTER
             ->when($request->filled('status'), function ($q) use ($request) {
                 $q->where('status', $request->status);
             })
@@ -29,7 +29,7 @@ class BookingRejectReasonController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // ✅ AJAX RESPONSE (FIXED)
+        // AJAX RESPONSE
         if ($request->ajax()) {
             return view('admin.booking_reject_reasons.index', compact('reasons'))->render();
         }
@@ -42,7 +42,7 @@ class BookingRejectReasonController extends Controller
      */
     public function create()
     {
-        return view('admin.booking_reject_reasons.create');
+        return view('admin.booking_reject_reasons.form');
     }
 
     /**
@@ -50,10 +50,7 @@ class BookingRejectReasonController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:0,1',
-        ]);
+        $data = $this->validateData($request);
 
         BookingRejectReason::create($data);
 
@@ -68,52 +65,55 @@ class BookingRejectReasonController extends Controller
     {
         $reason = BookingRejectReason::findOrFail($id);
 
-        return view('admin.booking_reject_reasons.edit', compact('reason'));
+        return view('admin.booking_reject_reasons.form', compact('reason'));
     }
 
     /**
-     * UPDATE (🔥 FIXED AJAX DETECTION)
+     * UPDATE
      */
-    public function update(Request $request, $id)
-    {
-        $reason = BookingRejectReason::findOrFail($id);
+   public function update(Request $request, $id)
+{
+    $reason = BookingRejectReason::findOrFail($id);
 
-        // 🔥 FIX: proper AJAX detection
-        if ($request->expectsJson() || $request->ajax()) {
+    // 🔥 AJAX STATUS UPDATE (FIXED LIKE USER)
+    if ($request->wantsJson() && $request->has('status')) {
 
-            if ($request->has('status')) {
+        $reason->status = $request->status;
+        $reason->save();
 
-                $reason->status = $request->status;
-                $reason->save();
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Status updated'
-                ]);
-            }
-        }
-
-        // NORMAL UPDATE
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:0,1',
+        return response()->json([
+            'status' => true
         ]);
-
-        $reason->update($data);
-
-        return redirect()->route('admin.booking_reject_reasons.index')
-            ->with('success', 'Reject reason updated successfully.');
     }
+
+    // ✅ NORMAL UPDATE
+    $data = $this->validateData($request);
+
+    $reason->update($data);
+
+    return redirect()->route('admin.booking_reject_reasons.index')
+        ->with('success', 'Reject reason updated successfully.');
+}
 
     /**
      * DELETE
      */
     public function destroy($id)
     {
-        $reason = BookingRejectReason::findOrFail($id);
-        $reason->delete();
+        BookingRejectReason::findOrFail($id)->delete();
 
         return redirect()->route('admin.booking_reject_reasons.index')
             ->with('success', 'Reject reason deleted successfully.');
+    }
+
+    /**
+     * VALIDATION (REUSABLE)
+     */
+    private function validateData($request)
+    {
+        return $request->validate([
+            'title'  => 'required|string|max:255',
+            'status' => 'required|in:0,1',
+        ]);
     }
 }
