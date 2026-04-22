@@ -1,60 +1,55 @@
 @extends('admin.layouts.master')
-
 @section('title', 'Booking Reject Reasons')
 
 @section('content')
 
     <div class="card">
 
-        <!-- ALERT MESSAGE -->
+        <!-- ALERT -->
         <div class="p-3">
             @include('admin.layouts.partials.alerts')
         </div>
 
-        <!-- Header -->
+        <!-- HEADER -->
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
 
             <h5 class="card-title mb-0">Booking Reject Reasons</h5>
 
+            <!-- FILTER FORM -->
             <form method="GET" action="{{ route('admin.booking_reject_reasons.index') }}"
                 class="d-flex align-items-center gap-2 flex-wrap">
 
-                <!-- SEARCH -->
-                <input name="search" type="search" class="form-control form-control-sm" placeholder="Search..."
+                <!-- Search -->
+                <input name="search" type="search" class="form-control form-control-sm" placeholder="Search expert..."
                     value="{{ request('search') }}" style="width:180px;">
 
-                <!-- STATUS -->
-                <select name="status" class="form-select form-select-sm" style="width:120px;">
+                <!-- Type Filter -->
+                <select name="status" class="form-select form-select-sm" style="width:130px;">
                     <option value="">Status</option>
                     <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
                     <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
                 </select>
 
-                <!-- SEARCH BUTTON -->
-                <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Search">
+                <!-- Buttons -->
+                <button class="btn btn-primary btn-sm">
                     <i class="ri-search-line"></i>
                 </button>
 
-                <!-- RESET -->
-                <a href="{{ route('admin.booking_reject_reasons.index') }}" class="btn btn-outline-secondary btn-sm"
-                    data-bs-toggle="tooltip" title="Reset Filters">
+                <a href="{{ route('admin.booking_reject_reasons.index') }}" class="btn btn-outline-secondary btn-sm">
                     <i class="ri-refresh-line"></i>
                 </a>
-
+                <!-- ADD BUTTON -->
+                <a href="{{ route('admin.booking_reject_reasons.create') }}" class="btn btn-primary btn-sm">
+                    <i class="ri-add-line me-1"></i> Add
+                </a>
             </form>
-
-            <!-- ADD BUTTON -->
-            <a href="{{ route('admin.booking_reject_reasons.create') }}" class="btn btn-primary btn-sm">
-                <i class="ri-add-line me-1"></i> Add
-            </a>
 
         </div>
 
         <hr class="my-0">
 
-        <!-- Table -->
+        <!-- TABLE -->
         <div class="table-responsive px-4 pb-3">
-
             <table class="table table-hover align-middle table-bordered">
 
                 <thead class="bg-label-secondary">
@@ -134,16 +129,14 @@
                 </tbody>
 
             </table>
-
         </div>
 
-        <!-- Pagination -->
+        <!-- PAGINATION -->
         <div class="row px-4 pb-3">
             {{ $reasons->links('pagination::bootstrap-5') }}
         </div>
 
     </div>
-
     <!-- AJAX STATUS TOGGLE SCRIPT -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -158,8 +151,8 @@
 
                     let confirmAction = confirm(
                         value === 1 ?
-                        "Activate this reason?" :
-                        "Deactivate this reason?"
+                        "Are you sure you want to activate this reason?" :
+                        "Are you sure you want to deactivate this reason?"
                     );
 
                     if (!confirmAction) {
@@ -179,32 +172,18 @@
                                 status: value
                             })
                         })
-                        .then(async (res) => {
+                        .then(response => response.json())
+                        .then(data => {
 
-                            //  SAFE JSON parsing (important fix)
-                            let data;
-                            try {
-                                data = await res.json();
-                            } catch (e) {
-                                throw new Error("Invalid JSON response");
+                            if (!data.status) {
+                                alert('Update failed');
+                                checkbox.checked = !value;
                             }
 
-                            if (!res.ok || !data.status) {
-                                throw new Error(data.message || 'Update failed');
-                            }
-
-                            return data;
                         })
-                        .then(() => {
-                            //  success (optional UI update)
-                            console.log('Status updated successfully');
-                        })
-                        .catch((error) => {
-
-                            alert(error.message || 'Something went wrong');
-
-                            //  revert checkbox state
-                            checkbox.checked = !checkbox.checked;
+                        .catch(() => {
+                            alert('Something went wrong');
+                            checkbox.checked = !value;
                         });
 
                 });
@@ -213,5 +192,4 @@
 
         });
     </script>
-
 @endsection
