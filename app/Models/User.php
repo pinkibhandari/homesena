@@ -27,7 +27,6 @@ class User extends Authenticatable
         'otp_last_sent_at',
         'status',
         'profile_completed',
-        // ✅ Refer & Earn fields add karo
         'referral_code',
         'referred_by',
         'referral_reward_given'
@@ -115,5 +114,16 @@ class User extends Authenticatable
     public function referrals()
     {
         return $this->hasMany(User::class, 'referred_by');
+    }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    //  One user → many transactions
+    public function walletTransactions()
+    {
+        return $this->hasMany(WalletTransaction::class);
     }
 }
