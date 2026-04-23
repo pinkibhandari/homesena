@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\BookingRejectReason;
+use App\Models\ExpertBookingRejectReason;
 
 class BookingRejectReasonController extends Controller
 {
@@ -13,7 +13,7 @@ class BookingRejectReasonController extends Controller
      */
     public function index(Request $request)
     {
-        $reasons = BookingRejectReason::query()
+        $reasons = ExpertBookingRejectReason::query()
 
             //  SEARCH
             ->when($request->filled('search'), function ($q) use ($request) {
@@ -52,7 +52,7 @@ class BookingRejectReasonController extends Controller
     {
         $data = $this->validateData($request);
 
-        BookingRejectReason::create($data);
+        ExpertBookingRejectReason::create($data);
 
         return redirect()->route('admin.booking_reject_reasons.index')
             ->with('success', 'Reject reason created successfully.');
@@ -63,7 +63,7 @@ class BookingRejectReasonController extends Controller
      */
     public function edit($id)
     {
-        $reason = BookingRejectReason::findOrFail($id);
+        $reason = ExpertBookingRejectReason::findOrFail($id);
 
         return view('admin.booking_reject_reasons.form', compact('reason'));
     }
@@ -73,7 +73,7 @@ class BookingRejectReasonController extends Controller
      */
    public function update(Request $request, $id)
 {
-    $reason = BookingRejectReason::findOrFail($id);
+    $reason = ExpertBookingRejectReason::findOrFail($id);
 
     // 🔥 AJAX STATUS UPDATE (FIXED LIKE USER)
     if ($request->wantsJson() && $request->has('status')) {
@@ -100,7 +100,7 @@ class BookingRejectReasonController extends Controller
      */
     public function destroy($id)
     {
-        BookingRejectReason::findOrFail($id)->delete();
+        ExpertBookingRejectReason::findOrFail($id)->delete();
 
         return redirect()->route('admin.booking_reject_reasons.index')
             ->with('success', 'Reject reason deleted successfully.');

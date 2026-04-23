@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ExpertDetail;
-use App\Models\ExpertRatingStat;
-use App\Models\User;
-use App\Models\TrainingCenter;
-use Illuminate\Support\Facades\Hash;
-use App\Models\UserDevice;
-use Laravel\Sanctum\PersonalAccessToken;
-use Illuminate\Support\Facades\DB;
 use App\Models\ExpertEmergencyContact;
+use App\Models\TrainingCenter;
+use App\Models\User;
+use App\Models\UserDevice;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class ExpertController extends Controller
 {
@@ -69,23 +67,25 @@ class ExpertController extends Controller
     // CREATE
     public function create()
     {
-        $expert = new User();
-        $expert->setRelation('expertDetail', new ExpertDetail()); //  important
+        $expert = new User;
+        $expert->setRelation('expertDetail', new ExpertDetail); //  important
         $trainingCenters = TrainingCenter::select('id', 'name')->get();
+
         return view('admin.experts.form', compact('expert', 'trainingCenters'));
     }
 
     // EDIT
     public function edit(User $expert)
     {
-        if (!$expert->expertDetail) {
+        if (! $expert->expertDetail) {
             $expert->expertDetail()->create([]);
         }
         $expert->load([
             'expertDetail.trainingCenter',     // training center
-            'expertDetail.emergencyContacts'   // emergency contacts
+            'expertDetail.emergencyContacts',   // emergency contacts
         ]);
         $trainingCenters = TrainingCenter::select('id', 'name')->get();
+
         return view('admin.experts.form', compact('expert', 'trainingCenters'));
     }
 
@@ -114,22 +114,23 @@ class ExpertController extends Controller
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'registration_code' => 'EXP-' . rand(100000, 999999),
+                        'registration_code' => 'EXP-'.rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
                         'is_online' => $data['is_online'],
                         'approval_status' => 'approved',
                         'approved_by' => auth()->id(),
-                        'approved_at' => now()
+                        'approved_at' => now(),
                     ]
                 );
                 ExpertEmergencyContact::updateOrCreate(
                     ['expert_detail_id' => $expertDetail->id],
                     [
                         'name' => $data['emergency_contact_name'] ?? null,
-                        'phone' => $data['emergency_contact_phone']  ?? null,
+                        'phone' => $data['emergency_contact_phone'] ?? null,
                     ]
                 );
             });
+
             return redirect()->route('admin.experts.index')->with('success', 'Expert created successfully');
         } catch (\Exception $e) {
             return back()
@@ -144,11 +145,12 @@ class ExpertController extends Controller
         //  STATUS TOGGLE (same as USER)
         if ($request->wantsJson() && $request->has('status')) {
             $expert->update([
-                'status' => $request->status // 1 or 0
+                'status' => $request->status, // 1 or 0
             ]);
+
             return response()->json([
                 'status' => true,
-                'message' => 'Status updated successfully'
+                'message' => 'Status updated successfully',
             ]);
         }
         //  NORMAL UPDATE
@@ -162,7 +164,7 @@ class ExpertController extends Controller
             DB::transaction(function () use ($data, $expert) {
                 $expert->update([
                     ...$data,
-                    'role' => 'expert'
+                    'role' => 'expert',
                 ]);
                 UserDevice::updateOrCreate(
                     [
@@ -181,6 +183,7 @@ class ExpertController extends Controller
                     ]
                 );
             });
+
             return redirect()->route('admin.experts.index')
                 ->with('success', 'Expert updated successfully');
         } catch (\Exception $e) {
@@ -189,11 +192,13 @@ class ExpertController extends Controller
                 ->with('error', 'Something went wrong');
         }
     }
+
     // DELETE
     public function destroy(User $expert)
     {
         $expert->tokens()->delete(); // remove tokens
         $expert->delete();
+
         return redirect()->route('admin.experts.index')
             ->with('success', 'Expert deleted successfully');
     }
@@ -203,8 +208,8 @@ class ExpertController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|digits:10|unique:users,phone,' . $id,
-            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phone' => 'required|digits:10|unique:users,phone,'.$id,
+            'email' => 'nullable|email|unique:users,email,'.$id,
             'password' => 'nullable|min:8',
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'device_id' => $id ? 'nullable' : 'required',
@@ -219,10 +224,10 @@ class ExpertController extends Controller
     public function updateApproveStatus(Request $request)
     {
         $expert = ExpertDetail::where('user_id', $request->id)->first();
-        if (!$expert) {
+        if (! $expert) {
             return response()->json([
                 'status' => false,
-                'message' => 'Expert not found'
+                'message' => 'Expert not found',
             ], 422);
         }
         //  APPROVE
@@ -232,34 +237,77 @@ class ExpertController extends Controller
                 'approval_status' => 'approved',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
-                'registration_code' => 'EXP-' . rand(100000, 999999)
+                'registration_code' => 'EXP-'.rand(100000, 999999),
             ]);
         } else {
             //  OPTIONAL: unapprove
             $expert->update([
                 'approval_status' => 'pending',
                 'approved_by' => null,
-                'approved_at' => null
+                'approved_at' => null,
             ]);
         }
+
         return response()->json([
             'status' => true,
             'message' => 'Status updated successfully',
-            'data' => $expert
+            'data' => $expert,
         ]);
     }
-    public function show(User $expert)
+
+    public function show(Request $request, User $expert)
     {
         $expert->load([
-            'addresses',
             'ratingStat',
             'expertDetail.trainingCenter',
             'expertDetail.emergencyContacts',
-            'expertSlots',
-            'devices',
-            'onlineLogs' // ✅ add this
         ]);
 
-        return view('admin.experts.show', compact('expert'));
+        $addresses = $expert->addresses()
+            ->latest()
+            ->paginate(5, ['*'], 'addresses_page')
+            ->withQueryString();
+
+        $slots = $expert->expertSlots()
+            ->with('expert')
+            ->when($request->filled('slot_duration'), function ($q) use ($request) {
+                $q->where('duration', $request->slot_duration);
+            })
+            ->when($request->filled('slot_status'), function ($q) use ($request) {
+                $q->where('status', $request->slot_status);
+            })
+            ->when($request->filled('slot_payment_status'), function ($q) use ($request) {
+                $q->where('payment_status', $request->slot_payment_status);
+            })
+            ->latest()
+            ->paginate(5, ['*'], 'slots_page')
+            ->withQueryString();
+
+        $devices = $expert->devices()
+            ->latest()
+            ->paginate(5, ['*'], 'devices_page')
+            ->withQueryString();
+
+        $logs = $expert->onlineLogs()
+            ->latest()
+            ->paginate(5, ['*'], 'logs_page')
+            ->withQueryString();
+
+        if ($request->ajax() && $request->has('ajax_tab')) {
+            $tab = $request->ajax_tab;
+            if ($tab === 'addresses') {
+                return view('admin.experts.partials.addresses_tab', compact('addresses', 'expert'))->render();
+            } elseif ($tab === 'details') {
+                return view('admin.experts.partials.details_tab', compact('expert'))->render();
+            } elseif ($tab === 'slots') {
+                return view('admin.experts.partials.slots_tab', compact('slots', 'expert'))->render();
+            } elseif ($tab === 'devices') {
+                return view('admin.experts.partials.devices_tab', compact('devices', 'expert'))->render();
+            } elseif ($tab === 'logs') {
+                return view('admin.experts.partials.logs_tab', compact('logs', 'expert'))->render();
+            }
+        }
+
+        return view('admin.experts.show', compact('expert', 'addresses', 'slots', 'devices', 'logs'));
     }
 }

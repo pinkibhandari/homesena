@@ -20,15 +20,28 @@ class BookingController extends Controller
                         ->orWhere('start_date', 'like', "%{$search}%")
                         ->orWhere('end_date', 'like', "%{$search}%")
                         ->orWhere('type', 'like', "%{$search}%");
-
                 });
+            })
+            //  Type
+            ->when($request->filled('type'), function ($q) use ($request) {
+                $q->where('type', $request->type);
+            })
+
+            //  Sub Type
+            ->when($request->filled('sub_type'), function ($q) use ($request) {
+                $q->where('booking_subtype', $request->sub_type);
+            })
+
+            //  Status
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
             })
             ->latest()
             ->paginate(10)
             ->withQueryString();
         return view('admin.bookings.index', compact('bookings'));
     }
-    
+
 
     public function create()
     {
@@ -43,10 +56,8 @@ class BookingController extends Controller
     {
         $booking->load(['service', 'address']);
         $slots = $booking->slots()
-                ->with('expert')
-                ->paginate(10);
-         return view('admin.bookings.show', compact('booking', 'slots'));
+            ->with('expert')
+            ->paginate(10);
+        return view('admin.bookings.show', compact('booking', 'slots'));
     }
-
-
 }

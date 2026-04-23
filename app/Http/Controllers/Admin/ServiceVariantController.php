@@ -16,7 +16,7 @@ class ServiceVariantController extends Controller
     {
         $variants = ServiceVariant::with('service')
 
-            // 🔍 Search (FIXED - grouped)
+            // Search (Grouped - KEEP AS IS)
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
 
@@ -25,8 +25,17 @@ class ServiceVariantController extends Controller
                     })
                         ->orWhere('duration_minutes', 'like', '%' . $request->search . '%')
                         ->orWhere('price', 'like', '%' . $request->search . '%');
-                    // ->orWhere('tax_percentage', 'like', '%' . $request->search . '%');
                 });
+            })
+
+            // Status Filter (NEW)
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('is_active', $request->status);
+            })
+
+            // Duration Filter (NEW)
+            ->when($request->filled('duration'), function ($q) use ($request) {
+                $q->where('duration_minutes', $request->duration);
             })
 
             ->latest()

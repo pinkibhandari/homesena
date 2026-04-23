@@ -13,10 +13,29 @@
             <h5 class="card-title mb-0">Time Slot</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.time_slots.index') }}" class="d-flex align-items-center">
-                    <span class="me-2">Search:</span>
+                <form method="GET" action="{{ route('admin.time_slots.index') }}" class="d-flex align-items-center gap-2">
+
+                    <span>Search:</span>
                     <input type="search" name="search" value="{{ request('search') }}" class="form-control form-control-sm"
-                        placeholder="Search time..." style="width:200px;">
+                        placeholder="Search time..." style="width:180px;">
+
+                    <!-- 🔥 STATUS FILTER -->
+                    <select name="status" class="form-select form-select-sm" style="width:130px;">
+                        <option value="">Status</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+
+                    <!-- Search Button -->
+                    <button class="btn btn-primary btn-sm">
+                        <i class="ri-search-line"></i>
+                    </button>
+
+                    <!-- Reset -->
+                    <a href="{{ route('admin.time_slots.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="ri-refresh-line"></i>
+                    </a>
+
                 </form>
                 <!-- Add Button -->
                 <a href="{{ route('admin.time_slots.create') }}" class="btn btn-primary btn-sm">
@@ -28,17 +47,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                        <div class="d-flex align-items-center gap-2">
-                                                                            <span>Show</span>
-                                                                            <select class="form-select form-select-sm" style="width:80px;">
-                                                                                <option>7</option>
-                                                                                <option>10</option>
-                                                                                <option>25</option>
-                                                                                <option>50</option>
-                                                                            </select>
-                                                                            <span>entries</span>
-                                                                        </div>
-                                                                    </div> -->
+                                                                            <div class="d-flex align-items-center gap-2">
+                                                                                <span>Show</span>
+                                                                                <select class="form-select form-select-sm" style="width:80px;">
+                                                                                    <option>7</option>
+                                                                                    <option>10</option>
+                                                                                    <option>25</option>
+                                                                                    <option>50</option>
+                                                                                </select>
+                                                                                <span>entries</span>
+                                                                            </div>
+                                                                        </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">
@@ -77,7 +96,8 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.time_slots.edit', $slot->id) }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.time_slots.edit', $slot->id) }}">
                                                 <i class="ri-pencil-line me-2"></i> Edit
                                             </a>
                                         </li>

@@ -17,7 +17,7 @@ class CmsPagesController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('title', 'like', '%' . $request->search . '%')
-                          ->orWhere('slug', 'like', '%' . $request->search . '%');
+                        ->orWhere('slug', 'like', '%' . $request->search . '%');
                 });
             })
 
@@ -25,7 +25,15 @@ class CmsPagesController extends Controller
             ->when($request->filled('type'), function ($q) use ($request) {
                 $q->where('type', $request->type);
             })
+            //  Status Filter
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status); // or is_active
+            })
 
+            //  Type Filter (UPDATED)
+            ->when($request->filled('type'), function ($q) use ($request) {
+                $q->where('type', $request->type);
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -113,8 +121,8 @@ class CmsPagesController extends Controller
 
         while (
             CmsPage::when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
-                ->where('slug', $slug)
-                ->exists()
+            ->where('slug', $slug)
+            ->exists()
         ) {
             $slug = $originalSlug . '-' . $count++;
         }

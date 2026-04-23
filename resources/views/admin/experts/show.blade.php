@@ -118,79 +118,16 @@
 
                 <!-- ADDRESSES -->
                 <div class="tab-pane fade" id="addresses">
-                    <table class="table table-bordered table-sm">
-                        <thead class="bg-label-secondary">
-                            <tr>
-                                <th>#</th>
-                                <th>Flat No</th>
-                                <th>Address</th>
-                                <th>Landmark</th>
-                                <th>Save As</th>
-                                <th>Pets</th>
-                                <th>Lat</th>
-                                <th>Long</th>
-                                <th>Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($expert->addresses ?? [] as $key => $address)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $address->flat_no ?? '-' }}</td>
-                                    <td>{{ $address->address ?? '-' }}</td>
-                                    <td>{{ $address->landmark ?? '-' }}</td>
-                                    <td>{{ ucfirst($address->save_as) }}</td>
-                                    <td>{{ $address->pets ?? '-' }}</td>
-                                    <td>{{ $address->address_lat ?? '-' }}</td>
-                                    <td>{{ $address->address_long ?? '-' }}</td>
-
-                                    <td>{{ $address->updated_at ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center">No Addresses Found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div id="addresses-container">
+                        @include('admin.experts.partials.addresses_tab')
+                    </div>
                 </div>
 
                 <!-- DETAILS -->
                 <div class="tab-pane fade" id="details">
-                    <table class="table table-bordered table-sm">
-                        <thead class="bg-label-secondary">
-                            <tr>
-                                <th>#</th>
-                                <th>Reg Code</th>
-                                <th>Approval</th>
-                                <th>Training Center</th>
-                                <th>Online</th>
-                                <th>Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($expert->expertDetail ? [$expert->expertDetail] : [] as $key => $detail)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $detail->registration_code ?? '-' }}</td>
-                                    <td>{{ $detail->approval_status ?? '-' }}</td>
-                                    <td>{{ $detail->trainingCenter->name ?? '-' }}</td>
-                                    <td>
-                                        @if ($detail->is_online == 1)
-                                            <span class="badge bg-success">Yes</span>
-                                        @else
-                                            <span class="badge bg-secondary">No</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $detail->updated_at }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center">No Details Found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div id="details-container">
+                        @include('admin.experts.partials.details_tab')
+                    </div>
                 </div>
 
                 <!-- CONTACTS -->
@@ -223,172 +160,23 @@
 
                 <!-- SLOTS -->
                 <div class="tab-pane fade" id="slots">
-                    <table class="table table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Expert Name</th>
-                                <th>Date</th>
-                                <th>Start</th>
-                                <th>End</th>
-                                <th>Duration</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th>OTP</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($expert->expertSlots ?? [] as $key => $slot)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $slot->expert->name ?? '-' }}</td>
-                                    <td>{{ $slot->date ?? '-' }}</td>
-                                    <td>{{ $slot->start_time ?? '-' }}</td>
-                                    <td>{{ $slot->end_time ?? '-' }}</td>
-                                    <td>{{ $slot->duration ?? '-' }} min</td>
-
-                                    <td>₹{{ $slot->price ?? 0 }}</td>
-
-                                    <!-- Status -->
-                                    <td>
-                                        @if ($slot->status == 'pending')
-                                            <span class="badge bg-warning">Pending</span>
-                                        @elseif($slot->status == 'available')
-                                            <span class="badge bg-success">Available</span>
-                                        @elseif($slot->status == 'not_available')
-                                            <span class="badge bg-secondary">Not Available</span>
-                                        @else
-                                            <span class="badge bg-info">{{ $slot->status }}</span>
-                                        @endif
-                                    </td>
-
-                                    <!-- Payment -->
-                                    <td>
-                                        @if ($slot->payment_status == 'paid')
-                                            <span class="badge bg-success">Paid</span>
-                                        @else
-                                            <span class="badge bg-warning">Pending</span>
-                                        @endif
-                                    </td>
-
-                                    <!-- OTP -->
-                                    <td>{{ $slot->otp_code ?? '-' }}</td>
-
-
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center">No Booking Slots Found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div id="slots-container">
+                        @include('admin.experts.partials.slots_tab')
+                    </div>
                 </div>
 
                 <!-- DEVICES -->
                 <div class="tab-pane fade" id="devices">
-                    <table class="table table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Device</th>
-                                <th>Device Type</th>
-                                <th>FCM Token</th>
-                                <th>Token ID</th>
-                                <th>Status</th>
-                                <th>Last Used</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($expert->devices ?? [] as $key => $device)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <!-- Device Name -->
-                                    <td>{{ $device->device_id ?? '-' }}</td>
-                                    <!-- Device Type -->
-                                    <td>
-                                        <span class="badge bg-label-info rounded-pill">
-                                            {{ ucfirst($device->device_type) ?? 'N/A' }}
-                                        </span>
-                                    </td>
-
-                                    <!-- Platform -->
-                                    <td>{{ $device->platform ?? '-' }}</td>
-
-                                    <!-- Token -->
-                                    <td style="max-width: 200px; word-break: break-all;">
-                                        {{ $device->token_id ?? '-' }}
-                                    </td>
-
-                                    <!-- Status -->
-                                    <td>
-                                        @if ($device->is_active ?? 1)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </td>
-
-                                    <!-- Last Used -->
-                                    <td>{{ $device->updated_at ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center">No Devices Found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div id="devices-container">
+                        @include('admin.experts.partials.devices_tab')
+                    </div>
                 </div>
 
                 <!-- LOGS -->
                 <div class="tab-pane fade" id="logs">
-                    <table class="table table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Expert</th>
-                                <th>Online At</th>
-                                <th>Offline At</th>
-                                <th>Duration</th>
-                                <th>Updated AT</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($expert->onlineLogs ?? [] as $key => $log)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-
-                                    <!-- Expert Name -->
-                                    <td>{{ $expert->name }}</td>
-
-                                    <!-- Online -->
-                                    <td>{{ $log->online_at ?? '-' }}</td>
-
-                                    <!-- Offline -->
-                                    <td>{{ $log->offline_at ?? '-' }}</td>
-
-                                    <!-- Duration -->
-                                    <td>
-                                        @if ($log->online_at && $log->offline_at)
-                                            {{ \Carbon\Carbon::parse($log->online_at)->diffForHumans($log->offline_at, true) }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-
-                                    <!-- Status -->
-                                    <td>{{ $log->updated_at ?? '-' }}</td>
-
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center">No Logs Found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div id="logs-container">
+                        @include('admin.experts.partials.logs_tab')
+                    </div>
                 </div>
 
             </div>
@@ -396,3 +184,150 @@
 
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 1. On page load, restore the active tab from the ?tab= URL param
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab');
+
+            if (activeTab) {
+                const tabEl = document.querySelector(`[data-bs-target="#${activeTab}"]`);
+                if (tabEl) {
+                    bootstrap.Tab.getOrCreateInstance(tabEl).show();
+                }
+            }
+
+            // 2. When a tab is clicked, sync URL and reset the tab to page 1
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (tabEl) {
+                tabEl.addEventListener('shown.bs.tab', function (e) {
+                    const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', tabId);
+
+                    // Remove all pagination params from URL
+                    const keysToDelete = [];
+                    url.searchParams.forEach((val, key) => {
+                        if (key.endsWith('_page')) keysToDelete.push(key);
+                    });
+                    keysToDelete.forEach(k => url.searchParams.delete(k));
+
+                    history.replaceState(null, '', url.toString());
+
+                    // Reset DOM to page 1 if currently on another page
+                    const container = document.getElementById(`${tabId}-container`);
+                    if (container) {
+                        const activePageEl = container.querySelector('.page-item.active .page-link, .page-item.active span.page-link');
+                        if (activePageEl && activePageEl.textContent.trim() !== '1') {
+                            const fetchUrl = new URL(window.location.href);
+                            fetchUrl.searchParams.set('ajax_tab', tabId);
+                            fetchUrl.searchParams.set(`${tabId}_page`, 1);
+                            container.style.opacity = '0.5';
+
+                            fetch(fetchUrl.toString(), {
+                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            })
+                            .then(r => r.text())
+                            .then(html => {
+                                container.innerHTML = html;
+                                container.style.opacity = '1';
+                            })
+                            .catch(err => {
+                                console.error('Error fetching page 1:', err);
+                                container.style.opacity = '1';
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 3. Intercept pagination links and same-page reset links inside tab panes
+            document.querySelectorAll('.tab-pane').forEach(function (pane) {
+                pane.addEventListener('click', function (e) {
+                    const link = e.target.closest('a');
+                    if (!link || !link.href) return;
+
+                    const linkUrl = new URL(link.href);
+                    const tabId = pane.getAttribute('id');
+                    const container = document.getElementById(`${tabId}-container`);
+                    if (!container) return;
+
+                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith('_page'));
+                    const isSamePage = linkUrl.pathname === window.location.pathname;
+
+                    if (!isPagination && !isSamePage) return;
+
+                    e.preventDefault();
+                    linkUrl.searchParams.set('ajax_tab', tabId);
+                    container.style.opacity = '0.5';
+
+                    fetch(linkUrl.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(r => r.text())
+                    .then(html => {
+                        container.innerHTML = html;
+                        container.style.opacity = '1';
+
+                        const newUrl = new URL(linkUrl.toString());
+                        newUrl.searchParams.delete('ajax_tab');
+                        newUrl.searchParams.set('tab', tabId);
+                        history.replaceState(null, '', newUrl.toString());
+                    })
+                    .catch(err => {
+                        console.error('Error fetching data:', err);
+                        container.style.opacity = '1';
+                    });
+                });
+            });
+
+            // 4. Intercept filter form submissions inside tab panes via AJAX
+            document.querySelectorAll('.tab-pane').forEach(function (pane) {
+                pane.addEventListener('submit', function (e) {
+                    const form = e.target.closest('form');
+                    if (!form) return;
+
+                    e.preventDefault();
+
+                    const tabId = pane.getAttribute('id');
+                    const container = document.getElementById(`${tabId}-container`);
+                    if (!container) return;
+
+                    const fetchUrl = new URL(form.action);
+                    const formData = new FormData(form);
+                    formData.forEach((value, key) => {
+                        if (value) {
+                            fetchUrl.searchParams.set(key, value);
+                        } else {
+                            fetchUrl.searchParams.delete(key);
+                        }
+                    });
+
+                    fetchUrl.searchParams.set('ajax_tab', tabId);
+                    container.style.opacity = '0.5';
+
+                    fetch(fetchUrl.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(r => r.text())
+                    .then(html => {
+                        container.innerHTML = html;
+                        container.style.opacity = '1';
+
+                        const newUrl = new URL(fetchUrl.toString());
+                        newUrl.searchParams.delete('ajax_tab');
+                        newUrl.searchParams.set('tab', tabId);
+                        history.replaceState(null, '', newUrl.toString());
+                    })
+                    .catch(err => {
+                        console.error('Error applying filter:', err);
+                        container.style.opacity = '1';
+                    });
+                });
+            });
+
+        });
+    </script>
+@endpush

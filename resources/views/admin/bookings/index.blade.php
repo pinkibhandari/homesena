@@ -11,12 +11,52 @@
             <h5 class="card-title mb-0">Bookings</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.bookings.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.bookings.index') }}"
+                    class="d-flex align-items-center gap-2 flex-wrap">
+
+                    <!--  Search -->
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search booking..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search booking..." value="{{ request('search') }}" style="width:180px;">
                     </div>
+
+                    <!--  Type -->
+                    <select name="type" class="form-select form-select-sm" style="width:140px;">
+                        <option value="">Type</option>
+                        <option value="scheduled" {{ request('type') == 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                        <option value="instant" {{ request('type') == 'instant' ? 'selected' : '' }}>Instant</option>
+                    </select>
+
+                    <!--  Sub Type -->
+                    <select name="sub_type" class="form-select form-select-sm" style="width:150px;">
+                        <option value="">Sub Type</option>
+                        <option value="recurring" {{ request('sub_type') == 'recurring' ? 'selected' : '' }}>Recurring
+                        </option>
+                        <option value="single" {{ request('sub_type') == 'single' ? 'selected' : '' }}>Single</option>
+                    </select>
+
+                    <!--  Status -->
+                    <select name="status" class="form-select form-select-sm" style="width:160px;">
+                        <option value="">Status</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed
+                        </option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
+                        </option>
+                        <option value="complete" {{ request('status') == 'complete' ? 'selected' : '' }}>Complete</option>
+                    </select>
+
+                    <!-- Button -->
+                    <button class="btn btn-primary btn-sm">
+                        <i class="ri-search-line"></i>
+                    </button>
+
+                    <!--  Reset -->
+                    <a href="{{ route('admin.bookings.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="ri-refresh-line"></i>
+                    </a>
+
                 </form>
             </div>
         </div>
@@ -36,7 +76,7 @@
                     'completed' => 'success',
                     'cancelled' => 'danger',
                     'partial' => 'secondary',
-                    default => 'light'
+                    default => 'light',
                 };
             }
         @endphp
@@ -59,21 +99,21 @@
                 <tbody>
                     @forelse($bookings as $booking)
                         <tr>
-                                  <td>{{ $bookings->firstItem() + $loop->index }}</td>
+                            <td>{{ $bookings->firstItem() + $loop->index }}</td>
                             <td>
-                                <span class="fw-semibold">{{ $booking->booking_code}}</span>
+                                <span class="fw-semibold">{{ $booking->booking_code }}</span>
                             </td>
                             <td>{{ $booking->type }}</td>
                             <td>{{ $booking->booking_subtype ?? 'N/A' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y')}}</td>
-                            <td>{{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y')}}</td>
-                            <td>{{ $booking->total_price}}</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->start_date)->format('d M Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->end_date)->format('d M Y') }}</td>
+                            <td>{{ $booking->total_price }}</td>
                             <td>
                                 <span class="badge rounded-pill bg-label-{{ statusColor($booking->status) }}">
                                     {{ ucfirst(str_replace('_', ' ', $booking->status)) }}
                                 </span>
                             </td>
-                              <td>
+                            <td>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
                                         data-bs-toggle="dropdown">
@@ -81,7 +121,8 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.bookings.show', $booking->id) }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.bookings.show', $booking->id) }}">
                                                 <i class="ri-eye-line me-2"></i>
                                                 Details
                                             </a>
@@ -102,5 +143,5 @@
         <div class="row px-4 pb-3 align-items-center">
             {{ $bookings->links('pagination::bootstrap-5') }}
         </div>
-        
-@endsection
+
+    @endsection
