@@ -68,7 +68,11 @@ class Booking extends Model
             return $this->hasMany(BookingSlot::class);
         }
 
-
+        public function invoice()
+        {
+            return $this->morphOne(Invoice::class, 'invoiceable')
+                        ->where('type', 'booking');
+        }
         
 }
 
