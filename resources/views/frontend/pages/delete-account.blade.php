@@ -1,5 +1,9 @@
+@extends('frontend.layouts.master')
 
- <style>
+@section('title', 'Delete Account')
+
+@section('content')
+<style>
     .delete-account-hero {
         padding: 130px 0 70px;
         background: linear-gradient(135deg, #f5f3ff, #ffffff);
@@ -85,30 +89,37 @@
 
     .deletion-row {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
+        flex-wrap: nowrap;
+        align-items: stretch;
     }
 
     /* IMAGE SIDE */
     .deletion-img-col {
         flex: 1 1 45%;
+        box-sizing: border-box;
         background: linear-gradient(135deg, #f5f3ff, #ffffff);
         display: flex;
-        align-items: center;
+        align-items: stretch;
         justify-content: center;
-        padding: 40px;
+        align-self: stretch;
+        padding: 0;
+        min-height: 100%;
     }
 
     .deletion-img-col img {
-        max-width: 100%;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 0;
     }
 
     /* FORM SIDE */
     .deletion-form-col {
         flex: 1 1 55%;
+        box-sizing: border-box;
         padding: 50px 60px;
+        align-self: center;
     }
 
     .deletion-form-col h3 {
@@ -216,7 +227,7 @@
 
                 <!-- IMAGE SIDE -->
                 <div class="deletion-img-col">
-                    <img src="{{ asset('img/delete.png') }}" alt="Delete">
+                    <img src="{{ asset('landing/img/delete.png') }}" alt="Delete">
                 </div>
 
                 <!-- FORM SIDE -->
@@ -250,3 +261,4 @@
 
     </div>
 </section>
+@endsection
