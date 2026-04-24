@@ -124,6 +124,7 @@ class ServiceController extends Controller
                 $request->longitude,
                 $request->latitude
             ])
+            ->where('status', 1)
             ->having('distance', '<=', $radiusKm)
             ->exists();
 

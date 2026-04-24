@@ -257,7 +257,7 @@ class ExpertController extends Controller
             'expertDetail.emergencyContacts',
             'expertSlots',
             'devices',
-            'onlineLogs' // ✅ add this
+            'onlineLogs' // add this
         ]);
 
         return view('admin.experts.show', compact('expert'));

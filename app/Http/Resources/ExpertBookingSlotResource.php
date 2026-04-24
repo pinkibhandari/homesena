@@ -72,6 +72,10 @@ class ExpertBookingSlotResource extends JsonResource
                     'address' => $this->booking?->address?->address ?? null,
                     'latitude' => $this->booking?->address?->address_lat ?? null,
                     'longitude' => $this->booking?->address?->address_long ?? null,
+                    'flat_no' => $this->booking?->address?->flat_no ?? null,
+                    'area_name' => $this->booking?->address?->area_name ?? null,
+                    'landmark' => $this->booking?->address?->landmark ?? null,
+                    'save_as' => $this->booking?->address?->save_as ?? null,
                 ],
             ],
         ];
