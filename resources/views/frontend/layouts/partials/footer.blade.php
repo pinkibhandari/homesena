@@ -19,6 +19,7 @@
                             {{ $page->title }}
                         </a>
                     @endforeach
+                    <a href="{{ route('support') }}">Contact Us</a> 
                   <a href="{{ route('delete.account') }}">Delete Account</a> 
                 </div>
 
