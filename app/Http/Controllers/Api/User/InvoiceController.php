@@ -63,7 +63,7 @@ class InvoiceController extends Controller
         }
         $amount = $slot->amount;
         // $invoiceNumber = 'INV-SLOT-' . date('Ymd') . '-' . $slot->id;
-        $invoiceNumber = 'INV-SLOT-' . date('Ymd') . '-' . str_pad($slot->id, 4, '0', STR_PAD_LEFT);
+        $invoiceNumber = 'HSS-SLOT-' . date('Ymd') . '-' . str_pad($slot->id, 4, '0', STR_PAD_LEFT);
         $pdf = Pdf::loadView('invoice.slot', compact('slot', 'invoiceNumber', 'amount'));
         $fileName = 'slot_' . $slot->id . '.pdf';
         $folder = public_path('invoices');
@@ -120,7 +120,7 @@ class InvoiceController extends Controller
         }
         $amount = $booking->total_amount;
         // $invoiceNumber = 'INV-BKG-' . date('Ymd') . '-' . $booking->id;
-        $invoiceNumber = 'INV-BKG-' . date('Ymd') . '-' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
+        $invoiceNumber = 'HSS-BKG-' . date('Ymd') . '-' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
         $pdf = Pdf::loadView('invoice.booking', compact('booking', 'invoiceNumber', 'amount'));
         $fileName = 'booking_' . $booking->id . '.pdf';
         $path = 'invoices/' . $fileName;
