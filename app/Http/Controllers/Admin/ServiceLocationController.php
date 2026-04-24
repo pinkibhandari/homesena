@@ -17,7 +17,9 @@ class ServiceLocationController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('address', 'like', "%{$request->search}%");
             })
-
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();

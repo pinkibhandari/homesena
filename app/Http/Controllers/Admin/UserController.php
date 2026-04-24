@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\BookingSlot;
 use App\Models\Address;
-use Illuminate\Support\Facades\Hash;
+use App\Models\BookingSlot;
+use App\Models\User;
 use App\Models\UserDevice;
-use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserController extends Controller
 {
@@ -72,7 +72,7 @@ class UserController extends Controller
     public function create()
     {
         return view('admin.users.form', [
-            'user' => new User()
+            'user' => new User,
         ]);
     }
 
@@ -80,6 +80,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $user->load('devices');
+
         return view('admin.users.form', compact('user'));
     }
 
@@ -127,7 +128,7 @@ class UserController extends Controller
             $user->save();
 
             return response()->json([
-                'status' => true
+                'status' => true,
             ]);
         }
 
@@ -161,13 +162,13 @@ class UserController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|digits:10|unique:users,phone,' . $id,
-            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phone' => 'required|digits:10|unique:users,phone,'.$id,
+            'email' => 'nullable|email|unique:users,email,'.$id,
             'password' => 'nullable|min:8',
 
             // only required on create
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
-            'device_id'   => $id ? 'nullable' : 'required',
+            'device_id' => $id ? 'nullable' : 'required',
 
             //  IMPORTANT
             'status' => 'required|in:0,1',
@@ -185,12 +186,12 @@ class UserController extends Controller
                 if ($device->token_id) {
                     $deleted = PersonalAccessToken::where('id', $device->token_id)->delete();
 
-                    if (!$deleted) {
+                    if (! $deleted) {
                         throw new \Exception('Token delete failed');
                     }
                 }
 
-                if (!$device->delete()) {
+                if (! $device->delete()) {
                     throw new \Exception('Device delete failed');
                 }
             });
@@ -202,22 +203,68 @@ class UserController extends Controller
     }
 
     // SHOW
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $user = User::with(['bookings.service'])->findOrFail($id);
+        $user = User::findOrFail($id);
 
-        $addresses = Address::where('user_id', $id)->latest()->get();
-
-        $bookings = $user->bookings;
-
-        $slots = BookingSlot::whereIn('booking_id', $bookings->pluck('id'))
-            ->with(['expert', 'booking'])
+        $addresses = Address::where('user_id', $id)
             ->latest()
-            ->get();
+            ->paginate(5, ['*'], 'addresses_page')
+            ->withQueryString();
+
+        $bookings = $user->bookings()
+            ->with('service')
+            ->when($request->filled('type'), function ($q) use ($request) {
+                $q->where('type', $request->type);
+            })
+            ->when($request->filled('sub_type'), function ($q) use ($request) {
+                $q->where('booking_subtype', $request->sub_type);
+            })
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+            ->when($request->filled('payment_status'), function ($q) use ($request) {
+                $q->where('payment_status', $request->payment_status);
+            })
+            ->latest()
+            ->paginate(5, ['*'], 'bookings_page')
+            ->withQueryString();
+
+        $slots = BookingSlot::whereHas('booking', fn ($q) => $q->where('user_id', $id))
+            ->with(['expert', 'booking'])
+            ->when($request->filled('slot_duration'), function ($q) use ($request) {
+                $q->where('duration', $request->slot_duration);
+            })
+            ->when($request->filled('slot_status'), function ($q) use ($request) {
+                $q->where('status', $request->slot_status);
+            })
+            ->when($request->filled('slot_otp_verified'), function ($q) use ($request) {
+                $q->where('otp_verified', $request->slot_otp_verified);
+            })
+            ->when($request->filled('slot_payment_status'), function ($q) use ($request) {
+                $q->where('payment_status', $request->slot_payment_status);
+            })
+            ->latest()
+            ->paginate(5, ['*'], 'slots_page')
+            ->withQueryString();
 
         $devices = UserDevice::where('user_id', $id)
             ->latest()
-            ->get();
+            ->paginate(5, ['*'], 'devices_page')
+            ->withQueryString();
+
+        if ($request->ajax() && $request->has('ajax_tab')) {
+            $tab = $request->ajax_tab;
+            if ($tab === 'addresses') {
+                return view('admin.users.partials.addresses_tab', compact('addresses', 'user'))->render();
+            } elseif ($tab === 'bookings') {
+                return view('admin.users.partials.bookings_tab', compact('bookings', 'user'))->render();
+            } elseif ($tab === 'slots') {
+                return view('admin.users.partials.slots_tab', compact('slots', 'user'))->render();
+            } elseif ($tab === 'devices') {
+                return view('admin.users.partials.devices_tab', compact('devices', 'user'))->render();
+            }
+        }
 
         return view('admin.users.show', compact(
             'user',

@@ -11,12 +11,32 @@
             <h5 class="card-title mb-0">Service Locations</h5>
             <div class="d-flex align-items-center gap-3">
                 <!-- Search -->
-                <form method="GET" action="{{ route('admin.service_locations.index') }}" class="d-flex align-items-center">
+                <form method="GET" action="{{ route('admin.service_locations.index') }}"
+                    class="d-flex align-items-center gap-2 flex-wrap">
+
+                    <!--  Search -->
                     <div class="d-flex align-items-center">
                         <span class="me-2">Search:</span>
                         <input name="search" type="search" class="form-control form-control-sm"
-                            placeholder="Search address..." value="{{ request('search') }}" style="width:200px;">
+                            placeholder="Search address..." value="{{ request('search') }}" style="width:180px;">
                     </div>
+
+                    <!--  Status Filter -->
+                    <select name="status" class="form-select form-select-sm" style="width:130px;">
+                        <option value="">Status</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+
+                    <!--  Search Button -->
+                    <button class="btn btn-primary btn-sm">
+                        <i class="ri-search-line"></i>
+                    </button>
+
+                    <!--  Reset -->
+                    <a href="{{ route('admin.service_locations.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="ri-refresh-line"></i>
+                    </a>
 
                 </form>
                 <!-- Add -->
@@ -30,17 +50,17 @@
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
             <!-- <div class="col-md-6">
-                                                                                            <div class="d-flex align-items-center gap-2">
-                                                                                                <span>Show</span>
-                                                                                                <select class="form-select form-select-sm" style="width:80px;">
-                                                                                                    <option>7</option>
-                                                                                                    <option>10</option>
-                                                                                                    <option>25</option>
-                                                                                                    <option>50</option>
-                                                                                                </select>
-                                                                                                <span>entries</span>
-                                                                                            </div>
-                                                                                        </div> -->
+                                                                                                <div class="d-flex align-items-center gap-2">
+                                                                                                    <span>Show</span>
+                                                                                                    <select class="form-select form-select-sm" style="width:80px;">
+                                                                                                        <option>7</option>
+                                                                                                        <option>10</option>
+                                                                                                        <option>25</option>
+                                                                                                        <option>50</option>
+                                                                                                    </select>
+                                                                                                    <span>entries</span>
+                                                                                                </div>
+                                                                                            </div> -->
         </div>
         <!-- Table -->
         <div class="table-responsive px-4 pb-3">

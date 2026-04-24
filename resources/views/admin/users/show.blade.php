@@ -89,262 +89,29 @@
 
                 <!-- ADDRESSES -->
                 <div class="tab-pane fade show active" id="addresses">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead class="bg-label-secondary">
-                                 <tr>
-                                        <th>#</th>
-                                        <th>House/Flat/Floor</th>
-                                        <th>Address</th>
-                                        <th>Area/Locality</th>
-                                        <th>Landmark</th>
-                                        <th>Save As</th>
-                                        <th>Pets</th>
-                                        <th>Lat</th>
-                                        <th>Long</th>
-                                        <th>Updated</th>
-                                    </tr>
-                            </thead>
-                            <tbody>
-                                    @forelse($addresses as $key => $address)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>{{ $address->flat_no }}</td>
-                                            <td>{{ $address->address }}</td>
-                                            <td>{{ $address->area_name }}</td>
-                                            <td>{{ $address->landmark }}</td>
-                                            <td>{{ ucfirst($address->save_as) }}</td>
-                                            <td>{{ $address->pets ?? '-' }}</td>
-                                            <td>{{ $address->address_lat }}</td>
-                                            <td>{{ $address->address_long }}</td>
-                                            <td>{{ $address->updated_at }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center">No Addresses Found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                        </table>
+                    <div id="addresses-container">
+                        @include('admin.users.partials.addresses_tab')
                     </div>
                 </div>
 
                 <!-- BOOKINGS -->
                 <div class="tab-pane fade" id="bookings">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead class="bg-label-secondary">
-                                <tr>
-                                        <th>#</th>
-                                        <th>Booking Code</th>
-                                        <th>Service</th>
-                                        <th>Type</th>
-                                        <th>Subtype</th>
-                                        <th>Time</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Total Price</th>
-                                        <th>Status</th>
-                                        <th>Payment Status</th>
-                                        <th>Created At</th>
-                                    </tr>
-                            </thead>
-                            <tbody>
-                                    @forelse($bookings as $key => $booking)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>{{ $booking->booking_code }}</td>
-
-                                            <td>{{ $booking->service->name ?? 'N/A' }}</td>
-
-                                            <td>
-                                                <span class="badge bg-label-info rounded-pill">
-                                                    {{ ucfirst($booking->type) }}
-                                                </span>
-                                            </td>
-
-                                            <td>{{ ucfirst($booking->booking_subtype) }}</td>
-
-                                            <td>{{ $booking->time ?? 'N/A' }}</td>
-
-                                            <td>{{ $booking->start_date ?? 'N/A' }}</td>
-
-                                            <td>{{ $booking->end_date ?? 'N/A' }}</td>
-
-                                            <td>₹{{ number_format($booking->total_price, 2) }}</td>
-
-                                            <!-- Status -->
-                                            <td>
-                                                @if ($booking->status == 'pending')
-                                                    <span class="badge bg-label-warning rounded-pill">Pending</span>
-                                                @elseif($booking->status == 'accepted')
-                                                    <span class="badge bg-label-primary rounded-pill">Accepted</span>
-                                                @elseif($booking->status == 'ongoing')
-                                                    <span class="badge bg-label-info rounded-pill">Ongoing</span>
-                                                @elseif($booking->status == 'completed')
-                                                    <span class="badge bg-label-success rounded-pill">Completed</span>
-                                                @else
-                                                    <span class="badge bg-label-danger rounded-pill">Cancelled</span>
-                                                @endif
-                                            </td>
-
-                                            <!-- Payment Status -->
-                                            <td>
-                                                @if ($booking->payment_status == 'paid')
-                                                    <span class="badge bg-label-success rounded-pill">Paid</span>
-                                                @elseif($booking->payment_status == 'pending')
-                                                    <span class="badge bg-label-warning rounded-pill">Pending</span>
-                                                @else
-                                                    <span class="badge bg-label-danger rounded-pill">Failed</span>
-                                                @endif
-                                            </td>
-
-                                            <td>{{ $booking->booking_created_at }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="12" class="text-center">No Bookings Found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                        </table>
+                    <div id="bookings-container">
+                        @include('admin.users.partials.bookings_tab')
                     </div>
                 </div>
 
                 <!-- Booking Slots -->
                 <div class="tab-pane fade" id="slots">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead class="bg-label-secondary">
-                                 <tr>
-                                        <th>#</th>
-                                        <th>Booking ID</th>
-                                        <th>Expert</th>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>Duration</th>
-                                        <th>OTP</th>
-                                        <th>OTP Verified</th>
-                                        <th>Status</th>
-                                        <th>Price</th>
-                                        <th>Payment</th>
-                                        <th>Check In</th>
-                                    </tr>
-                            </thead>
-                            <tbody>
-                                    @forelse($slots as $key => $slot)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-
-                                            <td>{{ $slot->booking->booking_code ?? 'N/A' }}</td>
-                                            <td>{{ $slot->expert->name ?? 'N/A' }}</td>
-
-                                            <td>{{ $slot->date }}</td>
-
-                                            <td>{{ $slot->time }}</td>
-
-                                            <td>{{ $slot->start_time }}</td>
-
-                                            <td>{{ $slot->end_time }}</td>
-
-                                            <td>{{ $slot->duration }} (min)</td>
-
-                                            <td>{{ $slot->otp_code ?? 'N/A' }}</td>
-
-                                            <!-- OTP Verified -->
-                                            <td>
-                                                @if ($slot->otp_verified)
-                                                    <span class="badge bg-label-success rounded-pill">Yes</span>
-                                                @else
-                                                    <span class="badge bg-label-danger rounded-pill">No</span>
-                                                @endif
-                                            </td>
-
-                                            <!-- Status -->
-                                            <td>
-                                                @if ($slot->status == 'pending')
-                                                    <span class="badge bg-label-warning rounded-pill">Pending</span>
-                                                @elseif($slot->status == 'available')
-                                                    <span class="badge bg-label-info rounded-pill">Available</span>
-                                                @elseif($slot->status == 'not_available')
-                                                    <span class="badge bg-label-danger rounded-pill">Not Available</span>
-                                                @else
-                                                    <span class="badge bg-label-success rounded-pill">Accepted</span>
-                                                @endif
-                                            </td>
-
-                                            <td>₹{{ number_format($slot->price, 2) }}</td>
-
-                                            <!-- Payment -->
-                                            <td>
-                                                @if ($slot->payment_status == 'paid')
-                                                    <span class="badge bg-label-success rounded-pill">Paid</span>
-                                                @else
-                                                    <span class="badge bg-label-warning rounded-pill">Pending</span>
-                                                @endif
-                                            </td>
-
-                                            <td>{{ $slot->check_in_time ?? 'N/A' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="14" class="text-center">No Slots Found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                        </table>
+                    <div id="slots-container">
+                        @include('admin.users.partials.slots_tab')
                     </div>
                 </div>
 
                 <!-- DEVICES -->
                 <div class="tab-pane fade" id="devices">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead class="bg-label-secondary">
-                                <tr>
-                                        <th>#</th>
-                                        <th>User ID</th>
-                                        <th>Token ID</th>
-                                        <th>Device ID</th>
-                                        <th>Device Type</th>
-                                        <th>FCM Token</th>
-                                        <th>Updated At</th>
-                                    </tr>
-                            </thead>
-                             <tbody>
-                                    @forelse($devices as $key => $device)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-
-                                            <td>{{ $device->user_id }}</td>
-
-                                            <td>{{ $device->token_id ?? 'N/A' }}</td>
-
-                                            <td>{{ $device->device_id ?? 'N/A' }}</td>
-
-                                            <td>
-                                                <span class="badge bg-label-info rounded-pill">
-                                                    {{ ucfirst($device->device_type) ?? 'N/A' }}
-                                                </span>
-                                            </td>
-
-                                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
-                                                {{ $device->fcm_token ?? 'N/A' }}
-                                            </td>
-
-
-
-                                            <td>{{ $device->updated_at }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="8" class="text-center">No Devices Found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                        </table>
+                    <div id="devices-container">
+                        @include('admin.users.partials.devices_tab')
                     </div>
                 </div>
 
@@ -353,3 +120,163 @@
 
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 1. On page load, restore the active tab from the ?tab= URL param
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab');
+
+            if (activeTab) {
+                const tabEl = document.querySelector(`[data-bs-target="#${activeTab}"]`);
+                if (tabEl) {
+                    bootstrap.Tab.getOrCreateInstance(tabEl).show();
+                }
+            }
+
+            // 2. When a tab is clicked, keep the URL in sync (no reload) and reset to page 1
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (tabEl) {
+                tabEl.addEventListener('shown.bs.tab', function (e) {
+                    const tabId = e.target.getAttribute('data-bs-target').replace('#', '');
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', tabId);
+                    
+                    // Remove all pagination params from URL so a fresh reload starts on page 1
+                    const keysToDelete = [];
+                    url.searchParams.forEach((val, key) => {
+                        if (key.endsWith('_page')) keysToDelete.push(key);
+                    });
+                    keysToDelete.forEach(k => url.searchParams.delete(k));
+                    
+                    history.replaceState(null, '', url.toString());
+
+                    // Reset the DOM to page 1 if it's currently on another page
+                    const containerId = `${tabId}-container`;
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        const activePageEl = container.querySelector('.page-item.active .page-link, .page-item.active span.page-link');
+                        if (activePageEl && activePageEl.textContent.trim() !== '1') {
+                            
+                            const fetchUrl = new URL(window.location.href);
+                            fetchUrl.searchParams.set('ajax_tab', tabId);
+                            fetchUrl.searchParams.set(`${tabId}_page`, 1);
+                            
+                            container.style.opacity = '0.5';
+
+                            fetch(fetchUrl.toString(), {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.text())
+                            .then(html => {
+                                container.innerHTML = html;
+                                container.style.opacity = '1';
+                            })
+                            .catch(error => {
+                                console.error('Error fetching page 1:', error);
+                                container.style.opacity = '1';
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 3. Intercept clicks inside each tab pane:
+            //    - Pagination links (contain a _page= param) → fetch new page
+            //    - Same-page reset/filter links (same pathname) → fetch filtered partial
+            document.querySelectorAll('.tab-pane').forEach(function (pane) {
+                pane.addEventListener('click', function (e) {
+                    const link = e.target.closest('a');
+                    if (!link || !link.href) return;
+
+                    const linkUrl = new URL(link.href);
+                    const tabId = pane.getAttribute('id');
+                    const container = document.getElementById(`${tabId}-container`);
+                    if (!container) return;
+
+                    const isPagination = [...linkUrl.searchParams.keys()].some(k => k.endsWith('_page'));
+                    const isSamePage = linkUrl.pathname === window.location.pathname;
+
+                    // Only intercept pagination links or same-page links (e.g. reset filter)
+                    if (!isPagination && !isSamePage) return;
+
+                    e.preventDefault();
+
+                    linkUrl.searchParams.set('ajax_tab', tabId);
+                    container.style.opacity = '0.5';
+
+                    fetch(linkUrl.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        container.innerHTML = html;
+                        container.style.opacity = '1';
+
+                        const newUrl = new URL(linkUrl.toString());
+                        newUrl.searchParams.delete('ajax_tab');
+                        newUrl.searchParams.set('tab', tabId);
+                        history.replaceState(null, '', newUrl.toString());
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        container.style.opacity = '1';
+                    });
+                });
+            });
+
+            // 4. Intercept filter form submissions inside tab panes via AJAX
+            document.querySelectorAll('.tab-pane').forEach(function (pane) {
+                pane.addEventListener('submit', function (e) {
+                    const form = e.target.closest('form');
+                    if (!form) return;
+
+                    e.preventDefault();
+
+                    const tabId = pane.getAttribute('id');
+                    const container = document.getElementById(`${tabId}-container`);
+                    if (!container) return;
+
+                    const fetchUrl = new URL(form.action);
+
+                    // Append form field values to the URL
+                    const formData = new FormData(form);
+                    formData.forEach((value, key) => {
+                        if (value) {
+                            fetchUrl.searchParams.set(key, value);
+                        } else {
+                            fetchUrl.searchParams.delete(key);
+                        }
+                    });
+
+                    fetchUrl.searchParams.set('ajax_tab', tabId);
+                    container.style.opacity = '0.5';
+
+                    fetch(fetchUrl.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        container.innerHTML = html;
+                        container.style.opacity = '1';
+
+                        // Update browser URL to reflect active filters without reloading
+                        const newUrl = new URL(fetchUrl.toString());
+                        newUrl.searchParams.delete('ajax_tab');
+                        newUrl.searchParams.set('tab', tabId);
+                        history.replaceState(null, '', newUrl.toString());
+                    })
+                    .catch(error => {
+                        console.error('Error applying filter:', error);
+                        container.style.opacity = '1';
+                    });
+                });
+            });
+
+        });
+    </script>
+@endpush
+

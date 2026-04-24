@@ -13,12 +13,21 @@ class TimeSlotController extends Controller
     public function index(Request $request)
     {
         $slots = TimeSlot::query()
+
+            // SEARCH
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->search;
-
                 $q->where('start_time', 'like', "%{$search}%");
             })
-            ->orderBy('start_time', 'asc') // morning → evening
+
+            //  STATUS FILTER 
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+
+            //  SORT (Morning → Evening)
+            ->orderBy('start_time', 'asc')
+
             ->paginate(10)
             ->withQueryString();
 
@@ -109,7 +118,7 @@ class TimeSlotController extends Controller
     {
         return $request->validate([
             'start_time' => 'required',
-           'status'  => 'required|in:0,1',
+            'status'  => 'required|in:0,1',
         ]);
     }
 

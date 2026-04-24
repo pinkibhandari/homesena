@@ -15,7 +15,7 @@ class ServiceController extends Controller
     {
         $services = Service::query()
 
-            //  Search (Grouped - FIXED)
+            // 🔍 Search (Grouped - Already Correct)
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%')
@@ -23,6 +23,11 @@ class ServiceController extends Controller
                         ->orWhere('slider_title', 'like', '%' . $request->search . '%')
                         ->orWhere('slider_description', 'like', '%' . $request->search . '%');
                 });
+            })
+
+            // 🔥 Status Filter (NEW)
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
             })
 
             ->latest()

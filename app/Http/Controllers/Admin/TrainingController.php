@@ -17,12 +17,14 @@ class TrainingController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%')
-                          ->orWhere('city', 'like', '%' . $request->search . '%')
-                          ->orWhere('address', 'like', '%' . $request->search . '%')
-                          ->orWhere('phone', 'like', '%' . $request->search . '%'); // ✅ added
+                        ->orWhere('city', 'like', '%' . $request->search . '%')
+                        ->orWhere('address', 'like', '%' . $request->search . '%')
+                        ->orWhere('phone', 'like', '%' . $request->search . '%'); // ✅ added
                 });
             })
-
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
