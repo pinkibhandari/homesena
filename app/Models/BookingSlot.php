@@ -46,9 +46,9 @@ class BookingSlot extends Model
         return $this->hasOne(Review::class,'booking_slot_id');
     }
 
-    public function invoice()
-    {
-        return $this->morphOne(Invoice::class, 'invoiceable')
-                    ->where('type', 'slot');
-    }
+    // public function invoice()
+    // {
+    //     return $this->morphOne(Invoice::class, 'invoiceable')
+    //                 ->where('type', 'slot');
+    // }
 }

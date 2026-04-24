@@ -71,7 +71,7 @@
                                 <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Invoice no.</span>
                                 <span style="display: block; font-size: 12.5px; color: #1a1a1a;
-                                    line-height: 1.55;">HSS26-{{ $booking->id }}</span>
+                                    line-height: 1.55;">{{ $invoiceNumber }}</span>
                             </td>
                         </tr>
 

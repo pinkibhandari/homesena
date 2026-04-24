@@ -7,15 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
      protected $fillable = [
+        'booking_id',
         'invoice_number',
-        'type',
+        // 'type',
         'amount',
         'file_path',
         'issued_at'
     ];
 
-    public function invoiceable()
-    {
-        return $this->morphTo();
-    }
+    // public function invoiceable()
+    // {
+    //     return $this->morphTo();
+    // }
 }
