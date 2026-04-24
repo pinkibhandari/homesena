@@ -9,16 +9,18 @@ use App\Http\Controllers\Api\User\BookingController;
 use App\Http\Controllers\Api\User\LocationController;
 use App\Http\Controllers\Api\User\ReviewController;
 use App\Http\Controllers\Api\User\PaymentController;
-use App\Http\Controllers\Api\Expert\ExpertController;
 use App\Http\Controllers\Api\User\UserSupportController;
 use App\Http\Controllers\Api\User\UserHomeController;
 use App\Http\Controllers\Api\User\CmsPageController;
 use App\Http\Controllers\Api\User\AddressController;
+use App\Http\Controllers\Api\User\InvoiceController;
 use App\Http\Controllers\Api\Expert\EmergencyContactController;
 use App\Http\Controllers\Api\Expert\BookingController as ExpertBookingController;
 use App\Http\Controllers\Api\Expert\TrainingCenterController;
 use App\Http\Controllers\Api\Expert\ExpertSOSController;
 use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
+use App\Http\Controllers\Api\Expert\ExpertController;
+
 
 
 
@@ -86,6 +88,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('contact-us',[UserSupportController::class, 'store']);
     // service Available
     Route::post('service-available',[ServiceController::class, 'serviceAvailable']);
+    // generate invoice
+    Route::get('/booking/{id}/invoice', [InvoiceController::class, 'generateInvoiceBooking']);
+    Route::get('/slot-booking/{id}/invoice', [InvoiceController::class, 'generateInvoiceSlotBooking']);
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){
@@ -99,8 +104,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('emergency-contact/{id}',[EmergencyContactController::class,'deleteEmergencyContact']);
         Route::put('update-emergency-contact/{id}',[EmergencyContactController::class,'updateEmergencyContact']);
             // booking
-        Route::get('bookings', [ExpertBookingController::class, 'bookingList']);
-        Route::get('booking/{id}', [ExpertBookingController::class, 'bookingDetails']);
+        Route::get('bookings', [ExpertBookingController::class, 'bookingSlotList']);
+        Route::get('booking/{id}', [ExpertBookingController::class, 'bookingSlotDetail']);
         Route::post('booking-slot/accept', [ExpertBookingController::class, 'acceptSlot']);
         Route::post('booking-slot/reject', [ExpertBookingController::class, 'rejectSlot']);
         Route::get('upcoming-booking', [ExpertBookingController::class, 'upcomingBooking']); 

@@ -13,6 +13,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        //  $booking = Booking::with(['user', 'slots'])->findOrFail(3);
+        // return view('invoice.booking', compact('booking'));
         try {
             // Counts
             $totalUsers = User::where('role', 'user')->count();

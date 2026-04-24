@@ -261,6 +261,12 @@ class ExpertController extends Controller
             'ratingStat',
             'expertDetail.trainingCenter',
             'expertDetail.emergencyContacts',
+<<<<<<< HEAD
+            'expertSlots',
+            'devices',
+            'onlineLogs' // add this
+=======
+>>>>>>> 4c9bdccb605d0aabb8599538c92d2162972682fe
         ]);
 
         $addresses = $expert->addresses()
