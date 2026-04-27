@@ -54,34 +54,49 @@ class BookingController extends Controller
             ->with([
                 'booking.service:id,name',
                 'booking.user:id,name,phone',
-                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long'
+                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long',
             ]);
 
-        //  Apply filter only if status is present
-        if ($status) {
+        // Apply status filter only if status is NOT null
+        if (!is_null($status)) {
 
-            if ($status === 'ongoing') {
-                $query->where('status', 'ongoing');
+            switch ($status) {
 
-            } elseif ($status === 'upcoming') {
-                $query->where('status', 'accepted')
-                    ->whereDate('date', '>=', now()->toDateString());
+                case 'cancelled':
+                    $query->where('status', 'cancelled');
+                    break;
 
-            } elseif ($status === 'completed') {
-                $query->where('status', 'completed');
-            } else {
-                // invalid status
-                return response()->json([
-                    'code' => 422,
-                    'status' => false,
-                    'message' => 'Invalid status value',
-                    'data' => (object) []
-                ], 422);
+                case 'upcoming':
+                    $query->where('status', 'accepted')
+                        ->where('start_time', '>=', now());
+                    // ->whereDate('date', '>=', now()->toDateString());
+                    break;
+
+                case 'completed':
+                    $query->where('status', 'completed');
+                    break;
+
+                default:
+                    return response()->json([
+                        'code' => 422,
+                        'status' => false,
+                        'message' => 'Invalid status value',
+                        'data' => []
+                    ], 422);
             }
         }
         $slots = $query->orderBy('date')
             ->orderBy('start_time')
             ->get();
+
+        if ($slots->isEmpty()) {
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'No bookings found',
+                'data' => []
+            ]);
+        }
 
         return response()->json([
             'status' => true,
@@ -134,17 +149,18 @@ class BookingController extends Controller
             ->with([
                 'booking.service:id,name',
                 'booking.user:id,name,phone',
-                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long'
+                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long',
+                'expertSos:id,expert_id,booking_slot_id'
             ])
             ->where('id', $id)
             ->first();
 
         if (!$slot) {
             return response()->json([
-                'code'=> 422,
+                'code' => 422,
                 'status' => false,
                 'message' => 'Booking slot not found',
-                'data' =>(object)[]
+                'data' => (object) []
             ]);
         }
         return response()->json([
@@ -155,33 +171,82 @@ class BookingController extends Controller
         ]);
     }
 
+    // public function upcomingBooking(Request $request)
+    // {
+    //     $expert = $request->user();
+    //     $slot = $expert->expertSlots()
+    //         ->with([
+    //             'booking.service:id,name',
+    //             'booking.user:id,name,phone',
+    //             'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long'
+    //         ])
+    //         ->where('status', 'accepted')
+    //         ->whereDate('date', '>=', now()->toDateString())
+    //         ->orderBy('date')
+    //         ->orderBy('start_time')
+    //         ->first();
+    //     return response()->json([
+    //         'status' => true,
+    //         'code' => 200,
+    //         'message' => $slot
+    //             ? 'Upcoming booking found'
+    //             : 'No upcoming booking',
+    //         'data' => $slot ? new ExpertBookingSlotResource($slot) : (object) []
+    //     ], 200);
+    // }
+
     public function upcomingBooking(Request $request)
     {
         $expert = $request->user();
-        $slot = $expert->expertSlots()
+
+        // Ongoing (from DB)
+        $ongoing = $expert->expertSlots()
             ->with([
                 'booking.service:id,name',
                 'booking.user:id,name,phone',
-                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long'
+                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long',
+                'expertSos:id,expert_id,booking_slot_id'
+            ])
+            ->where('status', 'ongoing')
+            ->first();
+
+        if ($ongoing) {
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Ongoing booking found',
+                'data' => new ExpertBookingSlotResource($ongoing)
+            ]);
+        }
+
+        //  Upcoming
+        $upcoming = $expert->expertSlots()
+            ->with([
+                'booking.service:id,name',
+                'booking.user:id,name,phone',
+                'booking.address:id,flat_no,address,area_name,landmark,save_as,address_lat,address_long',
+                'expertSos:id,expert_id,booking_slot_id'
             ])
             ->where('status', 'accepted')
             ->whereDate('date', '>=', now()->toDateString())
             ->orderBy('date')
             ->orderBy('start_time')
             ->first();
+
         return response()->json([
             'status' => true,
             'code' => 200,
-            'message' => $slot
-                ? 'Upcoming booking found'
-                : 'No upcoming booking',
-            'data' => $slot ? new ExpertBookingSlotResource($slot) : (object) []
-        ], 200);
+            'message' => $upcoming ? 'Upcoming booking found' : 'No booking found',
+            // 'type' => $upcoming ? 'upcoming' : null,
+            'data' => $upcoming ? new ExpertBookingSlotResource($upcoming) : (object) []
+        ]);
     }
 
     //  ACCEPT BOOKING
-    public function acceptSlot(Request $request, FirebaseService $firebase)
+    // public function acceptSlot(Request $request, FirebaseService $firebase)
+    public function acceptSlot(Request $request)
     {
+        $firebase = app(FirebaseService::class);
         $validator = Validator::make($request->all(), [
             'booking_slot_id' => 'required|exists:booking_slots,id',
         ]);
@@ -215,14 +280,15 @@ class BookingController extends Controller
                 }
                 //  Security check
                 $expert = auth()->user();
-                if ($slot->expert_id != $expert->id) {
-                    throw new \Exception('Unauthorized');
-                }
+                // if ($slot->expert_id != $expert->id) {
+                //     throw new \Exception('Unauthorized');
+                // }
                 //  Slot already processed
-                if ($slot->status !== 'confirmed') {
-                    throw new \Exception('Slot already processed');
-                }
+                // if ($slot->status !== 'confirmed') {
+                //     throw new \Exception('Slot already processed');
+                // }
                 //  Accept slot
+                $slot->expert_id = $expert->id;
                 $slot->status = 'accepted';
                 $slot->save();
                 // Add Booking Log
@@ -282,14 +348,14 @@ class BookingController extends Controller
             ]);
         }
         //  Security check
-        if ($slot->expert_id != $expert->id) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'Unauthorized',
-                'data' => (object) []
-            ], 422);
-        }
+        // if ($slot->expert_id != $expert->id) {
+        //     return response()->json([
+        //         'code' => 422,
+        //         'status' => false,
+        //         'message' => 'Unauthorized',
+        //         'data' => (object) []
+        //     ], 422);
+        // }
         //  Get latest action for this expert + slot
         $latestAction = BookingSlotLog::where('booking_slot_id', $slot->id)
             ->where('expert_id', $expert->id)

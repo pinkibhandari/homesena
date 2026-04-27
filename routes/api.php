@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Expert\TrainingCenterController;
 use App\Http\Controllers\Api\Expert\ExpertSOSController;
 use App\Http\Controllers\Api\Expert\ExpertCmsPageController;
 use App\Http\Controllers\Api\Expert\ExpertController;
+use App\Http\Controllers\Api\User\ServiceNotifyController;
 
 
 
@@ -58,8 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('booking/create', [BookingController::class, 'storeBooking']);
     Route::post('booking/payment', [BookingController::class, 'handlePayment']);
     Route::post('slots/{id}/accept', [BookingController::class, 'accept']); // Expert accepts a specific slot
-    Route::get('bookings', [BookingController::class, 'getUserBookings']);
-    Route::get('booking/{id}', [BookingController::class, 'getBookingById']);
+    Route::get('bookings', [BookingController::class, 'userSlotBookingListing']);
+    Route::get('booking/{id}', [BookingController::class, 'userSlotBookingById']);
+    // Route::get('booking/{id}', [BookingController::class, 'getBookingById']);
     // Route::put('/slots/{id}/cancel', [BookingController::class, 'cancelBookingSlots']);
     // Route::put('/booking/{id}/cancel', [BookingController::class, 'cancelBookingSlot']);
     // Route::put('slots/{id}/reschedule', [BookingController::class, 'rescheduleBookingSlots']);
@@ -91,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // generate invoice
     Route::get('/booking/{id}/invoice', [InvoiceController::class, 'generateBookingInvoice']);
     // Route::get('/slot-booking/{id}/invoice', [InvoiceController::class, 'generateSlotInvoice']);
+     Route::post('notify-me',[ServiceNotifyController::class, 'storeNotifyRequest']);
 
     /*-------------  expert api ---------------------------------------**/
      Route::middleware('role:expert')->prefix('expert')->group(function(){

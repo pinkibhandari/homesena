@@ -45,7 +45,10 @@ class BookingSlot extends Model
     {
         return $this->hasOne(Review::class,'booking_slot_id');
     }
-
+    public function expertSos()
+    {
+        return $this->hasOne(ExpertSOS::class,'booking_slot_id');
+    }
     // public function invoice()
     // {
     //     return $this->morphOne(Invoice::class, 'invoiceable')

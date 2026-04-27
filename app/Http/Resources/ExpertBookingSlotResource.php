@@ -34,6 +34,7 @@ class ExpertBookingSlotResource extends JsonResource
             'duration' => $this->duration,
             'status' => $this->status,
             'price' => $this->price,
+            'check_in_time' => $this->check_in_time ? $this->check_in_time : null,
 
               // BOOKING INFO
             'booking' => [
@@ -77,6 +78,9 @@ class ExpertBookingSlotResource extends JsonResource
                     'landmark' => $this->booking?->address?->landmark ?? null,
                     'save_as' => $this->booking?->address?->save_as ?? null,
                 ],
+
+                //  SOS INFO
+                'expert_sos' => $this->expertSos ? 1 : 0,
             ],
         ];
 
