@@ -162,8 +162,8 @@ class UserController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|digits:10|unique:users,phone,'.$id,
-            'email' => 'nullable|email|unique:users,email,'.$id,
+            'phone' => 'required|digits:10|unique:users,phone,' . $id,
+            'email' => 'nullable|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
 
             // only required on create
@@ -204,7 +204,7 @@ class UserController extends Controller
 
     // SHOW
     public function show(Request $request, $id)
-    {
+        {
         $user = User::findOrFail($id);
 
         $addresses = Address::where('user_id', $id)
@@ -230,7 +230,7 @@ class UserController extends Controller
             ->paginate(5, ['*'], 'bookings_page')
             ->withQueryString();
 
-        $slots = BookingSlot::whereHas('booking', fn ($q) => $q->where('user_id', $id))
+        $slots = BookingSlot::whereHas('booking', fn($q) => $q->where('user_id', $id))
             ->with(['expert', 'booking'])
             ->when($request->filled('slot_duration'), function ($q) use ($request) {
                 $q->where('duration', $request->slot_duration);
