@@ -14,8 +14,8 @@ class ExpertSOSController extends Controller
 {
     public function sendSOS(Request $request, FirebaseService $firebase)
     {
-         $validator = Validator::make($request->all(), [
-           'latitude' => 'required',
+        $validator = Validator::make($request->all(), [
+            'latitude' => 'required',
             'longitude' => 'required',
             'booking_slot_id' => 'required|exists:booking_slots,id',
             'message' => 'nullable|string'
@@ -48,7 +48,7 @@ class ExpertSOSController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'message' => $request->message,
-            'status' => 'active',
+            // 'status' => 'active',
         ]);
         $title = "🚨 SOS Alert";
         $body = "Expert {$expert->name} needs help!";
@@ -60,10 +60,17 @@ class ExpertSOSController extends Controller
             'map_url' => "https://maps.google.com/?q={$request->latitude},{$request->longitude}"
         ];
         //  Notify Admins
-        $adminIds = User::where('role', 'admin')->pluck('id');
-        foreach ($adminIds as $adminId) {
-            $this->sendToUserDevices($adminId, $title, $body, $data, $firebase);
-        }
+        // $adminIds = User::where('role', 'admin')->pluck('id');
+        // foreach ($adminIds as $adminId) {
+        //     $this->sendToUserDevices($adminId, $title, $body, $data, $firebase);
+        // }
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'SOS sent successfully',
+            'data' => (object) []
+        ]);
         //   Notify Customer via booking_slot_id
 
         // $slot = BookingSlot::find($request->booking_slot_id);
@@ -97,4 +104,6 @@ class ExpertSOSController extends Controller
         }
     }
 
+
+    
 }

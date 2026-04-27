@@ -35,17 +35,20 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $existingUser = User::where('phone', $request->phone)->first();
+        // $existingUser = User::where('phone', $request->phone)->first();
+        $existingUser = User::where('phone', $request->phone)
+                ->where('role', $request->role)
+                ->first();
 
         //  Role mismatch
-        if ($existingUser && $existingUser->role !== $request->role) {
-            return response()->json([
-                'code' => 422,
-                'status' => false,
-                'message' => 'This phone number is already registered with another role',
-                'data' => (object) []
-            ], 422);
-        }
+        // if ($existingUser && $existingUser->role !== $request->role) {
+        //     return response()->json([
+        //         'code' => 422,
+        //         'status' => false,
+        //         'message' => 'This phone number is already registered with another role',
+        //         'data' => (object) []
+        //     ], 422);
+        // }
 
         //  Inactive user
         if ($existingUser && $existingUser->status != 1) {

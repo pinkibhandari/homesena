@@ -19,20 +19,13 @@ class NotifyNearbyExpertsBeforeSlot extends Command
     {
         $firebase = app(FirebaseService::class);
 
-        $today = now()->toDateString();
-        $time = now()->format('H:i:s');
-        
         $slots = BookingSlot::with(['booking.address','booking.user'])
-            ->where('status', 'confirmed')
-            ->whereNull('expert_id')
-            ->where('notified', 0)
-            ->where(function ($q) use ($today, $time) {
-                $q->where('date', '>', $today)
-                  ->orWhere(function ($q2) use ($today, $time) {
-                      $q2->where('date', $today)
-                         ->where('start_time', '>=', $time);
-                  });
-            })
+              ->where('start_time', '>=', now())
+              ->where('status', 'confirmed')
+            //  ->where('status', 'notified')
+             ->whereNull('expert_id')
+             ->where('notified', 0)
+            //  ->where('notified', 1)
             ->get();
 
         foreach ($slots as $slot) {

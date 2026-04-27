@@ -18,6 +18,7 @@ use App\Models\Address;
 use App\Models\BookingSlot;
 use App\Models\BookingCancelReason;
 use App\Http\Resources\BookingSlotResource;
+use App\Http\Resources\UserBookingSlotResource;
 
 class BookingController extends Controller
 {
@@ -446,80 +447,170 @@ class BookingController extends Controller
 
     // booking by id detail
 
-    public function getBookingById($id)
+    // public function getBookingById($id)
+    // {
+    //     $booking = Booking::with([
+    //         'service',
+    //         'address',
+    //         'slots.expert'
+    //     ])->find($id);
+    //     if (!$booking) {
+    //         return response()->json([
+    //             'code' => 422,
+    //             'status' => false,
+    //             'message' => 'Booking not found',
+    //             'data' => (object) []
+    //         ], 422);
+    //     }
+    //     return response()->json([
+    //         'code' => 200,
+    //         'status' => true,
+    //         'message' => 'Booking retrieved successfully',
+    //         'data' => new BookingResource($booking)
+    //     ]);
+    // }
+    // get auth user bookings list
+    // public function userBookingListing(Request $request)
+    // {
+    //     $query = Booking::with([
+    //         'service',
+    //         'address',
+    //         'slots.expert'
+    //     ])->where('user_id', auth()->id());
+
+    //     //  FILTER BY STATUS 
+    //     if ($request->filled('status')) {
+    //         switch ($request->status) {
+    //             case 'ongoing':
+    //                 $query->where('status', 'confirmed')
+    //                     ->whereDate('date', '<=', now());
+    //                 break;
+    //             case 'upcoming':
+    //                 $query->where('status', 'confirmed')
+    //                     ->whereDate('date', '>', now());
+    //                 break;
+    //             case 'cancelled':
+    //                 $query->where('status', 'cancelled');
+    //                 break;
+    //             case 'completed':
+    //                 $query->where('status', 'completed');
+    //                 break;
+    //             default:
+    //                 // pending / confirmed
+    //                 $query->where('status', $request->status);
+    //                 break;
+    //         }
+    //     }
+
+    //     $bookings = $query->latest()->get();
+    //     return response()->json([
+    //         'code' => 200,
+    //         'status' => true,
+    //         'message' => $bookings->isEmpty()
+    //             ? 'No bookings found for this user'
+    //             : 'User bookings retrieved successfully',
+    //         'data' => BookingResource::collection($bookings),
+    //         // 'pagination' => [
+    //         //     'current_page' => $bookings->currentPage(),
+    //         //     'last_page' => $bookings->lastPage(),
+    //         //     'per_page' => $bookings->perPage(),
+    //         //     'total' => $bookings->total(),
+    //         // ]
+    //     ]);
+    // }
+
+    public function userSlotBookingById($slotId)
     {
-        $booking = Booking::with([
-            'service',
-            'address',
-            'slots.expert'
-        ])->find($id);
-        if (!$booking) {
+        $userId = auth()->id();
+        $slot = BookingSlot::with([
+            'booking.service',
+            'booking.address',
+            'booking.user',
+            'expert'
+        ])
+            ->where('id', $slotId)
+            ->whereHas('booking', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->first();
+        if (!$slot) {
             return response()->json([
-                'code' => 422,
+                'code' => 404,
                 'status' => false,
-                'message' => 'Booking not found',
+                'message' => 'Slot not found',
                 'data' => (object) []
-            ], 422);
+            ], 404);
         }
         return response()->json([
             'code' => 200,
             'status' => true,
-            'message' => 'Booking retrieved successfully',
-            'data' => new BookingResource($booking)
+            'message' => 'Booking slot fetched successfully',
+            'data' => new UserBookingSlotResource($slot)
         ]);
     }
-    // get auth user bookings
-    public function getUserBookings(Request $request)
+
+    public function userSlotBookingListing(Request $request)
     {
-        $query = Booking::with([
-            'service',
-            'address',
-            'slots.expert'
-        ])->where('user_id', auth()->id());
-        //  FILTER BY STATUS 
-        if ($request->filled('status')) {
-            switch ($request->status) {
-                case 'ongoing':
-                    $query->where('status', 'confirmed')
-                        ->whereDate('date', '<=', now());
+        $status = $request->status;
+        $userId = auth()->id();
+        $query = BookingSlot::with([
+            'booking.user',
+            'booking.address',
+            'booking.service',
+            'expert'
+        ])
+            ->whereHas('booking', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
+
+        //  Status filter
+        if (!is_null($status)) {
+            switch ($status) {
+                case 'pending':
+                    // $query->where('status', 'accepted')
+                    $query->whereIn('status', ['pending','confirmed','notified'])
+                        ->where('start_time', '>=', now());
                     break;
                 case 'upcoming':
-                    $query->where('status', 'confirmed')
-                        ->whereDate('date', '>', now());
-                    break;
-                case 'cancelled':
-                    $query->where('status', 'cancelled');
+                    $query->where('status', 'accepted')
+                        ->where('start_time', '>=', now());
                     break;
                 case 'completed':
                     $query->where('status', 'completed');
                     break;
+                case 'cancelled':
+                    $query->where('status', 'cancelled');
+                    break;
                 default:
-                    // pending / confirmed
-                    $query->where('status', $request->status);
+                    // optional: return all user slots
                     break;
             }
+
+        }
+        $slots = $query->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
+        if ($slots->isEmpty()) {
+            return response()->json([
+                'code' => 200,
+                'status' => true,
+                'message' => 'No bookings found',
+                'data' => (object) []
+            ]);
         }
 
-        $bookings = $query->latest()->get();
         return response()->json([
             'code' => 200,
             'status' => true,
-            'message' => $bookings->isEmpty()
-                ? 'No bookings found for this user'
-                : 'User bookings retrieved successfully',
-            'data' => BookingResource::collection($bookings),
-            // 'pagination' => [
-            //     'current_page' => $bookings->currentPage(),
-            //     'last_page' => $bookings->lastPage(),
-            //     'per_page' => $bookings->perPage(),
-            //     'total' => $bookings->total(),
-            // ]
+            'message' => 'Booking list fetched successfully',
+            'data' => UserBookingSlotResource::collection($slots),
         ]);
     }
 
-
     public function cancelBooking(Request $request, $id)
     {
+
         $validator = Validator::make($request->all(), [
             'cancel_reason' => 'required|string|max:255'
         ]);
@@ -532,7 +623,16 @@ class BookingController extends Controller
                 'data' => (object) []
             ]);
         }
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::find($id);
+        // if(!$booking || $booking->user_id !== auth()->id()) {
+        //     return response()->json([
+        //         'code' => 422,
+        //         'status' => false,
+        //         'message' => 'Booking not found or access denied',
+        //         'data' => (object) []
+        //     ], 422);
+        // }
+
         if ($booking->status === 'cancelled') {
             $booking->load('slots');
             return response()->json([
@@ -552,7 +652,8 @@ class BookingController extends Controller
         //  Dynamic cancel rule
         $minutesBefore = $booking->type === 'instant' ? 10 : 120;
         foreach ($booking->slots as $slot) {
-            $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+
+            $slotDateTime = Carbon::parse(Carbon::parse($slot->date)->format('Y-m-d') . ' ' . $slot->start_time);
             // If ANY slot is within 2 hours → block
             if ($now->diffInMinutes($slotDateTime, false) < $minutesBefore) {
                 return response()->json([
@@ -561,10 +662,12 @@ class BookingController extends Controller
                     'message' => $booking->type === 'instant'
                         ? 'Instant booking can only be cancelled at least 10 minutes before start time'
                         : 'Booking cannot be cancelled. One or more slots are within 2 hours.',
-                    'data' => [
-                        'slot_id' => $slot->id,
-                        'slot_time' => $slot->start_time
-                    ]
+                    'data' => (object) []
+                    // 'data' => [
+                    //     'slot_id' => $slot->id,
+                    //     'slot_time' => $slot->start_time,
+                    //     'slot_date' => $slot->date,
+                    // ]
                 ], 422);
             }
         }
@@ -621,7 +724,15 @@ class BookingController extends Controller
                 'data' => (object) []
             ]);
         }
-        $slot = BookingSlot::with('booking')->findOrFail($slotId);
+        $slot = BookingSlot::with('booking')->find($slotId);
+        // if(!$slot || $slot->booking->user_id !== auth()->id()) {
+        //     return response()->json([
+        //         'code' => 422,
+        //         'status' => false,
+        //         'message' => 'Booking not found or access denied',
+        //         'data' => (object) []
+        //     ], 422);
+        // }
         // Already cancelled check
         if ($slot->status === 'cancelled') {
             return response()->json([
@@ -635,7 +746,8 @@ class BookingController extends Controller
             ], 422);
         }
         //  2-Hour Restriction Logic
-        $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+        // $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+        $slotDateTime = Carbon::parse(Carbon::parse($slot->date)->format('Y-m-d') . ' ' . $slot->start_time);
         $now = Carbon::now();
         // Dynamic cancel rule
         $minutesBefore = $slot->booking->type === 'instant' ? 10 : 120;

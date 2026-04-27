@@ -17,6 +17,7 @@ class BookingSlotResource extends JsonResource
         return [
             'id' => $this->id,
             'booking_id' => $this->booking_id,
+            'expert_id' => $this->expert_id,
             'date' => $this->date,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,

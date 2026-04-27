@@ -99,7 +99,7 @@
                                     Address</span>
                                 <span
                                     style="display: block; font-size: 12.5px; color: #1a1a1a;
-                                    line-height: 1.55;">{{ $booking->address->flat_no ?? 'N/A' }},{{ $booking->address->address ?? 'N/A' }},{{ $booking->address->area_name ?? 'N/A' }},{{ $booking->address->landmark ?? 'N/A' }}</span>
+                                    line-height: 1.55;">{{ $booking->address?->flat_no ?? 'N/A' }},{{ $booking->address?->address ?? 'N/A' }},{{ $booking->address?->area_name ?? 'N/A' }},{{ $booking->address?->landmark ?? 'N/A' }}</span>
                             </td>
                         </tr>
 
