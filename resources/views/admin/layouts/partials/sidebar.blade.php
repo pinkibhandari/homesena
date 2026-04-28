@@ -30,10 +30,27 @@
         </li>
 
         {{-- Experts --}}
-        <li class="menu-item {{ request()->routeIs('admin.experts.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.experts.*') ? 'active' : '' }}">
             <a href="{{ route('admin.experts.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-user-star-line"></i>
                 <div>Experts</div>
+            </a>
+        </li> --}}
+        <li class="menu-item {{ request()->routeIs('admin.experts.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.experts.index') }}"
+                class="menu-link d-flex justify-content-between align-items-center">
+
+                <div>
+                    <i class="menu-icon ri ri-user-star-line"></i>
+                    Experts
+                </div>
+
+                @if (isset($pendingExpertsCount) && $pendingExpertsCount > 0)
+                    <span class="badge bg-danger rounded-pill">
+                        {{ $pendingExpertsCount }}
+                    </span>
+                @endif
+
             </a>
         </li>
 
@@ -77,6 +94,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.service_locations.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.service_locations.index') }}" class="menu-link">
                         <div>Service Location</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.service_notify.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.service_notify.index') }}" class="menu-link">
+                        <div>Service Notify</div>
                     </a>
                 </li>
 
@@ -228,13 +250,29 @@
 
 
         {{-- Expert SOS --}}
-        <li class="menu-item {{ request()->routeIs('admin.expert_sos.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('admin.expert_sos.*') ? 'active' : '' }}">
             <a href="{{ route('admin.expert_sos.index') }}" class="menu-link">
                 <i class="menu-icon ri ri-alarm-warning-line"></i>
                 <div>Expert SOS</div>
             </a>
-        </li>
+        </li> --}}
+        <li class="menu-item {{ request()->routeIs('admin.expert_sos.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.expert_sos.index') }}"
+                class="menu-link d-flex justify-content-between align-items-center">
 
+                <div>
+                    <i class="menu-icon ri ri-alarm-warning-line"></i>
+                    Expert SOS
+                </div>
+
+                @if ($pendingSosCount > 0)
+                    <span class="badge bg-danger rounded-pill">
+                        {{ $pendingSosCount }}
+                    </span>
+                @endif
+
+            </a>
+        </li>
 
     </ul>
 </aside>

@@ -93,6 +93,15 @@ class ExpertController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateData($request);
+        // 🔥 IMAGE UPLOAD
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(public_path('uploads/experts'), $filename);
+
+            $data['profile_image'] = 'uploads/experts/' . $filename;
+        }
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
@@ -114,7 +123,7 @@ class ExpertController extends Controller
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'registration_code' => 'EXP-'.rand(100000, 999999),
+                        'registration_code' => 'EXP-' . rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
                         'is_online' => $data['is_online'],
                         'approval_status' => 'approved',
@@ -155,6 +164,21 @@ class ExpertController extends Controller
         }
         //  NORMAL UPDATE
         $data = $this->validateData($request, $expert->id);
+        // 🔥 IMAGE UPDATE
+        if ($request->hasFile('profile_image')) {
+
+            // old image delete (optional but best)
+            if ($expert->profile_image && file_exists(public_path($expert->profile_image))) {
+                unlink(public_path($expert->profile_image));
+            }
+
+            $file = $request->file('profile_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(public_path('uploads/experts'), $filename);
+
+            $data['profile_image'] = 'uploads/experts/' . $filename;
+        }
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
@@ -208,8 +232,8 @@ class ExpertController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|digits:10|unique:users,phone,'.$id,
-            'email' => 'nullable|email|unique:users,email,'.$id,
+            'phone' => 'required|digits:10|unique:users,phone,' . $id,
+            'email' => 'nullable|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
             'device_type' => $id ? 'nullable' : 'required|in:android,ios',
             'device_id' => $id ? 'nullable' : 'required',
@@ -218,6 +242,7 @@ class ExpertController extends Controller
             'emergency_contact_name' => $id ? 'nullable' : 'required',
             'emergency_contact_phone' => $id ? 'nullable' : 'required',
             'training_center_id' => 'required',
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
     }
 
@@ -237,7 +262,7 @@ class ExpertController extends Controller
                 'approval_status' => 'approved',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
-                'registration_code' => 'EXP-'.rand(100000, 999999),
+                'registration_code' => 'EXP-' . rand(100000, 999999),
             ]);
         } else {
             //  OPTIONAL: unapprove

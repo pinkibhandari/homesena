@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\ServiceLocationController;
 use App\Http\Controllers\Admin\ExpertSosController;
 use App\Http\Controllers\Admin\BookingCancelReasonController;
 use App\Http\Controllers\Admin\BookingRejectReasonController;
+use App\Http\Controllers\Admin\ServiceNotifyController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
@@ -88,8 +89,10 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('refer_earn', ReferEarnController::class);
     Route::resource('refer_earn_settings', ReferEarnSettingController::class);
     Route::resource('service_locations', ServiceLocationController::class);
+    Route::resource('service_notify', ServiceNotifyController::class);
     Route::resource('expert_sos', ExpertSosController::class);
     Route::resource('booking_cancel_reasons', BookingCancelReasonController::class);
     Route::resource('booking_reject_reasons', BookingRejectReasonController::class);
+
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
