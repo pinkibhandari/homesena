@@ -125,7 +125,8 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                         $token,
                         'New Booking Available',
                         'A booking near you starts in 30 minutes',
-                        $data
+                        $data,
+                        'expert'
                     );
                     
                     //   Log::info('FCM Response---------', [

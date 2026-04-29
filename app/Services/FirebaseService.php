@@ -11,44 +11,57 @@ class FirebaseService
 
     public function __construct()
     {
-        $this->credentials = json_decode(
-            file_get_contents(storage_path('app/firebase/firebase_credentials.json')),
-            true
-        );
+        // $this->credentials = json_decode(
+        //     file_get_contents(storage_path('app/firebase/firebase_credentials.json')),
+        //     true
+        // );
+
+        
     }
 
     /**
      * Generate Access Token (cached)
      */
-    public function getAccessToken()
-    {
-        return Cache::remember('firebase_access_token', 3500, function () {
 
+    protected function getCredentials($type = 'user')
+    {
+        $path = $type === 'user'
+            ? storage_path('app/firebase/firebase-user.json')
+            : storage_path('app/firebase/firebase-expert.json');
+
+        return json_decode(file_get_contents($path), true);
+    }
+    public function getAccessToken($type = 'user')
+    {
+        return Cache::remember("firebase_access_token_$type", 3500, function () use ($type) {
+
+            $credentials = $this->getCredentials($type);
             $now = time();
 
             $payload = [
-                "iss" => $this->credentials['client_email'],
-                "sub" => $this->credentials['client_email'],
-                "aud" => $this->credentials['token_uri'],
+                "iss" => $credentials['client_email'],
+                "sub" => $credentials['client_email'],
+                "aud" => $credentials['token_uri'],
                 "iat" => $now,
                 "exp" => $now + 3600,
                 "scope" => "https://www.googleapis.com/auth/firebase.messaging"
             ];
 
-            $jwt = JWT::encode($payload, $this->credentials['private_key'], 'RS256');
+            $jwt = JWT::encode($payload, $credentials['private_key'], 'RS256');
 
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, $this->credentials['token_uri']);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                'assertion' => $jwt
-            ]));
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $credentials['token_uri'],
+                CURLOPT_POST => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POSTFIELDS => http_build_query([
+                    'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                    'assertion' => $jwt
+                ]),
+            ]);
 
             $response = json_decode(curl_exec($ch), true);
-
             curl_close($ch);
 
             return $response['access_token'] ?? null;
@@ -58,16 +71,20 @@ class FirebaseService
     /**
      * Send Notification
      */
-    public function sendNotification($token, $title, $body, $data = [])
+    public function sendNotification($token, $title, $body, $data = [], $type = 'user')
     {
         try {
-            $accessToken = $this->getAccessToken();
+              $accessToken = $this->getAccessToken($type);
 
             if (!$accessToken) {
                 return ['success' => false, 'error' => 'Access token failed'];
             }
 
-            $url = "https://fcm.googleapis.com/v1/projects/" . env('FIREBASE_PROJECT_ID') . "/messages:send";
+            $projectId = $type === 'user'
+                ? env('FIREBASE_USER_PROJECT_ID')
+                : env('FIREBASE_EXPERT_PROJECT_ID');
+            // $url = "https://fcm.googleapis.com/v1/projects/" . $projectId . "/messages:send";
+            $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
 
             $payload = [
                 "message" => [
@@ -77,9 +94,9 @@ class FirebaseService
                         "body" => $body
                     ],
                     "data" => $data,
-                     "android" => [
-                       "priority" => "high"
-                      ]
+                    "android" => [
+                        "priority" => "high"
+                    ]
                 ]
             ];
 
@@ -125,7 +142,7 @@ class FirebaseService
     /**
      * Send Bulk Notification
      */
-    public function sendBulkNotification($tokens, $title, $body, $data = [])
+    public function sendBulkNotification($tokens, $title, $body, $data = [], $type = 'user')
     {
         $results = [];
 
@@ -140,7 +157,8 @@ class FirebaseService
                     $token,
                     $title,
                     $body,
-                    $data
+                    $data,
+                    $type
                 );
             }
         }

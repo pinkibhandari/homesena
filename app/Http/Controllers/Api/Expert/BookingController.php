@@ -68,8 +68,13 @@ class BookingController extends Controller
 
                 case 'upcoming':
                     $query->where('status', 'accepted')
-                        ->where('start_time', '>=', now());
-                    // ->whereDate('date', '>=', now()->toDateString());
+                        ->where(function ($q) {
+                            $q->whereDate('date', '>', now()->toDateString()) // future dates
+                                ->orWhere(function ($q2) {
+                                    $q2->whereDate('date', now()->toDateString()) // today
+                                        ->whereTime('start_time', '>=', now()->format('H:i:s')); // future time
+                                });
+                        });
                     break;
 
                 case 'completed':
@@ -208,6 +213,8 @@ class BookingController extends Controller
                 'expertSos:id,expert_id,booking_slot_id'
             ])
             ->where('status', 'ongoing')
+            ->orderBy('date')
+            ->orderBy('start_time')
             ->first();
 
         if ($ongoing) {
@@ -244,9 +251,10 @@ class BookingController extends Controller
 
     //  ACCEPT BOOKING
     // public function acceptSlot(Request $request, FirebaseService $firebase)
-    public function acceptSlot(Request $request)
+    public function acceptSlot(Request $request, FirebaseService $firebase)
     {
-        $firebase = app(FirebaseService::class);
+
+        // $firebase = app(FirebaseService::class);
         $validator = Validator::make($request->all(), [
             'booking_slot_id' => 'required|exists:booking_slots,id',
         ]);
@@ -302,7 +310,7 @@ class BookingController extends Controller
             $slot->load('booking');
             //  Notify user
             if (!empty($slot->booking?->user_id)) {
-                $this->sendToUserDevices(
+                $notificationResponse = $this->sendToUserDevices(
                     $slot->booking->user_id,
                     "Booking Accepted",
                     "Your booking has been accepted by expert",
@@ -310,6 +318,8 @@ class BookingController extends Controller
                     $firebase
                 );
             }
+
+            \Log::info("Booking Accepted main:=============== " . json_encode($notificationResponse));
 
             return response()->json([
                 'status' => true,
@@ -401,10 +411,31 @@ class BookingController extends Controller
             ->pluck('fcm_token')
             ->unique()
             ->toArray();
+        // Ensure title & body are strings
+        $title = is_array($title) ? json_encode($title) : $title;
+        $body = is_array($body) ? json_encode($body) : $body;
 
-        foreach ($tokens as $token) {
-            $firebase->sendNotification($token, $title, $body, $data);
+        $data = is_array($data) ? $data : (array) $data;
+
+        // Convert all values to string (IMPORTANT)
+        foreach ($data as $key => $value) {
+            if (!is_string($value)) {
+                $data[$key] = json_encode($value);
+            }
         }
+
+        $responses = [];
+        foreach ($tokens as $token) {
+            // \Log::info("FINAL DATA:=============== " .$token);
+            $response = $firebase->sendNotification($token, $title, $body, $data, 'user');
+
+            $responses[] = [
+                'token' => $token,
+                'response' => $response
+            ];
+        }
+        //   \Log::info("Booking Accepted resp:=============== " .json_encode($responses));
+        return $responses;
     }
 
     public function verifyOtp(Request $request, $slotId)
