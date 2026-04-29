@@ -40,10 +40,16 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
         'admin' => [ 
         'driver' => 'session',
         'provider' => 'users',
        ],
+
+        'api' => [
+                'driver' => 'sanctum',
+                'provider' => 'users',
+            ],
     ],
 
     /*
@@ -103,14 +109,6 @@ return [
         ],
     ],
 
-    /* api */
-
-        'guards' => [
-            'api' => [
-                'driver' => 'sanctum',
-                'provider' => 'users',
-            ],
-        ],
 
 
 

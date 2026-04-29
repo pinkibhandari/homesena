@@ -860,7 +860,8 @@ class BookingController extends Controller
                 ]);
                 //  update all slots
                 $booking->slots()->update([
-                    'status' => 'confirmed'
+                    'status' => 'confirmed',
+                    'payment_status'=>'paid',
                 ]);
                 DB::commit();
                 //  reload fresh data
@@ -875,9 +876,16 @@ class BookingController extends Controller
                 ]);
             }
             //  PAYMENT FAILED
-            if ($booking->status === 'pending') {
-                $booking->slots()->delete();
-                $booking->delete();
+            if ($booking->status === 'pending' &&  ($request->payment_id === null || $request->payment_id === '')) {
+                $booking->update([
+                    'payment_status' => 'failed',
+                ]);
+                //  update all slots
+                $booking->slots()->update([
+                    'payment_status'=>'failed',
+                ]);
+                // $booking->slots()->delete();
+                // $booking->delete();
             }
             DB::commit();
             return response()->json([
