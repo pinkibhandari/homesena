@@ -16,12 +16,33 @@
         </div>
         <div class="card-body">
             <form method="POST"
-                action="{{ $expert->id ? route('admin.experts.update', $expert->id) : route('admin.experts.store') }}">
+              action="{{ $expert->id ? route('admin.experts.update', $expert->id) : route('admin.experts.store') }}"
+              enctype="multipart/form-data">
                 @csrf
                 @if ($expert->id)
                     @method('PUT')
                 @endif
                 <div class="row">
+                    <!-- Profile Image -->
+                <div class="col-lg-4 col-md-6 col-12 mb-3">
+                    <label class="form-label">Profile Image</label>
+
+                    <input type="file" name="profile_image"
+                           id="imageInput"
+                           class="form-control @error('profile_image') is-invalid @enderror">
+
+                    @error('profile_image')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+
+                    <!-- Preview -->
+                    <div class="mt-2">
+                        <img id="previewImage"
+                             src="{{ $expert->profile_image ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                             width="70" height="70"
+                             class="rounded-circle border">
+                    </div>
+                </div>
                     <!-- Name -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Name</label>
@@ -304,4 +325,12 @@
             </form>
         </div>
     </div>
+    <script>
+document.getElementById('imageInput').addEventListener('change', function(e){
+    let file = e.target.files[0];
+    if(file){
+        document.getElementById('previewImage').src = URL.createObjectURL(file);
+    }
+});
+</script>
 @endsection
