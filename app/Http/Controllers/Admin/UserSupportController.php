@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\UserSupport;
+use Illuminate\Http\Request;
 
 class UserSupportController extends Controller
 {
@@ -21,8 +21,8 @@ class UserSupportController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('phone', 'like', "%$search%");
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('phone', 'like', "%$search%");
             });
         }
 
@@ -46,6 +46,16 @@ class UserSupportController extends Controller
             ->where('status', 'resolved')
             ->latest()
             ->paginate(10, ['*'], 'resolved_page');
+
+        if ($request->ajax() || $request->filled('ajax')) {
+            return response()->json([
+                'pendingHtml' => view('admin.user_supports.partials.pending_tab', compact('pendingSupports'))->render(),
+                'resolvedHtml' => view('admin.user_supports.partials.resolved_tab', compact('resolvedSupports'))->render(),
+                'totalTickets' => $totalTickets,
+                'pendingTickets' => $pendingTickets,
+                'resolvedTickets' => $resolvedTickets,
+            ]);
+        }
 
         return view('admin.user_supports.index', compact(
             'totalTickets',
@@ -76,13 +86,13 @@ class UserSupportController extends Controller
             'email' => 'required|email',
             'phone' => 'required',
             'message' => 'nullable|string',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mov,avi|max:10000'
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mov,avi|max:10000',
         ]);
 
         $fileName = null;
 
         if ($request->hasFile('file')) {
-            $fileName = time() . '.' . $request->file->extension();
+            $fileName = time().'.'.$request->file->extension();
             $request->file->move(public_path('uploads/support'), $fileName);
         }
 
@@ -92,35 +102,59 @@ class UserSupportController extends Controller
             'phone' => $request->phone,
             'message' => $request->message,
             'file' => $fileName,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         return redirect()->back()->with('success', 'Ticket submitted successfully');
     }
 
     /**
-     * Resolve Ticket (AJAX)
+     * Resolve Ticket (AJAX — accepts admin reply text + uploaded files)
      */
     public function update(Request $request, $id)
     {
         try {
             $support = UserSupport::find($id);
 
-            if (!$support) {
+            if (! $support) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ticket not found'
+                    'message' => 'Ticket not found',
                 ]);
             }
 
             if ($support->status === 'resolved') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Already resolved'
+                    'message' => 'Already resolved',
                 ]);
             }
 
+            $request->validate([
+                'admin_reply' => 'nullable|string|max:2000',
+                'admin_files' => 'nullable|array',
+                'admin_files.*' => 'file|mimes:jpg,jpeg,png,gif,mp4,mov,avi,webm|max:20480',
+            ]);
+
+            // Handle uploaded files
+            $savedFiles = [];
+            if ($request->hasFile('admin_files')) {
+                $uploadDir = public_path('uploads/support/admin');
+                if (! file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                foreach ($request->file('admin_files') as $file) {
+                    $fileName = time().'_'.uniqid().'.'.$file->extension();
+                    $file->move($uploadDir, $fileName);
+                    $savedFiles[] = 'uploads/support/admin/'.$fileName;
+                }
+            }
+
+            $support->admin_reply = $request->admin_reply;
+            $support->admin_files = count($savedFiles) ? $savedFiles : null;
             $support->status = 'resolved';
+            $support->resolved_at = now();
             $support->save();
 
             return response()->json([
@@ -128,25 +162,22 @@ class UserSupportController extends Controller
                 'message' => 'Ticket resolved successfully',
                 'data' => [
                     'id' => $support->id,
-                    'name' => $support->name,
-                    'email' => $support->email,
-                    'phone' => $support->phone,
-                    'message' => $support->message,
-                    'file' => $support->file,
                     'updated_at' => $support->updated_at->format('d M Y h:i A'),
-                    'view_url' => route('admin.user_supports.show', $support->id)
-                ]
+                    'view_url' => route('admin.user_supports.show', $support->id),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong'
+                'message' => 'Something went wrong: '.$e->getMessage(),
             ]);
         }
     }
 
     public function create() {}
+
     public function edit($id) {}
+
     public function destroy($id) {}
 }

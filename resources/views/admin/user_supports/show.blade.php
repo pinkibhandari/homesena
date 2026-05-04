@@ -50,7 +50,12 @@
             <strong>Message:</strong>
             <p class="mt-2">{{ $support->message ?? 'No message provided' }}</p>
         </div>
-
+<!-- Admin Reply -->
+        <div class="mb-3">
+            <strong>Admin Reply:</strong>
+            <p class="mt-2">{{ $support->admin_reply
+ ?? 'No Reply provided' }}</p>
+        </div>
         <!-- FILE (IMAGE / VIDEO) -->
         @if ($support->file)
             <div class="mb-3">

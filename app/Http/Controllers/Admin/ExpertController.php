@@ -246,40 +246,76 @@ class ExpertController extends Controller
         ]);
     }
 
+    // public function updateApproveStatus(Request $request)
+    // {
+    //     $expert = ExpertDetail::where('user_id', $request->id)->first();
+    //     if (! $expert) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Expert not found',
+    //         ], 422);
+    //     }
+    //     //  APPROVE
+    //     if ($request->approval_status == 1) {
+
+    //         $expert->update([
+    //             'approval_status' => 'approved',
+    //             'approved_by' => auth()->id(),
+    //             'approved_at' => now(),
+    //             'registration_code' => 'EXP-' . rand(100000, 999999),
+    //         ]);
+    //     } else {
+    //         //  OPTIONAL: unapprove
+    //         $expert->update([
+    //             'approval_status' => 'pending',
+    //             'approved_by' => null,
+    //             'approved_at' => null,
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Status updated successfully',
+    //         'data' => $expert,
+    //     ]);
+    // }
     public function updateApproveStatus(Request $request)
     {
         $expert = ExpertDetail::where('user_id', $request->id)->first();
+
         if (! $expert) {
             return response()->json([
                 'status' => false,
                 'message' => 'Expert not found',
             ], 422);
         }
-        //  APPROVE
-        if ($request->approval_status == 1) {
 
-            $expert->update([
-                'approval_status' => 'approved',
-                'approved_by' => auth()->id(),
-                'approved_at' => now(),
-                'registration_code' => 'EXP-' . rand(100000, 999999),
-            ]);
-        } else {
-            //  OPTIONAL: unapprove
-            $expert->update([
-                'approval_status' => 'pending',
-                'approved_by' => null,
-                'approved_at' => null,
+        // ✅ Already approved → do nothing
+        if ($expert->approval_status === 'approved') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Expert already approved',
             ]);
         }
 
+        // ✅ APPROVE (ONLY ONCE)
+        $expert->update([
+            'approval_status' => 'approved',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+            'registration_code' => 'EXP-' . rand(100000, 999999),
+        ]);
+
+        // ✅ ALSO ACTIVATE USER
+        User::where('id', $request->id)->update([
+            'status' => 1
+        ]);
+
         return response()->json([
             'status' => true,
-            'message' => 'Status updated successfully',
-            'data' => $expert,
+            'message' => 'Expert approved successfully',
         ]);
     }
-
     public function show(Request $request, User $expert)
     {
         $expert->load([
