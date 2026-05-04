@@ -299,6 +299,7 @@ class BookingController extends Controller
         foreach (collect($dates)->unique()->values() as $date) {
             $slots[] = [
                 'booking_id' => $booking->id,
+                'expert_id' => null,
                 'date' => $date->format('Y-m-d'),
                 'start_time' => $startTime,
                 'end_time' => $endTime,
@@ -568,7 +569,7 @@ class BookingController extends Controller
             switch ($status) {
                 case 'pending':
                     // $query->where('status', 'accepted')
-                    $query->whereIn('status', ['pending','confirmed','notified'])
+                    $query->whereIn('status', ['pending', 'confirmed', 'notified'])
                         ->where('start_time', '>=', now());
                     break;
                 case 'upcoming':
@@ -647,21 +648,21 @@ class BookingController extends Controller
             ], 422);
         }
 
-        //  2-Hour Restriction Check
+        //  1-Hour Restriction Check
         $now = Carbon::now();
         //  Dynamic cancel rule
-        $minutesBefore = $booking->type === 'instant' ? 10 : 120;
+        $minutesBefore = $booking->type === 'instant' ? 10 : 60;
         foreach ($booking->slots as $slot) {
 
             $slotDateTime = Carbon::parse(Carbon::parse($slot->date)->format('Y-m-d') . ' ' . $slot->start_time);
-            // If ANY slot is within 2 hours → block
+            // If ANY slot is within 1 hour → block
             if ($now->diffInMinutes($slotDateTime, false) < $minutesBefore) {
                 return response()->json([
                     'code' => 422,
                     'status' => false,
                     'message' => $booking->type === 'instant'
                         ? 'Instant booking can only be cancelled at least 10 minutes before start time'
-                        : 'Booking cannot be cancelled. One or more slots are within 2 hours.',
+                        : 'Booking cannot be cancelled. One or more slots are within 1 hour.',
                     'data' => (object) []
                     // 'data' => [
                     //     'slot_id' => $slot->id,
@@ -688,6 +689,32 @@ class BookingController extends Controller
                         'cancelled_at' => now(),
                     ]);
             });
+            $slot = $booking->slots()->first();
+            $expertId = $slot?->expert_id;
+            if ($expertId && $booking->type === 'instant') {
+                $expert = User::with('devices')->find($expertId);
+                if ($expert) {
+                    $firebase = app(FirebaseService::class);
+                    foreach ($expert->devices as $device) {
+
+                        if (!empty($device->fcm_token)) {
+
+                            $firebase->sendNotification(
+                                $device->fcm_token,
+                                'Booking Cancelled',
+                                'Instant booking you accepted has been cancelled',
+                                [
+                                    'booking_id' => (string) $booking->id,
+                                    'booking_code' => (string) $booking->booking_code,
+                                    'type' => 'BOOKING_CANCELLED'
+                                ],
+                                'expert'
+                            );
+                        }
+                    }
+                }
+            }
+
             $booking->refresh()->load('slots');
             return response()->json([
                 'code' => 200,
@@ -745,19 +772,19 @@ class BookingController extends Controller
                 ]
             ], 422);
         }
-        //  2-Hour Restriction Logic
+        //  1-Hour Restriction Logic
         // $slotDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
         $slotDateTime = Carbon::parse(Carbon::parse($slot->date)->format('Y-m-d') . ' ' . $slot->start_time);
         $now = Carbon::now();
         // Dynamic cancel rule
-        $minutesBefore = $slot->booking->type === 'instant' ? 10 : 120;
+        $minutesBefore = $slot->booking->type === 'instant' ? 10 : 60;
         if ($now->diffInMinutes($slotDateTime, false) < $minutesBefore) {
             return response()->json([
                 'code' => 422,
                 'status' => false,
                 'message' => $slot->booking->type === 'instant'
                     ? 'Instant booking can only be cancelled at least 10 minutes before start time'
-                    : 'Slot can only be cancelled at least 2 hours before start time',
+                    : 'Slot can only be cancelled at least 1 hour before start time',
                 'data' => (object) []
             ], 422);
         }
@@ -784,6 +811,29 @@ class BookingController extends Controller
                 }
             });
 
+            // $slot = $booking->slots()->first();
+            $expertId = $slot?->expert_id;
+            if ($expertId && $slot->booking->type === 'instant') {
+                $expert = User::with('devices')->find($expertId);
+                if ($expert) {
+                    $firebase = app(FirebaseService::class);
+                    foreach ($expert->devices as $device) {
+                        if (!empty($device->fcm_token)) {
+                            $firebase->sendNotification(
+                                $device->fcm_token,
+                                'Booking Cancelled',
+                                'Instant booking you accepted has been cancelled',
+                                [
+                                    'booking_id' => (string) $slot->booking->id,
+                                    'booking_code' => (string) $slot->booking->booking_code,
+                                    'type' => 'BOOKING_CANCELLED'
+                                ],
+                                'expert'
+                            );
+                        }
+                    }
+                }
+            }
             $slot->load('booking');
 
             return response()->json([
@@ -861,7 +911,7 @@ class BookingController extends Controller
                 //  update all slots
                 $booking->slots()->update([
                     'status' => 'confirmed',
-                    'payment_status'=>'paid',
+                    'payment_status' => 'paid',
                 ]);
                 DB::commit();
                 //  reload fresh data
@@ -876,13 +926,13 @@ class BookingController extends Controller
                 ]);
             }
             //  PAYMENT FAILED
-            if ($booking->status === 'pending' &&  ($request->payment_id === null || $request->payment_id === '')) {
+            if ($booking->status === 'pending' && ($request->payment_id === null || $request->payment_id === '')) {
                 $booking->update([
                     'payment_status' => 'failed',
                 ]);
                 //  update all slots
                 $booking->slots()->update([
-                    'payment_status'=>'failed',
+                    'payment_status' => 'failed',
                 ]);
                 // $booking->slots()->delete();
                 // $booking->delete();
@@ -1068,6 +1118,7 @@ class BookingController extends Controller
             $startTime = Carbon::parse($request->time);
             $endTime = $startTime->copy()->addMinutes($request->duration);
             $slot->update([
+                'expert_id' => null, // unassign expert
                 'date' => $request->date,
                 'start_time' => $startTime,
                 'end_time' => $endTime,

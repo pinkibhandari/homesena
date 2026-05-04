@@ -6,26 +6,26 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Models\BookingSlot;
 use App\Models\User;
+use App\Models\BookingSlotNotification;
 use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Log;
 
 class NotifyNearbyExpertsBeforeSlot extends Command
 {
     protected $signature = 'app:notify-nearby-experts-before-slot';
-    protected $description = 'Notify nearby experts 30 minutes before slot start';
+    protected $description = 'Notify experts with 30 sec delay between slots';
 
-   
     public function handle()
     {
         $firebase = app(FirebaseService::class);
 
-        $today = now()->toDateString();
-        $time = now()->format('H:i:s');
-        
+        $now   = now();
+        $today = $now->toDateString();
+        $time  = $now->format('H:i:s');
+
         $slots = BookingSlot::with(['booking.address','booking.user'])
             ->where('status', 'confirmed')
             ->whereNull('expert_id')
-            ->where('notified', 0)
             ->where(function ($q) use ($today, $time) {
                 $q->where('date', '>', $today)
                   ->orWhere(function ($q2) use ($today, $time) {
@@ -33,37 +33,75 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                          ->where('start_time', '>=', $time);
                   });
             })
+            ->orderBy('date')
+            ->orderBy('start_time')
             ->get();
 
-        foreach ($slots as $slot) {
+        foreach ($slots as $index => $slot) {
 
             if (!$slot->booking || !$slot->booking->address) {
                 continue;
             }
-
-            // lock slot
-            $updated = BookingSlot::where('id', $slot->id)
-                ->where('notified', 0)
+            // $startDateTime = Carbon::parse($slot->date . ' ' . $slot->start_time);
+            $date = Carbon::parse($slot->date)->format('Y-m-d');
+            $startDateTime = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $date . ' ' . $slot->start_time
+            );
+            $bookingType = $slot->booking->type ?? 'scheduled';
+            // Time windows
+            if ($bookingType === 'instant') {
+                $startWindow = $startDateTime->copy()->subMinutes(14);
+                $endWindow   = $startDateTime->copy()->subMinutes(5);
+            } else {
+                $startWindow = $startDateTime->copy()->subMinutes(30);
+                $endWindow   = $startDateTime->copy()->subMinutes(10);
+            }
+            if (!$now->between($startWindow, $endWindow)) {
+                continue;
+            }
+            //  Lock
+            $locked = BookingSlot::where('id', $slot->id)
+                ->where('notified', '!=', 2)
                 ->update(['notified' => 2]);
 
-            if (!$updated) continue;
+            if (!$locked) continue;
 
             try {
 
-                $date = Carbon::parse($slot->date)->format('Y-m-d');
-                $startTime = Carbon::parse($slot->start_time)->format('H:i:s');
-                $endTime = Carbon::parse($slot->end_time)->format('H:i:s');
+                $date      = $startDateTime->format('Y-m-d');
+                $startTime = $startDateTime->format('H:i:s');
+                $endTime   = Carbon::createFromFormat('H:i:s', $slot->end_time)->format('H:i:s');
 
-                // get experts
-                $experts = User::where('role', 'expert')
+                $lat = $slot->booking->address->address_lat ?? null;
+                $lng = $slot->booking->address->address_long ?? null;
+
+                if (!$lat || !$lng) {
+                    $this->resetSlot($slot->id);
+                    continue;
+                }
+
+                // $experts = $this->getExperts($date, $startTime, $endTime, $lat, $lng);
+                  $experts = User::where('role', 'expert')
                     ->where('status', 1)
-                    ->whereHas('expertDetail', fn($q) => $q->where('is_online', true))
+                
+                    // Expert must be approved + online
+                    ->whereHas('expertDetail', function ($q) {
+                        $q->where('is_online', true)
+                          ->where('approval_status', 'approved');
+                    })
+                
+                    // Must have device for notification
+                    ->whereHas('devices')
+                
+                    // Avoid overlapping slots
                     ->whereDoesntHave('expertSlots', function ($q) use ($date, $startTime, $endTime) {
                         $q->where('date', $date)
                           ->where('status', 'accepted')
                           ->where('start_time', '<', $endTime)
                           ->where('end_time', '>', $startTime);
                     })
+                
                     ->with('devices')
                     ->get();
 
@@ -72,9 +110,8 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                     continue;
                 }
 
-                // collect tokens
+                //  tokens
                 $tokens = [];
-
                 foreach ($experts as $expert) {
                     foreach ($expert->devices as $device) {
                         if (!empty($device->fcm_token)) {
@@ -90,65 +127,83 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                     continue;
                 }
 
+                //  earnings
                 $earning = $slot->price ? $slot->price * 0.5 : 0;
-                //   $tokens = ["d-TeVy7pRHCvrxJAHHAG3K:APA91bE33ua9Zu_FDJWJiDCNkTo2rhTY4sJiceRuoWTk-fwZ5vsadXbJVhmUl3zb6u10t66kBtc9TssckGAOR-MwqHM_xBg83tUi_XQKkLg4MVivijaSKXo", "fE6k7WgaQ2Kak72hLvkpzT:APA91bH8AjS26z4TAPVHPFFoBVo16nYN4hBL6twH7AZu0E_O5264vac7wwgV4WOXKub8150XqftZLLHsd1r_aK1iO891hfqqiVFTz0J15Kle0-zrljKMO3U","dIL1wbD-QUWNWa33p9elH4:APA91bHJGrRmCrILaGjL_wl5moLNIUHFnthkkuqcw304-q-t7gvNuR7UcC2Z9gDxSuptV2RtMxOxLGSwBuiw5FEPbHGNtZJpwtrnIW2IcDibptDWusUS1Yo"];
-                // send notifications
-                foreach ($tokens as $token) {
-                    $address = implode(', ', array_filter([
-                            $slot->booking->address->flat_no ?? '',
-                            $slot->booking->address->address ?? '',
-                            $slot->booking->address->area_name ?? '',
-                            $slot->booking->address->landmark ?? ''
-                        
-                        ]));
-                        
-                        $profileImage = $slot->booking?->user?->profile_image ?? '';
-                        $profile_image = $profileImage ? url('public/' . $profileImage) : '';
-                     $data =  [
-                        'user_name' =>  $slot->booking->user->name ?? '',
-                        'profile_image' => $profile_image,
-                        'booking_id' => $slot->booking->id  ?? '',
-                        'slot_id' =>  $slot->id  ?? '',
-                        'date' =>  $date  ?? '',
-                        'time' =>  $startTime  ?? '',
-                        'earning' =>  $earning  ?? '',
-                        'address' => $address  ?? '',
-                        'type' => 'BOOKING_REQUEST',
-                      ];
-                      
-                      // convert all to string safely
+
+                //  address
+                $address = implode(', ', array_filter([
+                    $slot->booking->address->flat_no ?? '',
+                    $slot->booking->address->address ?? '',
+                    $slot->booking->address->area_name ?? '',
+                    $slot->booking->address->landmark ?? ''
+                ]));
+
+                //  profile
+                $profileImage = $slot->booking?->user?->profile_image ?? '';
+                $profile_image = $profileImage ? url('public/' . $profileImage) : '';
+
+                $data = [
+                    'user_name'     => $slot->booking->user->name ?? '',
+                    'profile_image' => $profile_image,
+                    'booking_id'    => $slot->booking->id ?? '',
+                    'slot_id'       => $slot->id ?? '',
+                    'date'          => $date,
+                    'time'          => $startTime,
+                    'earning'       => $earning,
+                    'address'       => $address,
+                    'type'          => 'BOOKING_REQUEST',
+                    'booking_type'  => $bookingType,
+                ];
+
+                  // convert all to string safely
                         $data = array_map(function ($value) {
                             return (string) $value;
                         }, $data);
-                                                
-                        $response = $firebase->sendNotification(
+
+                //  Send to all experts (no delay here)
+                foreach ($tokens as $token) {
+                    $firebase->sendNotification(
                         $token,
                         'New Booking Available',
-                        'A booking near you starts in 30 minutes',
+                        $bookingType === 'instant'
+                            ? 'Instant booking available near you!'
+                            : 'Scheduled booking starting soon!',
                         $data,
                         'expert'
                     );
-                    
-                    //   Log::info('FCM Response---------', [
-                    //     'token' => $token,
-                    //     'response' => $response
-                    // ]);
                 }
-                
-             
 
-                BookingSlot::where('id', $slot->id)->update([
+                Log::info("Slot {$slot->id} notifications sent");
+
+                 BookingSlot::where('id', $slot->id)->update([
                     'notified' => 1,
                     'status' => 'notified'
                 ]);
 
-                // Log::info("Slot notified: " . $slot->id);
+      
+            BookingSlotNotification::updateOrCreate(
+                [
+                    'booking_slot_id' => $slot->id,
+                    'expert_id' => $expert->id,
+                ],
+                [
+                    'sent_at' => now()
+                ]
+            );
 
             } catch (\Exception $e) {
 
                 $this->resetSlot($slot->id);
 
-                // Log::error("Slot error: " . $e->getMessage());
+                Log::error("Slot error", [
+                    'slot_id' => $slot->id,
+                    'error'   => $e->getMessage()
+                ]);
+            }
+
+            // 30 sec delay BEFORE next slot
+            if ($index < count($slots) - 1) {
+                sleep(30);
             }
         }
 
@@ -157,23 +212,21 @@ class NotifyNearbyExpertsBeforeSlot extends Command
 
     private function resetSlot($slotId)
     {
-        BookingSlot::where('id', $slotId)
-            ->where('notified', 2)
-            ->update(['notified' => 0]);
+        BookingSlot::where('id', $slotId)->update(['notified' => 0]);
     }
-    
 
-    /**
-     *  Get nearby + available experts
-     */
     private function getExperts($date, $startTime, $endTime, $lat, $lng)
     {
-        $radiusKm = 1;
-        return User::where('role', 'expert')
-            ->where('status', 1)
+        // $radiusKm = 1;
+        $radiusKm = null;
+
+        return User::where('users.role', 'expert')
+            ->where('users.status', 1)
             ->join('addresses', 'addresses.user_id', '=', 'users.id')
             ->join('expert_details', 'expert_details.user_id', '=', 'users.id')
             ->where('expert_details.is_online', true)
+            ->where('expert_details.approval_status', 'approved')
+            ->whereHas('devices')
             ->with('devices')
             ->select('users.*')
             ->selectRaw(
@@ -190,9 +243,9 @@ class NotifyNearbyExpertsBeforeSlot extends Command
             ->orderBy('distance', 'asc')
             ->whereDoesntHave('expertSlots', function ($q) use ($date, $startTime, $endTime) {
                 $q->where('date', $date)
-                    ->where('status', 'accepted')
-                    ->where('start_time', '<', $endTime)
-                    ->where('end_time', '>', $startTime);
+                  ->where('status', 'accepted')
+                  ->where('start_time', '<', $endTime)
+                  ->where('end_time', '>', $startTime);
             })
             ->get();
     }
