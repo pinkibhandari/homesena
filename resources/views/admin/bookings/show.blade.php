@@ -119,6 +119,7 @@
                             <th>Amount</th>
                             <th>Check In Time</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -139,6 +140,39 @@
                                     <span class="badge rounded-pill bg-label-{{ statusColor($slot->status) }}">
                                         {{ ucfirst(str_replace('_', ' ', $slot->status)) }}
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
+                                            data-bs-toggle="dropdown">
+                                            <i class="ri-more-2-line"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+
+                                            <!-- Assign Expert -->
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('admin.bookings.assignExpertPage', $slot->id) }}">
+                                                    <i class="ri-user-add-line me-2"></i>
+                                                    Assign Expert
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('admin.bookings.slot_logs', $slot->id) }}">
+                                                    <i class="ri-file-list-3-line me-2"></i>
+                                                    Slot Logs
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('admin.bookings.slot_notifications', $slot->id) }}">
+                                                    <i class="ri-notification-3-line me-2"></i>
+                                                    Slot Notifications
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

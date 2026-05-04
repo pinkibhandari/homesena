@@ -63,7 +63,7 @@
 
                             <!-- Location -->
                             <td>
-                                @if($item->latitude && $item->longitude)
+                                @if ($item->latitude && $item->longitude)
                                     <a target="_blank"
                                         href="https://www.google.com/maps?q={{ $item->latitude }},{{ $item->longitude }}">
                                         View Map
@@ -108,7 +108,8 @@
                                     <ul class="dropdown-menu dropdown-menu-end">
 
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('admin.expert_sos.show', $item->id) }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.expert_sos.show', $item->id) }}">
                                                 <i class="ri-eye-line me-2"></i> Details
                                             </a>
                                         </li>
@@ -119,7 +120,8 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <form method="POST" action="{{ route('admin.expert_sos.destroy', $item->id) }}">
+                                            <form method="POST"
+                                                action="{{ route('admin.expert_sos.destroy', $item->id) }}">
                                                 @csrf
                                                 @method('DELETE')
 
@@ -129,6 +131,7 @@
                                                 </button>
                                             </form>
                                         </li>
+
 
                                     </ul>
                                 </div>
@@ -153,14 +156,14 @@
 
     <!--  Status Change Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
 
-            document.querySelectorAll('.status-change').forEach(function (select) {
+            document.querySelectorAll('.status-change').forEach(function(select) {
 
                 //  store old value initially
                 select.setAttribute('data-old', select.value);
 
-                select.addEventListener('change', function () {
+                select.addEventListener('change', function() {
 
                     let id = this.dataset.id;
                     let newValue = this.value;
@@ -176,17 +179,17 @@
                     el.disabled = true;
 
                     fetch(`/admin/expert_sos/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            _method: 'PUT',
-                            status: newValue
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                _method: 'PUT',
+                                status: newValue
+                            })
                         })
-                    })
                         .then(res => res.json())
                         .then(data => {
 

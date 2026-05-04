@@ -127,6 +127,7 @@
                                                 Details
                                             </a>
                                         </li>
+                                       
                                     </ul>
                                 </div>
                             </td>

@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\BookingSlot;
+use App\Models\User;
+use App\Models\BookingSlotLog;
+use App\Models\BookingSlotNotification;
 
 class BookingController extends Controller
 {
@@ -60,4 +64,48 @@ class BookingController extends Controller
             ->paginate(10);
         return view('admin.bookings.show', compact('booking', 'slots'));
     }
+    public function assignExpertPage($id)
+    {
+        $booking = BookingSlot::findOrFail($id);
+
+        // experts from users table
+        $experts = User::where('role', 'expert')
+            ->where('status', 1)
+            ->get();
+
+        return view('admin.bookings.assign-expert', compact('booking', 'experts'));
+    }
+    public function assignExpertSubmit(Request $request, $id)
+    {
+        $request->validate([
+            'expert_id' => 'required|exists:users,id',
+        ]);
+
+        $booking = BookingSlot::findOrFail($id);
+
+        $booking->expert_id = $request->expert_id;
+        $booking->status = 'accepted';
+
+        $booking->save();
+
+        return redirect()->route('admin.bookings.index')
+            ->with('success', 'Expert assigned successfully');
+    }
+    public function slotLogs($id)
+    {
+        $logs = BookingSlotLog::with('expert')
+            ->where('booking_slot_id', $id)
+            ->latest()
+            ->get();
+
+        return view('admin.bookings.slot_logs', compact('logs'));
+    }
+    public function slotNotifications($id)
+{
+    $notifications = BookingSlotNotification::where('booking_slot_id', $id)
+        ->latest()
+        ->get();
+
+    return view('admin.bookings.slot_notifications', compact('notifications'));
+}
 }

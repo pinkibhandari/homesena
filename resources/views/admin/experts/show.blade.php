@@ -29,8 +29,8 @@
 
             <div class="col-md-10">
                 <div class="row">
-                    <div class="col-md-4 mb-2"><strong>Name:</strong> {{ $expert->name }}</div>
-                    <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $expert->email }}</div>
+                    <div class="col-md-4 mb-2"><strong>Name:</strong> {{ $expert->name ?? 'N/A' }}</div>
+                    <div class="col-md-4 mb-2"><strong>Email:</strong> {{ $expert->email ?? 'N/A' }}</div>
                     <div class="col-md-4 mb-2"><strong>Phone:</strong> {{ $expert->phone ?? 'N/A' }}</div>
 
                     <div class="col-md-4 mb-2">
@@ -39,6 +39,8 @@
                             ? '<span class="badge bg-label-success rounded-pill">Active</span>'
                             : '<span class="badge bg-label-danger rounded-pill">Inactive</span>' !!}
                     </div>
+                    <div class="col-md-4 mb-2"><strong>Pan No:</strong> {{ $expert->expertDetail?->pan_number ?? 'N/A' }}</div>
+                    <div class="col-md-4 mb-2"><strong>Aadhar No:</strong> {{ $expert->expertDetail?->aadhar_number ?? 'N/A' }}</div>
                 </div>
             </div>
         </div>

@@ -47,43 +47,37 @@ class ExpertSosController extends Controller
 
     // ================= UPDATE =================
     public function update(Request $request, $id)
-{
-    $expert_sos = ExpertSOS::findOrFail($id);
-
-    // ✅ Validation
-    $request->validate([
-        'status' => 'required|in:pending,in_progress,resolved',
-    ]);
-
-    // ✅ Update
-    $expert_sos->status = $request->status;
-
-    if ($request->status === 'resolved') {
-        $expert_sos->resolved_at = now();
-    } else {
-        $expert_sos->resolved_at = null;
-    }
-
-    $expert_sos->save();
-
-    // ✅ ALWAYS return JSON (important for fetch)
-    return response()->json([
-        'status' => true,
-        'message' => 'Status updated successfully'
-    ]);
-}
-    // ================= DELETE =================
-    public function destroy(ExpertSOS $expert_sos)
     {
-        $expert_sos->delete();
+        $expert_sos = ExpertSOS::findOrFail($id);
 
-        // AJAX support (optional 🔥)
-        if (request()->ajax()) {
-            return response()->json([
-                'status' => true,
-                'message' => 'SOS deleted successfully'
-            ]);
+        // ✅ Validation
+        $request->validate([
+            'status' => 'required|in:pending,in_progress,resolved',
+        ]);
+
+        // ✅ Update
+        $expert_sos->status = $request->status;
+
+        if ($request->status === 'resolved') {
+            $expert_sos->resolved_at = now();
+        } else {
+            $expert_sos->resolved_at = null;
         }
+
+        $expert_sos->save();
+
+        // ✅ ALWAYS return JSON (important for fetch)
+        return response()->json([
+            'status' => true,
+            'message' => 'Status updated successfully'
+        ]);
+    }
+    // ================= DELETE =================
+  
+    public function destroy($id)
+    {
+        $expert_sos = ExpertSOS::findOrFail($id);
+        $expert_sos->delete();
 
         return redirect()
             ->route('admin.expert_sos.index')

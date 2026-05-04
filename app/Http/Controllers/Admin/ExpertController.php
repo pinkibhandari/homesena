@@ -93,24 +93,49 @@ class ExpertController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateData($request);
-        // 🔥 IMAGE UPLOAD
+
+        // ================= PROFILE IMAGE =================
         if ($request->hasFile('profile_image')) {
             $file = $request->file('profile_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-
             $file->move(public_path('uploads/experts'), $filename);
 
             $data['profile_image'] = 'uploads/experts/' . $filename;
         }
+
+        // ================= KYC FILES =================
+        $aadharFront = null;
+        $aadharBack = null;
+
+        if ($request->hasFile('aadhar_front')) {
+            $file = $request->file('aadhar_front');
+            $name = time() . '_front_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/kyc'), $name);
+            $aadharFront = 'uploads/kyc/' . $name;
+        }
+
+        if ($request->hasFile('aadhar_back')) {
+            $file = $request->file('aadhar_back');
+            $name = time() . '_back_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/kyc'), $name);
+            $aadharBack = 'uploads/kyc/' . $name;
+        }
+
+        // ================= PASSWORD =================
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
             unset($data['password']);
         }
+
         try {
-            DB::transaction(function () use ($data) {
+            DB::transaction(function () use ($data, $aadharFront, $aadharBack) {
+
+                // ================= USER =================
                 $data['role'] = 'expert';
                 $user = User::create($data);
+
+                // ================= DEVICE =================
                 UserDevice::updateOrCreate(
                     [
                         'user_id' => $user->id,
@@ -120,17 +145,36 @@ class ExpertController extends Controller
                         'device_type' => $data['device_type'] ?? null,
                     ]
                 );
+
+                // ================= EXPERT DETAIL =================
                 $expertDetail = ExpertDetail::updateOrCreate(
                     ['user_id' => $user->id],
                     [
                         'registration_code' => 'EXP-' . rand(100000, 999999),
                         'training_center_id' => $data['training_center_id'],
                         'is_online' => $data['is_online'],
+
+                        // ✅ KYC
+                        'aadhar_front' => $aadharFront,
+                        'aadhar_back' => $aadharBack,
+                        'pan_number' => $data['pan_number'] ?? null,
+                        'aadhar_number' => $data['aadhar_number'] ?? null,
+                        
+
+                        // ✅ BANK
+                        'account_holder_name' => $data['account_holder_name'] ?? null,
+                        'account_number' => $data['account_number'] ?? null,
+                        'ifsc_code' => $data['ifsc_code'] ?? null,
+                        'bank_name' => $data['bank_name'] ?? null,
+
+                        // ✅ APPROVAL
                         'approval_status' => 'approved',
                         'approved_by' => auth()->id(),
                         'approved_at' => now(),
                     ]
                 );
+
+                // ================= EMERGENCY =================
                 ExpertEmergencyContact::updateOrCreate(
                     ['expert_detail_id' => $expertDetail->id],
                     [
@@ -140,10 +184,12 @@ class ExpertController extends Controller
                 );
             });
 
-            return redirect()->route('admin.experts.index')->with('success', 'Expert created successfully');
+            return redirect()->route('admin.experts.index')
+                ->with('success', 'Expert created successfully');
         } catch (\Exception $e) {
+
             return back()
-                ->withInput() // keep old form data
+                ->withInput()
                 ->with('error', 'Something went wrong');
         }
     }
@@ -151,10 +197,10 @@ class ExpertController extends Controller
     // UPDATE
     public function update(Request $request, User $expert)
     {
-        //  STATUS TOGGLE (same as USER)
+        // ✅ STATUS TOGGLE (AJAX)
         if ($request->wantsJson() && $request->has('status')) {
             $expert->update([
-                'status' => $request->status, // 1 or 0
+                'status' => $request->status,
             ]);
 
             return response()->json([
@@ -162,34 +208,75 @@ class ExpertController extends Controller
                 'message' => 'Status updated successfully',
             ]);
         }
-        //  NORMAL UPDATE
+
+        // ✅ VALIDATION
         $data = $this->validateData($request, $expert->id);
-        // 🔥 IMAGE UPDATE
+
+        // ================= PROFILE IMAGE =================
         if ($request->hasFile('profile_image')) {
 
-            // old image delete (optional but best)
             if ($expert->profile_image && file_exists(public_path($expert->profile_image))) {
                 unlink(public_path($expert->profile_image));
             }
 
             $file = $request->file('profile_image');
             $filename = time() . '_' . $file->getClientOriginalName();
-
             $file->move(public_path('uploads/experts'), $filename);
 
             $data['profile_image'] = 'uploads/experts/' . $filename;
         }
+
+        // ================= GET OLD KYC =================
+        $oldDetail = $expert->expertDetail;
+
+        $aadharFront = $oldDetail->aadhar_front ?? null;
+        $aadharBack = $oldDetail->aadhar_back ?? null;
+
+        // ================= AADHAR FRONT =================
+        if ($request->hasFile('aadhar_front')) {
+
+            if ($aadharFront && file_exists(public_path($aadharFront))) {
+                unlink(public_path($aadharFront));
+            }
+
+            $file = $request->file('aadhar_front');
+            $name = time() . '_front_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/kyc'), $name);
+
+            $aadharFront = 'uploads/kyc/' . $name;
+        }
+
+        // ================= AADHAR BACK =================
+        if ($request->hasFile('aadhar_back')) {
+
+            if ($aadharBack && file_exists(public_path($aadharBack))) {
+                unlink(public_path($aadharBack));
+            }
+
+            $file = $request->file('aadhar_back');
+            $name = time() . '_back_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/kyc'), $name);
+
+            $aadharBack = 'uploads/kyc/' . $name;
+        }
+
+        // ================= PASSWORD =================
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         } else {
             unset($data['password']);
         }
+
         try {
-            DB::transaction(function () use ($data, $expert) {
+            DB::transaction(function () use ($data, $expert, $aadharFront, $aadharBack) {
+
+                // ================= USER =================
                 $expert->update([
                     ...$data,
                     'role' => 'expert',
                 ]);
+
+                // ================= DEVICE =================
                 UserDevice::updateOrCreate(
                     [
                         'user_id' => $expert->id,
@@ -199,11 +286,24 @@ class ExpertController extends Controller
                         'device_type' => $data['device_type'] ?? null,
                     ]
                 );
+
+                // ================= EXPERT DETAIL =================
                 ExpertDetail::updateOrCreate(
                     ['user_id' => $expert->id],
                     [
                         'training_center_id' => $data['training_center_id'],
                         'is_online' => $data['is_online'],
+
+                        // ✅ KYC
+                        'aadhar_front' => $aadharFront,
+                        'aadhar_back' => $aadharBack,
+                        'pan_number' => $data['pan_number'] ?? null,
+                        'aadhar_number' => $data['aadhar_number'] ?? null,
+                        // ✅ BANK
+                        'account_holder_name' => $data['account_holder_name'] ?? null,
+                        'account_number' => $data['account_number'] ?? null,
+                        'ifsc_code' => $data['ifsc_code'] ?? null,
+                        'bank_name' => $data['bank_name'] ?? null,
                     ]
                 );
             });
@@ -211,12 +311,12 @@ class ExpertController extends Controller
             return redirect()->route('admin.experts.index')
                 ->with('success', 'Expert updated successfully');
         } catch (\Exception $e) {
+
             return back()
                 ->withInput()
                 ->with('error', 'Something went wrong');
         }
     }
-
     // DELETE
     public function destroy(User $expert)
     {
@@ -243,6 +343,15 @@ class ExpertController extends Controller
             'emergency_contact_phone' => $id ? 'nullable' : 'required',
             'training_center_id' => 'required',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'aadhar_front' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'aadhar_back' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'pan_number' => 'nullable|string|max:10',
+            'aadhar_number' => 'nullable|string|max:12',
+
+            'account_holder_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:50',
+            'ifsc_code' => 'nullable|string|max:20',
+            'bank_name' => 'nullable|string|max:255',
         ]);
     }
 

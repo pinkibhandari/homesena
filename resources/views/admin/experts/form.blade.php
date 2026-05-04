@@ -16,33 +16,31 @@
         </div>
         <div class="card-body">
             <form method="POST"
-              action="{{ $expert->id ? route('admin.experts.update', $expert->id) : route('admin.experts.store') }}"
-              enctype="multipart/form-data">
+                action="{{ $expert->id ? route('admin.experts.update', $expert->id) : route('admin.experts.store') }}"
+                enctype="multipart/form-data">
                 @csrf
                 @if ($expert->id)
                     @method('PUT')
                 @endif
                 <div class="row">
                     <!-- Profile Image -->
-                <div class="col-lg-4 col-md-6 col-12 mb-3">
-                    <label class="form-label">Profile Image</label>
+                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                        <label class="form-label">Profile Image</label>
 
-                    <input type="file" name="profile_image"
-                           id="imageInput"
-                           class="form-control @error('profile_image') is-invalid @enderror">
+                        <input type="file" name="profile_image" id="imageInput"
+                            class="form-control @error('profile_image') is-invalid @enderror">
 
-                    @error('profile_image')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                        @error('profile_image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
 
-                    <!-- Preview -->
-                    <div class="mt-2">
-                        <img id="previewImage"
-                             src="{{ $expert->profile_image ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
-                             width="70" height="70"
-                             class="rounded-circle border">
+                        <!-- Preview -->
+                        <div class="mt-2">
+                            <img id="previewImage"
+                                src="{{ $expert->profile_image ? asset($expert->profile_image) : asset('assets/img/default-profile-image.jpg') }}"
+                                width="70" height="70" class="rounded-circle border">
+                        </div>
                     </div>
-                </div>
                     <!-- Name -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Name</label>
@@ -74,7 +72,6 @@
                             @enderror
                         </div>
                     </div>
-                    
                     <!-- Email -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Email</label>
@@ -92,7 +89,7 @@
                         </div>
                     </div>
                     <!-- password -->
-                    <div class="col-lg-4 col-md-6 col-12 mb-3">
+                    {{-- <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Password</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -109,7 +106,7 @@
                         @if ($expert->exists)
                             <small class="text-muted">Leave blank to keep old password</small>
                         @endif
-                    </div>
+                    </div> --}}
 
                     @if (!$expert->exists)
                         <!-- Device ID -->
@@ -154,50 +151,7 @@
                             </div>
                         </div>
                     @endif
-                    <!-- Registration Code -->
-                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                            <label class="form-label">Registration Code</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ri-barcode-line"></i>
-                                </span>
-                                <input type="text" name="registration_code"
-                                    class="form-control @error('registration_code') is-invalid @enderror"
-                                    placeholder="Enter registration code"
-                                    value="{{ old('registration_code', $expert->expertDetail?->registration_code) }}">
-                                @error('registration_code')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-                            </div>
-                        </div> -->
 
-                    <!-- Work Schedule -->
-                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                            <label class="form-label">Work Schedule</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ri-calendar-line"></i>
-                                </span>
-                                <select class="form-select @error('work_schedule') is-invalid @enderror" name="work_schedule">
-                                    <option selected disabled>Select Work Schedule</option>
-                                    <option value="weekend only" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'weekend only' ? 'selected' : '' }}>
-                                        Weekend Only
-                                    </option>
-                                    <option value="weekdays" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'weekdays' ? 'selected' : '' }}>
-                                        Weekdays
-                                    </option>
-                                    <option value="night shift" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'night shift' ? 'selected' : '' }}>
-                                        Night Shift
-                                    </option>
-                                    <option value="anytime" {{ old('work_schedule', $expert->expertDetail?->work_schedule) == 'anytime' ? 'selected' : '' }}>
-                                        Anytime
-                                    </option>
-                                </select>
-                                @error('work_schedule')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-                            </div>
-                        </div> -->
                     <!-- training center -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Training Center</label>
@@ -250,24 +204,16 @@
                         </div>
                     </div>
                     <!--  -->
-                    <!-- <div class="col-lg-4 col-md-6 col-12 mb-3">
-                            <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" name="is_online" value="1"
-                                    {{ old('is_online', $expert->is_online ?? 0) == 1 ? 'checked' : '' }}>
-                                <label class="form-check-label">Online</label>
-                            </div>
-                      </div> -->
+
                     <!-- Status Toggle -->
                     <div class="col-lg-4 col-md-6 col-12 mb-3">
                         <label class="form-label">Is Online</label>
                         <!-- Hidden input (for OFF value) -->
                         <input type="hidden" name="is_online" value="0">
-                        <div class="form-control d-flex align-items-center">
-                            <div class="form-check form-switch m-0">
-                                <input class="form-check-input @error('is_online') is-invalid @enderror" type="checkbox"
-                                    id="statusToggle" name="is_online" value="1"
-                                    {{ old('is_online', $expert->expertDetail->is_online ?? '') == '1' ? 'checked' : '' }}>
-                            </div>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input @error('is_online') is-invalid @enderror" type="checkbox"
+                                id="statusToggle" name="is_online" value="1"
+                                {{ old('is_online', $expert->expertDetail->is_online ?? '') == '1' ? 'checked' : '' }}>
                         </div>
                         @error('is_online')
                             <div class="invalid-feedback d-block">
@@ -275,12 +221,97 @@
                             </div>
                         @enderror
                     </div>
+                    <!-- ================= KYC ================= -->
+                    <div class="col-12 mt-1">
+                        <h6 class="fw-bold border-bottom pb-1 mb-2">KYC Details</h6>
+                    </div>
+
+                    <!-- Aadhar Front -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Aadhar Front</label>
+                        <input type="file" name="aadhar_front" id="aadharFrontInput" class="form-control">
+
+                        <div class="mt-2">
+                            <img id="aadharFrontPreview"
+                                src="{{ $expert->expertDetail?->aadhar_front ? asset($expert->expertDetail->aadhar_front) : asset('assets/img/no-image.png') }}"
+                                width="70" height="70" class="rounded-circle border" style="object-fit: cover;">
+                        </div>
+                    </div>
+
+                    <!-- Aadhar Back -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Aadhar Back</label>
+                        <input type="file" name="aadhar_back" id="aadharBackInput" class="form-control">
+
+                        <div class="mt-2">
+                            <img id="aadharBackPreview"
+                                src="{{ $expert->expertDetail?->aadhar_back ? asset($expert->expertDetail->aadhar_back) : asset('assets/img/no-image.png') }}"
+                                width="70" height="70" class="rounded-circle border" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <!-- AADHAR -->
+
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Aadhar Number</label>
+                        <input type="text" name="aadhar_number" maxlength="12" pattern="\d{12}" class="form-control"
+                            placeholder="Enter Aadhar Number"
+                            value="{{ old('aadhar_number', $expert->expertDetail?->aadhar_number) }}">
+                    </div>
+                    <!-- PAN -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">PAN Number</label>
+                        <input type="text" name="pan_number" maxlength="10" class="form-control"
+                            placeholder="ABCDE1234F" value="{{ old('pan_number', $expert->expertDetail?->pan_number) }}">
+                    </div>
+
+                    <!-- Empty (alignment ke liye optional ya future use) -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3"></div>
+
+
+                    <!-- ================= BANK ================= -->
+
+                    <div class="col-12 mt-1">
+                        <h6 class="fw-bold border-bottom pb-1 mb-2">Bank Details</h6>
+                    </div>
+
+                    <!-- Account Holder -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Account Holder</label>
+                        <input type="text" name="account_holder_name" class="form-control"
+                            placeholder="Enter Account Holder Name "
+                            value="{{ old('account_holder_name', $expert->expertDetail?->account_holder_name) }}">
+                    </div>
+
+                    <!-- Account Number -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" name="account_number" class="form-control"
+                            placeholder="Enter Account Number"
+                            value="{{ old('account_number', $expert->expertDetail?->account_number) }}">
+                    </div>
+
+                    <!-- IFSC -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">IFSC</label>
+                        <input type="text" name="ifsc_code" class="form-control" placeholder="SBIN0001234"
+                            value="{{ old('ifsc_code', $expert->expertDetail?->ifsc_code) }}">
+                    </div>
+
+                    <!-- Bank Name -->
+                    <div class="col-lg-3 col-md-6 col-12 mb-3">
+                        <label class="form-label">Bank Name</label>
+                        <input type="text" name="bank_name" class="form-control"
+                            value="{{ old('bank_name', $expert->expertDetail?->bank_name) }}">
+                    </div>
                     <!--  -->
                     @if (!$expert->exists)
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        {{-- <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 Emergency Contacts
                             </h5>
+                        </div> --}}
+                        <div class="col-12 mt-1">
+                            <h6 class="fw-bold border-bottom pb-1 mb-2">Emergency Contacts</h6>
                         </div>
                         <div class="col-lg-4 col-md-6 col-12 mb-3">
                             <label class="form-label">Name</label>
@@ -326,11 +357,33 @@
         </div>
     </div>
     <script>
-document.getElementById('imageInput').addEventListener('change', function(e){
-    let file = e.target.files[0];
-    if(file){
-        document.getElementById('previewImage').src = URL.createObjectURL(file);
-    }
-});
-</script>
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if (file) {
+                document.getElementById('previewImage').src = URL.createObjectURL(file);
+            }
+        });
+    </script>
+    <script>
+        // Aadhar Front Preview
+        document.getElementById('aadharFrontInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if (file) {
+                document.getElementById('aadharFrontPreview').src = URL.createObjectURL(file);
+            }
+        });
+
+        // Aadhar Back Preview
+        document.getElementById('aadharBackInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if (file) {
+                document.getElementById('aadharBackPreview').src = URL.createObjectURL(file);
+            }
+        });
+
+        // PAN uppercase
+        document.querySelector('input[name="pan_number"]').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
 @endsection

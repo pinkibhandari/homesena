@@ -93,6 +93,14 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('expert_sos', ExpertSosController::class);
     Route::resource('booking_cancel_reasons', BookingCancelReasonController::class);
     Route::resource('booking_reject_reasons', BookingRejectReasonController::class);
+    Route::get('bookings/{id}/assign-expert', [BookingController::class, 'assignExpertPage'])
+        ->name('bookings.assignExpertPage');
 
+    Route::post('bookings/{id}/assign-expert', [BookingController::class, 'assignExpertSubmit'])
+        ->name('bookings.assignExpertSubmit');
+    Route::get('bookings/{id}/slot-logs', [BookingController::class, 'slotLogs'])
+    ->name('bookings.slot_logs');
+    Route::get('bookings/{id}/slot-notifications', [BookingController::class, 'slotNotifications'])
+    ->name('bookings.slot_notifications');
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');

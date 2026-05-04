@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class ExpertDetail extends Model
 {
     protected $fillable = [
-        'id',	
+        'id',
         'user_id',
-     	'registration_code',
+        'registration_code',
         // 'onboarding_agent_code',
         'training_center_id',
         // 'work_schedule',
@@ -20,7 +20,18 @@ class ExpertDetail extends Model
         'approved_by',
         // 'current_latitude' ,
         // 'current_longitude' ,
-        // 'last_location_update'         
+        // 'last_location_update'  
+        // ✅ KYC
+        'aadhar_front',
+        'aadhar_back',
+        'pan_number',
+        'aadhar_number',
+
+        // ✅ BANK
+        'account_holder_name',
+        'account_number',
+        'ifsc_code',
+        'bank_name',
     ];
 
     public function user()
