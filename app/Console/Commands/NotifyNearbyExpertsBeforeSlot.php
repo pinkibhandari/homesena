@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Models\BookingSlot;
 use App\Models\User;
+use App\Models\BookingSlotNotification;
 use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Log;
 
@@ -179,17 +180,16 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                     'status' => 'notified'
                 ]);
 
-        //          // ✅ STORE IN DB (IMPORTANT)
-        // BookingSlotNotification::updateOrCreate(
-        //     [
-        //         'slot_id' => $bookingSlot->id,
-        //         'expert_id' => $expert->id,
-        //         'type' => 'BOOKING_COMPLETED'
-        //     ],
-        //     [
-        //         'sent_at' => now()
-        //     ]
-        // );
+      
+            BookingSlotNotification::updateOrCreate(
+                [
+                    'booking_slot_id' => $slot->id,
+                    'expert_id' => $expert->id,
+                ],
+                [
+                    'sent_at' => now()
+                ]
+            );
 
             } catch (\Exception $e) {
 
