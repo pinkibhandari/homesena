@@ -6,14 +6,14 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use App\Models\BookingSlot;
 use App\Models\User;
-use App\Models\BookingSlotNotification;
 use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Log;
+use App\Models\BookingSlotLog;
 
 class NotifyNearbyExpertsBeforeSlot extends Command
 {
     protected $signature = 'app:notify-nearby-experts-before-slot';
-    protected $description = 'Notify experts with 30 sec delay between slots';
+    protected $description = 'Notify experts with 20 sec delay between slots';
 
     public function handle()
     {
@@ -23,20 +23,47 @@ class NotifyNearbyExpertsBeforeSlot extends Command
         $today = $now->toDateString();
         $time  = $now->format('H:i:s');
 
-        $slots = BookingSlot::with(['booking.address','booking.user'])
+        // $slots = BookingSlot::with(['booking.address','booking.user'])
+        //     ->where('status', 'confirmed')
+        //     ->whereNull('expert_id')
+        //     ->where(function ($q) use ($today, $time) {
+        //         $q->where('date', '>', $today)
+        //           ->orWhere(function ($q2) use ($today, $time) {
+        //               $q2->where('date', $today)
+        //                  ->where('start_time', '>=', $time);
+        //           });
+        //     })
+        //     ->orderBy('date')
+        //     ->orderBy('start_time')
+        //     ->get();
+        
+          $slots = BookingSlot::with(['booking.address','booking.user'])
             ->where('status', 'confirmed')
             ->whereNull('expert_id')
             ->where(function ($q) use ($today, $time) {
-                $q->where('date', '>', $today)
-                  ->orWhere(function ($q2) use ($today, $time) {
-                      $q2->where('date', $today)
-                         ->where('start_time', '>=', $time);
-                  });
+                
+                 // Future slots
+                $q->where(function ($q1) use ($today, $time) {
+                    $q1->where('date', '>', $today)
+                       ->orWhere(function ($q2) use ($today, $time) {
+                           $q2->where('date', $today)
+                              ->where('start_time', '>=', $time);
+                       });
+                })
+
+                //  Retry logic
+                ->where(function ($q3) {
+                    $q3->where('notified', 0)
+                       ->orWhere(function ($q4) {
+                           $q4->where('notified', 1)
+                              ->where('updated_at', '<=', now()->subMinutes(2));
+                       });
+                });
             })
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
-
+        // Log::info("Slot  notifications  ==== " . $slots);
         foreach ($slots as $index => $slot) {
 
             if (!$slot->booking || !$slot->booking->address) {
@@ -112,15 +139,19 @@ class NotifyNearbyExpertsBeforeSlot extends Command
 
                 //  tokens
                 $tokens = [];
+                $expertIds = [];
                 foreach ($experts as $expert) {
                     foreach ($expert->devices as $device) {
                         if (!empty($device->fcm_token)) {
                             $tokens[] = $device->fcm_token;
+                            // unique expert
+                            $expertIds[$expert->id] = $expert->id;
                         }
                     }
                 }
 
                 $tokens = array_values(array_unique(array_filter($tokens)));
+                $expertIds = array_values($expertIds);
 
                 if (empty($tokens)) {
                     $this->resetSlot($slot->id);
@@ -172,24 +203,32 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                         'expert'
                     );
                 }
+                
+                foreach ($expertIds as $expertId) {
+                     $log = BookingSlotLog::where([
+                        'booking_slot_id' => $slot->id,
+                        'expert_id'       => $expertId,
+                    ])->first();
+                   BookingSlotLog::updateOrCreate(
+                        [
+                            'booking_slot_id' => $slot->id,
+                            'expert_id'       => $expertId,
+                        ],
+                        [
+                            'action'     => 'notified',
+                            'sent_at'    => now(),
+                            // 'attempt_count' => $log ? $log->attempt_count + 1 : 1,
+                        ]
+                    );
+                }
 
                 Log::info("Slot {$slot->id} notifications sent");
 
-                 BookingSlot::where('id', $slot->id)->update([
+                   BookingSlot::where('id', $slot->id)->update([
                     'notified' => 1,
-                    'status' => 'notified'
+                    'updated_at' => now()
+                    // 'status' => 'notified'
                 ]);
-
-      
-            BookingSlotNotification::updateOrCreate(
-                [
-                    'booking_slot_id' => $slot->id,
-                    'expert_id' => $expert->id,
-                ],
-                [
-                    'sent_at' => now()
-                ]
-            );
 
             } catch (\Exception $e) {
 
@@ -201,9 +240,9 @@ class NotifyNearbyExpertsBeforeSlot extends Command
                 ]);
             }
 
-            // 30 sec delay BEFORE next slot
+            // 20 sec delay BEFORE next slot
             if ($index < count($slots) - 1) {
-                sleep(30);
+                sleep(20);
             }
         }
 

@@ -13,7 +13,7 @@ class CmsPage extends Model
         'type', 
         'content',
         'status',
-        'type',
+        'sort_order'
     ];
 
     //  protected static function boot()

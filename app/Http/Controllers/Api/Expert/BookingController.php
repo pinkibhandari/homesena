@@ -288,23 +288,25 @@ class BookingController extends Controller
                 }
                 //  Security check
                 $expert = auth()->user();
-                // if ($slot->expert_id != $expert->id) {
-                //     throw new \Exception('Unauthorized');
-                // }
-                //  Slot already processed
-                // if ($slot->status !== 'confirmed') {
-                //     throw new \Exception('Slot already processed');
-                // }
                 //  Accept slot
                 $slot->expert_id = $expert->id;
                 $slot->status = 'accepted';
                 $slot->save();
                 // Add Booking Log
-                BookingSlotLog::create([
-                    'booking_slot_id' => $request->booking_slot_id,
-                    'expert_id' => $expert->id,
-                    'action' => 'accepted',
-                ]);
+                // BookingSlotLog::create([
+                //     'booking_slot_id' => $request->booking_slot_id,
+                //     'expert_id' => $expert->id,
+                //     'action' => 'accepted',
+                // ]);
+                BookingSlotLog::updateOrCreate(
+                    [
+                        'booking_slot_id' => $request->booking_slot_id,
+                        'expert_id' => $expert->id,
+                    ],
+                    [
+                        'action' => 'accepted',
+                    ]
+                );
             });
             // Load relation instead of extra query
             $slot->load('booking');
@@ -357,15 +359,6 @@ class BookingController extends Controller
                 'data' => (object) []
             ]);
         }
-        //  Security check
-        // if ($slot->expert_id != $expert->id) {
-        //     return response()->json([
-        //         'code' => 422,
-        //         'status' => false,
-        //         'message' => 'Unauthorized',
-        //         'data' => (object) []
-        //     ], 422);
-        // }
         //  Get latest action for this expert + slot
         $latestAction = BookingSlotLog::where('booking_slot_id', $slot->id)
             ->where('expert_id', $expert->id)
@@ -387,12 +380,22 @@ class BookingController extends Controller
                 'data' => (object) []
             ], 422);
         }
-        BookingSlotLog::create([
-            'booking_slot_id' => $slot->id,
-            'expert_id' => $expert->id,
-            'action' => 'rejected',
-            'reason' => $request->reason,
-        ]);
+        // BookingSlotLog::create([
+        //     'booking_slot_id' => $slot->id,
+        //     'expert_id' => $expert->id,
+        //     'action' => 'rejected',
+        //     'reason' => $request->reason,
+        // ]);
+        BookingSlotLog::updateOrCreate(
+            [
+                'booking_slot_id' => $slot->id,
+                'expert_id' => $expert->id,
+            ],
+            [
+                'action' => 'rejected',
+                'reason' => $request->reason,
+            ]
+        );
         // Load relation
         $slot->load('booking');
         return response()->json([

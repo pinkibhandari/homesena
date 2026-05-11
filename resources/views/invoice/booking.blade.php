@@ -38,8 +38,7 @@
                     </div>
                 </td>
                 {{-- Invoice Title --}}
-                <td width="45%"
-                    style="vertical-align: top; text-align: right; font-family: Arial, sans-serif;
+                <td width="45%" style="vertical-align: top; text-align: right; font-family: Arial, sans-serif;
                     font-size: 18px; font-weight: bold; letter-spacing: 1px; color: #111; padding-top: 4px;">
                     BOOKING INVOICE
                 </td>
@@ -56,30 +55,24 @@
 
                         {{-- Customer Name --}}
                         <tr>
-                            <td
-                                style="padding-top: 0; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 0; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Customer
                                     Name</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
                                     line-height: 1.55;">{{ $booking->user->name }}</span>
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
         margin-top: 8px; margin-bottom: 4px;">Phone
                                     Number</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
         line-height: 1.55;">{{ $booking->user->phone }}</span>
                             </td>
                         </tr>
 
                         {{-- Invoice No --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
                                 <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Invoice No.</span>
@@ -90,11 +83,9 @@
 
                         {{-- Delivery Address --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Delivery
                                     Address</span>
                                 <span
@@ -105,30 +96,24 @@
 
                         {{-- Invoice Date --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Invoice
                                     Date</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
-                                    line-height: 1.55;">{{ $booking->created_at->format('d M, Y') }}</span>
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                    line-height: 1.55;">{{ $invoice_issued_date->format('d M, Y') }}</span>
                             </td>
                         </tr>
 
                         {{-- State Name & Code --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">State
                                     Name &amp; Code</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
                                     line-height: 1.55;">UP
                                     16</span>
                             </td>
@@ -136,15 +121,12 @@
 
                         {{-- Place of Supply --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Place
                                     of Supply</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
                                     line-height: 1.55;">Noida</span>
                             </td>
                         </tr>
@@ -161,11 +143,9 @@
 
                         {{-- Section Heading --}}
                         <tr>
-                            <td
-                                style="padding-top: 0; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 0; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13.5px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13.5px; color: #111;
                                     letter-spacing: 0.3px;">DELIVERY
                                     SERVICE PROVIDER</span>
                             </td>
@@ -184,46 +164,44 @@
 
                         {{-- Business Name --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Business
                                     Name</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
-                                    line-height: 1.55;">Your
-                                    Company Pvt Ltd</span>
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                    line-height: 1.55;">
+                                    <div
+                                        style="font-size: 11px; line-height: 1.75; color: #1a1a1a; font-family: Arial, sans-serif;">
+                                        <strong>HomeSena Services</strong><br>
+                                      
+                                    </div>
+                                </span>
                             </td>
                         </tr>
 
                         {{-- Address --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">Address</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
-                                    line-height: 1.55;">Company
-                                    Address</span>
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                    line-height: 1.55;">  
+                                        Gaur City Mall,<br>
+                                        Greater Noida, UP -201318 <br>
+                                    </span>
                             </td>
                         </tr>
 
                         {{-- State Name & Code --}}
                         <tr>
-                            <td
-                                style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
+                            <td style="padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #cccccc;
                                 font-family: Arial, sans-serif;">
-                                <span
-                                    style="display: block; font-weight: bold; font-size: 13px; color: #111;
+                                <span style="display: block; font-weight: bold; font-size: 13px; color: #111;
                                     margin-bottom: 4px;">State
                                     Name &amp; Code</span>
-                                <span
-                                    style="display: block; font-size: 12.5px; color: #1a1a1a;
+                                <span style="display: block; font-size: 12.5px; color: #1a1a1a;
                                     line-height: 1.55;">UP
                                     16</span>
                             </td>
@@ -239,18 +217,15 @@
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 24px; border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th
-                        style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
+                    <th style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
                         color: #111; text-align: left; border-top: 1px solid #bbb; border-bottom: 1px solid #bbb;
                         font-family: Arial, sans-serif; width: 52%;">
                         Items</th>
-                    <th
-                        style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
+                    <th style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
                         color: #111; text-align: right; border-top: 1px solid #bbb; border-bottom: 1px solid #bbb;
                         font-family: Arial, sans-serif; width: 28%;">
                         &nbsp;</th>
-                    <th
-                        style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
+                    <th style="background-color: #f2f2f2; padding: 9px 10px; font-size: 13px; font-weight: bold;
                         color: #111; text-align: right; border-top: 1px solid #bbb; border-bottom: 1px solid #bbb;
                         font-family: Arial, sans-serif; width: 20%;">
                         Taxable Value</th>
@@ -259,67 +234,56 @@
             <tbody>
                 @foreach ($booking->slots as $slot)
                     <tr>
-                        <td
-                            style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top;
-                            font-family: Arial, sans-serif;">
-                            <span
-                                style="display: block; font-weight: bold; font-size: 13px;
-                                color: #111;">{{ $slot->service_name }}</span>
-                            <span
-                                style="display: block; font-size: 11px; color: #666;
-                                margin-top: 3px;">SAC:
-                                999799</span>
+                        <td style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top;
+                                font-family: Arial, sans-serif;">
+                            <span style="display: block; font-weight: bold; font-size: 13px;
+                                    color: #111;">{{ $slot->service_name }}</span>
+                            <span style="display: block; font-size: 11px; color: #666;
+                                    margin-top: 3px;">#
+                                {{$booking->booking_code}}</span>
                         </td>
-                        <td
-                            style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; text-align: right;
-                            font-size: 12.5px; color: #444; vertical-align: top;
-                            font-family: Arial, sans-serif;">
+                        <td style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; text-align: right;
+                                font-size: 12.5px; color: #444; vertical-align: top;
+                                font-family: Arial, sans-serif;">
                             Gross Amount</td>
-                        <td
-                            style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; text-align: right;
-                            font-size: 12.5px; color: #111; white-space: nowrap; vertical-align: top;
-                            font-family: Arial, sans-serif;">
-                            Rs. {{ number_format($slot->amount, 2) }}</td>
+                        <td style="padding: 11px 10px; border-bottom: 1px solid #e5e5e5; text-align: right;
+                                font-size: 12.5px; color: #111; white-space: nowrap; vertical-align: top;
+                                font-family: Arial, sans-serif;">
+                            Rs. {{ number_format($slot->price, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
         {{-- ── TOTALS ── --}}
-        @php $gross = $booking->total_amount; @endphp
+        @php $gross = $booking->total_price; @endphp
 
         <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td style="width: 52%; padding: 7px 10px; font-family: Arial, sans-serif;"></td>
-                <td
-                    style="padding: 7px 10px; text-align: right; font-size: 12.5px; color: #444;
+                <td style="padding: 7px 10px; text-align: right; font-size: 12.5px; color: #444;
                     font-family: Arial, sans-serif;">
                     Discount</td>
-                <td
-                    style="width: 20%; padding: 7px 10px; text-align: right; font-size: 12.5px; color: #111;
+                <td style="width: 20%; padding: 7px 10px; text-align: right; font-size: 12.5px; color: #111;
                     white-space: nowrap; font-family: Arial, sans-serif;">
-                    - Rs. 0</td>
+                     Rs. -0</td>
             </tr>
             <tr>
                 <td style="width: 52%; padding: 7px 10px; font-family: Arial, sans-serif;"></td>
-                <td
-                    style="padding: 7px 10px; text-align: right; font-size: 12.5px; color: #444;
+                <td style="padding: 7px 10px; text-align: right; font-size: 12.5px; color: #444;
                     font-family: Arial, sans-serif;">
                     Gross Amount</td>
-                <td
-                    style="width: 20%; padding: 7px 10px; text-align: right; font-size: 12.5px; color: #111;
+                <td style="width: 20%; padding: 7px 10px; text-align: right; font-size: 12.5px; color: #111;
                     white-space: nowrap; font-family: Arial, sans-serif;">
                     Rs. {{ number_format($gross, 2) }}</td>
             </tr>
             <tr>
-                <td
-                    style="padding: 10px 10px; font-size: 13.5px; font-weight: bold; color: #111;
+                <td style="padding: 10px 10px; font-size: 13.5px; font-weight: bold; color: #111;
                     border-top: 1.5px solid #bbb; text-align: left;
                     font-family: Arial, sans-serif;">
                     TOTAL AMOUNT</td>
                 <td style="padding: 10px 10px; border-top: 1.5px solid #bbb; font-family: Arial, sans-serif;"></td>
-                <td
-                    style="width: 20%; padding: 10px 10px; font-size: 13.5px; font-weight: bold; color: #111;
+                <td style="width: 20%; padding: 10px 10px; font-size: 13.5px; font-weight: bold; color: #111;
                     border-top: 1.5px solid #bbb; text-align: right; white-space: nowrap;
                     font-family: Arial, sans-serif;">
                     Rs. {{ number_format($gross, 0) }}</td>
