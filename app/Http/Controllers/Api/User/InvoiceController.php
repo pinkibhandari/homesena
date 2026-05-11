@@ -96,10 +96,11 @@ class InvoiceController extends Controller
                 ]
             ]);
         }
-        $amount = $booking->total_amount;
+        $invoice_issued_date = now();
+        $amount = $booking->total_price;
         // $invoiceNumber = 'INV-BKG-' . date('Ymd') . '-' . $booking->id;
         $invoiceNumber = 'HSS' . date('Ymd') . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
-        $pdf = Pdf::loadView('invoice.booking', compact('booking', 'invoiceNumber', 'amount'));
+        $pdf = Pdf::loadView('invoice.booking', compact('booking', 'invoiceNumber', 'amount', 'invoice_issued_date'));
         $fileName = 'booking_' . $booking->id . '.pdf';
         $path = 'invoices/' . $fileName;
         if (!file_exists(public_path('invoices'))) {
@@ -112,7 +113,7 @@ class InvoiceController extends Controller
             'invoice_number' => $invoiceNumber,
             'amount' => $amount,
             'file_path' => $path,
-            'issued_at' => now(),
+            'issued_at' => $invoice_issued_date,
         ]);
         $invoiceUrl = app()->environment('local')
             ? asset($path)

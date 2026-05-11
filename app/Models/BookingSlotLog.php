@@ -9,8 +9,11 @@ class BookingSlotLog extends Model
     protected $fillable = [
         'expert_id',
         'booking_slot_id',
+        'attempt_count',
         'action',
+        'sent_at',
         'reason',
+        'attempt_count'
     ];
 
     public function bookingSlot()
