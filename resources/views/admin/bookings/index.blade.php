@@ -127,7 +127,14 @@
                                                 Details
                                             </a>
                                         </li>
-                                       
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="#">
+                                                <i class="ri-file-pdf-line me-2"></i>
+                                                Download Invoice
+                                            </a>
+                                        </li>
+
                                     </ul>
                                 </div>
                             </td>

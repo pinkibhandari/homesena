@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ExpertSosController;
 use App\Http\Controllers\Admin\BookingCancelReasonController;
 use App\Http\Controllers\Admin\BookingRejectReasonController;
 use App\Http\Controllers\Admin\ServiceNotifyController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\UserController as FrontendUserController;
 
@@ -102,5 +103,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     ->name('bookings.slot_logs');
     Route::get('bookings/{id}/slot-notifications', [BookingController::class, 'slotNotifications'])
     ->name('bookings.slot_notifications');
+     Route::get('/bookings/{id}/invoice', [InvoiceController::class, 'bookingInvoice'])
+        ->name('bookings.invoice');
 });
 Route::get('page/{slug}', [FrontendController::class, 'page'])->name('page');
