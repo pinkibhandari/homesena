@@ -101,11 +101,11 @@ class BookingController extends Controller
         return view('admin.bookings.slot_logs', compact('logs'));
     }
     public function slotNotifications($id)
-{
-    $notifications = BookingSlotNotification::where('booking_slot_id', $id)
-        ->latest()
-        ->get();
+    {
+        $notifications = BookingSlotNotification::where('booking_slot_id', $id)
+            ->latest()
+            ->get();
 
-    return view('admin.bookings.slot_notifications', compact('notifications'));
-}
+        return view('admin.bookings.slot_notifications', compact('notifications'));
+    }
 }
