@@ -128,11 +128,14 @@
                                             </a>
                                         </li>
                                         <li>
+                                      
+
                                             <a class="dropdown-item"
-                                                href="#">
+                                                 href="{{ route('admin.download.invoice', $booking->id) }}" >
                                                 <i class="ri-file-pdf-line me-2"></i>
                                                 Download Invoice
                                             </a>
+                                    
                                         </li>
 
                                     </ul>
