@@ -53,7 +53,7 @@ class InvoiceController extends Controller
         //     : url('public/' . $path);
 
         $invoiceUrl = public_path($path);
-         return response()->download($invoiceUrl);
+        return response()->download($invoiceUrl);
     }
 
 }
