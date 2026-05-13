@@ -61,6 +61,13 @@
                 <div>Time Slots</div>
             </a>
         </li>
+        {{-- Notification --}}
+        <li class="menu-item {{ request()->routeIs('admin.push_notifications.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.push_notifications.index') }}" class="menu-link">
+                <i class="menu-icon ri-notification-3-line"></i>
+                <div>Push Notifications</div>
+            </a>
+        </li>
         {{-- Payments --}}
         <li class="menu-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
             <a href="{{ route('admin.payments.index') }}" class="menu-link">
@@ -297,4 +304,10 @@
         border-radius: 8px;
         transition: 0.3s;
     }
+    #layout-menu {
+    height: 110vh;
+
+}
+
+
 </style>

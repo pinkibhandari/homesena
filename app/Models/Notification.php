@@ -10,7 +10,6 @@ class Notification extends Model
         'title',
         'message',
         'send_type',
-        'user_id',
         'location_id',
         'user_type',
         'schedule_type',
