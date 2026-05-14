@@ -93,7 +93,8 @@ class SendPushNotification extends Command
                             $notification->message,
                             [
                                 'notification_id' => (string) $notification->id
-                            ]
+                            ],
+                            $notification->user_type
                         );
                     }
                 }
