@@ -16,59 +16,45 @@ class SendPushNotification extends Command
     public function handle()
     {
         $firebase = new FirebaseService();
-
         $notifications = Notification::where('status', 1)
+            ->where('is_sent', 0)
             ->where(function ($query) {
-                $query->where(
-                    'schedule_type',
-                    'instant'
-                );
+                $query->where( 'schedule_type','instant');
                 $query->orWhere(function ($q) {
                     $q->where('schedule_type', 'scheduled')
-                        ->whereBetween('scheduled_at', [now(), now()->addMinutes(5)]);
+                        ->whereBetween('scheduled_at', [now()->subMinutes(5), now()]);
                 });
             })
             ->get();
         foreach ($notifications as $notification) {
             try {
-                $notification->update(['status' => 'processing']);
                 $tokens = [];
-                /*
-                |--------------------------------------------------------------------------
-                | ALL USERS
-                |--------------------------------------------------------------------------
-                */
+                //  ALL USERS
                 if ($notification->send_type == 'all') {
                     $tokens = UserDevice::whereHas('user', function ($q) use ($notification) {
-                        $q->where('role', $notification->role);
+                        $q->where('role', $notification->user_type);
                     })
+                       ->whereNotNull('token')
                         ->pluck('token')
                         ->toArray();
-                }
-                /*
-                |--------------------------------------------------------------------------
-                | SINGLE USER
-                |--------------------------------------------------------------------------
-                */
+                }  
+                //  SINGLE USER    
                 // elseif ($notification->send_type == 'single') {
                 //     $tokens = UserDevice::where('user_id', $notification->user_id)
                 //         ->whereHas('user', function ($q) use ($notification) {
-                //             $q->where('role', $notification->role);
+                //             $q->where('role', $notification->user_type);
                 //         })
                 //         ->pluck('token')
                 //         ->toArray();
                 // }
 
-                /*
-                |--------------------------------------------------------------------------
-                | LOCATION USERS
-                |--------------------------------------------------------------------------
-                */ elseif ($notification->send_type == 'location') {
+                //  LOCATION USERS
+               elseif ($notification->send_type == 'location') {
                     $location = ServiceLocation::find($notification->location_id);
                     if (!$location) {
                         continue;
                     }
-                    $userIds = User::where('users.role', $notification->role)
+                    $userIds = User::where('users.role', $notification->user_type)
                         ->where('users.status', 1)
                         ->join('addresses', 'addresses.user_id', '=', 'users.id')
                         ->select('users.id')
@@ -88,20 +74,16 @@ class SendPushNotification extends Command
                         )
                         ->whereNotNull('addresses.address_lat')
                         ->whereNotNull('addresses.address_long')
-                        ->having('distance', '<=', 2)
+                        ->having('distance', '<=', 1.5)
                         ->pluck('users.id');
 
                     $tokens = UserDevice::whereIn('user_id', $userIds)
+                        ->whereNotNull('token')
                         ->pluck('token')
                         ->toArray();
                 }
                 $tokens = array_values(array_unique(array_filter($tokens)));
-                /*
-                |--------------------------------------------------------------------------
-                | SEND PUSH
-                |--------------------------------------------------------------------------
-                */
-
+                //  SEND PUSH
                 if (count($tokens)) {
                     // Send in chunks (FCM limit safe)
                     foreach (array_chunk($tokens, 500) as $tokenChunk) {
@@ -111,15 +93,12 @@ class SendPushNotification extends Command
                             $notification->message,
                             [
                                 'notification_id' => (string) $notification->id
-                            ]
+                            ],
+                            $notification->user_type
                         );
                     }
                 }
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE STATUS
-                |--------------------------------------------------------------------------
-                */
+                //  UPDATE STATUS
                 $notification->update([
                     // 'status' => 'sent',
                     'is_sent' => 1,
@@ -127,12 +106,13 @@ class SendPushNotification extends Command
                 ]);
 
             } catch (\Exception $e) {
-                $notification->update([
-                    // 'status' => 'failed'
+                 \Log::error('Push Notification Error', [
+                    'notification_id' => $notification->id,
+                    'message' => $e->getMessage()
                 ]);
             }
         }
-
+    //   return Command::SUCCESS;
         return true;
     }
 }
