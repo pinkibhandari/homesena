@@ -21,19 +21,19 @@
                             placeholder="Search centers..." value="{{ request('search') }}" style="width:180px;">
                     </div>
 
-                    <!-- 🔥 Status Filter -->
+                    <!--  Status Filter -->
                     <select name="status" class="form-select form-select-sm" style="width:130px;">
                         <option value="">Status</option>
                         <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
                     </select>
 
-                    <!-- 🔍 Search Button -->
+                    <!--  Search Button -->
                     <button class="btn btn-primary btn-sm">
                         <i class="ri-search-line"></i>
                     </button>
 
-                    <!-- 🔄 Reset -->
+                    <!--  Reset -->
                     <a href="{{ route('admin.training_centers.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="ri-refresh-line"></i>
                     </a>

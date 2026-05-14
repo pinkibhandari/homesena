@@ -171,12 +171,14 @@
 
                         <div class="input-group">
                             <span class="input-group-text">
-                                <i class="ri-alarm-line"></i> </span>
+                                <i class="ri-alarm-line"></i>
+                            </span>
 
-                            <select name="schedule_type" class="form-select @error('schedule_type') is-invalid @enderror">
+                            <select name="schedule_type" id="schedule_type"
+                                class="form-select @error('schedule_type') is-invalid @enderror">
 
                                 <option value="instant"
-                                    {{ old('schedule_type', $push_notification->schedule_type ?? '') == 'instant' ? 'selected' : '' }}>
+                                    {{ old('schedule_type', $push_notification->schedule_type ?? 'instant') == 'instant' ? 'selected' : '' }}>
                                     Instant
                                 </option>
 
@@ -196,17 +198,20 @@
                     </div>
 
                     <!-- Scheduled At -->
-                    <div class="col-lg-4 col-md-6 col-12">
+                    <div class="col-lg-4 col-md-6 col-12" id="scheduled_at_wrapper"
+                        style="{{ old('schedule_type', $push_notification->schedule_type ?? 'instant') == 'scheduled' ? '' : 'display:none;' }}">
+
                         <label class="form-label">
                             Scheduled At
                         </label>
 
                         <div class="input-group">
+
                             <span class="input-group-text">
                                 <i class="ri-time-line"></i>
                             </span>
 
-                            <input type="datetime-local" name="scheduled_at"
+                            <input type="datetime-local" name="scheduled_at" id="scheduled_at"
                                 class="form-control @error('scheduled_at') is-invalid @enderror"
                                 value="{{ old('scheduled_at', isset($push_notification->scheduled_at) ? \Carbon\Carbon::parse($push_notification->scheduled_at)->format('Y-m-d\TH:i') : '') }}">
 
@@ -215,6 +220,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
+
                         </div>
                     </div>
 
@@ -291,21 +297,62 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
+            // =========================
+            // SEND TYPE / LOCATION
+            // =========================
             const sendType = document.getElementById('send_type');
             const locationDiv = document.getElementById('location_div');
 
             function toggleLocationField() {
 
                 if (sendType.value === 'location') {
+
                     locationDiv.style.display = 'block';
+
                 } else {
+
                     locationDiv.style.display = 'none';
+
+                    // Reset location field
+                    const locationField = locationDiv.querySelector('select');
+
+                    if (locationField) {
+                        locationField.value = '';
+                    }
                 }
             }
 
-            toggleLocationField();
+            // =========================
+            // SCHEDULE TYPE
+            // =========================
+            const scheduleType = document.getElementById('schedule_type');
+            const scheduledWrapper = document.getElementById('scheduled_at_wrapper');
+            const scheduledAt = document.getElementById('scheduled_at');
 
+            function toggleScheduleField() {
+
+                if (scheduleType.value === 'scheduled') {
+
+                    scheduledWrapper.style.display = 'block';
+
+                } else {
+
+                    scheduledWrapper.style.display = 'none';
+
+                    // Reset datetime
+                    if (scheduledAt) {
+                        scheduledAt.value = '';
+                    }
+                }
+            }
+
+            // Initial Load
+            toggleLocationField();
+            toggleScheduleField();
+
+            // On Change
             sendType.addEventListener('change', toggleLocationField);
+            scheduleType.addEventListener('change', toggleScheduleField);
 
         });
     </script>

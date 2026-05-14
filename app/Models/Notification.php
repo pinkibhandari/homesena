@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ServiceLocation;
 
 class Notification extends Model
 {
@@ -19,4 +20,9 @@ class Notification extends Model
         'status'
     ];
 
+    // Location Relation
+    public function location()
+    {
+        return $this->belongsTo(ServiceLocation::class, 'location_id');
+    }
 }

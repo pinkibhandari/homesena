@@ -12,6 +12,7 @@ class PushNotificationController extends Controller
     /**
      * LIST + SEARCH
      */
+    // LIST + SEARCH
     public function index(Request $request)
     {
         $notifications = Notification::query()
@@ -34,10 +35,23 @@ class PushNotificationController extends Controller
                 $q->where('status', $request->status);
             })
 
+            // SEND TYPE FILTER
+            ->when($request->filled('send_type'), function ($q) use ($request) {
+
+                $q->where('send_type', $request->send_type);
+            })
+
+            // USER TYPE FILTER
+            ->when($request->filled('user_type'), function ($q) use ($request) {
+
+                $q->where('user_type', $request->user_type);
+            })
+
             // LATEST FIRST
             ->latest()
 
             ->paginate(10)
+
             ->withQueryString();
 
         return view('admin.push_notifications.index', compact('notifications'));
@@ -70,8 +84,12 @@ class PushNotificationController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
         $data = $this->validateData($request);
+
+        // If send type is ALL then remove location
+        if ($data['send_type'] == 'all') {
+            $data['location_id'] = null;
+        }
 
         $data['is_sent'] = 0;
 
@@ -103,11 +121,23 @@ class PushNotificationController extends Controller
         // NORMAL UPDATE
         $data = $this->validateData($request);
 
+        // If send type is ALL then remove location
+        if ($data['send_type'] == 'all') {
+            $data['location_id'] = null;
+        }
+
         $push_notification->update($data);
 
         return redirect()
             ->route('admin.push_notifications.index')
             ->with('success', 'Push Notification updated successfully.');
+    }
+    // SHOW
+    public function show(Notification $push_notification)
+    {
+        return view('admin.push_notifications.show', [
+            'push_notification' => $push_notification
+        ]);
     }
 
     /**
@@ -134,6 +164,8 @@ class PushNotificationController extends Controller
             'message' => 'required|string',
 
             'send_type' => 'required|in:all,location',
+
+            'location_id' => 'nullable|exists:service_locations,id',
 
             'user_type' => 'nullable|in:user,expert',
 
