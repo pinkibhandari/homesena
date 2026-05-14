@@ -60,7 +60,7 @@
                 </form>
             </div>
         </div>
-        <hr class="my-0">
+        <hr class="my-0 mb-2">
         <!-- Show Entries -->
         <div class="row px-4 py-3 align-items-center">
         </div>
@@ -128,14 +128,14 @@
                                             </a>
                                         </li>
                                         <li>
-                                      
+
 
                                             <a class="dropdown-item"
-                                                 href="{{ route('admin.download.invoice', $booking->id) }}" >
+                                                href="{{ route('admin.download.invoice', $booking->id) }}">
                                                 <i class="ri-file-pdf-line me-2"></i>
                                                 Download Invoice
                                             </a>
-                                    
+
                                         </li>
 
                                     </ul>
