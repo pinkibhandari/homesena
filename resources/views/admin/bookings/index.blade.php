@@ -61,9 +61,7 @@
             </div>
         </div>
         <hr class="my-0 mb-2">
-        <!-- Show Entries -->
-        <div class="row px-4 py-3 align-items-center">
-        </div>
+      
         <!-- php function -->
         @php
             function statusColor($status)
